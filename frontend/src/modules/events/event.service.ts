@@ -14,6 +14,7 @@ import {
   listActiveCategoriesByEventIds,
 } from "@/modules/categories/category.repository";
 import type { EventCategoryRecord } from "@/modules/categories/category.types";
+import { enqueueCertificatesForCompletedEvent } from "@/modules/certificates/certificate.service";
 import { eventInputSchema, eventListFilterSchema } from "@/modules/events/event.schema";
 import type {
   EventDashboardCounts,
@@ -25,6 +26,7 @@ import type {
 } from "@/modules/events/event.types";
 import {
   assertCanArchiveEvent,
+  assertCanCompleteEvent,
   assertCanManageEvent,
   assertEventDatePolicy,
   isEventPubliclyVisible,
@@ -71,7 +73,7 @@ function assertCanAccessEventManagement(admin: AuthenticatedAdmin): void {
     throw new ApplicationError({
       code: "FORBIDDEN",
       message: "Admin role cannot access event management",
-      safeMessage: "Role Anda belum memiliki akses pengelolaan event.",
+      safeMessage: "Akun admin belum dapat mengakses pengelolaan event.",
       statusCode: 403,
     });
   }
@@ -477,6 +479,49 @@ export async function archiveManagedEvent(input: {
         eventId: event.id,
         previousValues: serializeEventChange(currentEvent),
         newValues: serializeEventChange(event),
+        correlationId: input.correlationId,
+      },
+      client,
+    );
+
+    return event;
+  });
+}
+
+export async function completeManagedEvent(input: {
+  eventId: string;
+  admin: AuthenticatedAdmin;
+  correlationId: string | null;
+}): Promise<EventRecord> {
+  assertCanAccessEventManagement(input.admin);
+
+  return withTransaction(async (client) => {
+    const currentEvent = await getEventById(input.eventId, client);
+    assertEventFound(currentEvent);
+    assertCanManageEvent(input.admin, currentEvent);
+    assertCanCompleteEvent(currentEvent);
+
+    const event = await setEventPublicationAndStatus(
+      input.eventId,
+      currentEvent.publicationStatus,
+      "COMPLETED",
+      input.admin.id,
+      client,
+    );
+    const queuedCertificateCount = await enqueueCertificatesForCompletedEvent(input.eventId, client);
+    await createAuditLog(
+      {
+        actorType: "ADMIN_USER",
+        actorId: input.admin.id,
+        action: "EVENT_COMPLETED",
+        entityType: "EVENT",
+        entityId: event.id,
+        eventId: event.id,
+        previousValues: serializeEventChange(currentEvent),
+        newValues: {
+          ...serializeEventChange(event),
+          queuedCertificateCount,
+        },
         correlationId: input.correlationId,
       },
       client,

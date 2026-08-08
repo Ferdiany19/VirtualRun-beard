@@ -50,11 +50,12 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 
 ## Role-Based Access
 
-- `SUPER_ADMIN` dapat mengelola seluruh event.
-- `EVENT_ADMIN` dapat mengelola event yang dibuatnya atau event yang ditugaskan melalui
-  `admin_event_assignments`.
-- `VALIDATOR` dan `REPORT_VIEWER` sudah tersedia sebagai role tetapi dashboard lengkapnya
-  belum dibangun pada slice ini.
+- Production memakai single-role app-level admin: semua admin aktif dapat mengelola seluruh
+  event, peserta, BIB, validation, email, dan sertifikat.
+- Tabel `admin_user_roles`, `admin_event_assignments`, dan `event_validator_assignments`
+  dipertahankan sebagai legacy compatibility dan tidak menjadi pembatas akses produksi.
+- Role legacy `SUPER_ADMIN`, `EVENT_ADMIN`, `VALIDATOR`, dan `REPORT_VIEWER` tidak ditampilkan
+  sebagai konsep operasional utama di UI admin.
 
 ## Registration
 
@@ -105,10 +106,9 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - Approval lama tidak dipakai lagi untuk leaderboard setelah revision baru.
 - Admin upload override harus memiliki expiration, reason, actor, dan audit log. Tabel sudah
   tersedia, UI/action override belum dibangun.
-- Admin/validator mereview submission dari queue validation. Claim review memiliki expiry
+- Admin mereview submission dari queue validation. Claim review memiliki expiry
   (`REVIEW_CLAIM_DURATION_MINUTES`) dan optimistic `review_version`.
-- Validator yang bukan event manager hanya dapat melihat/bertindak pada event yang memiliki
-  assignment aktif.
+- Semua admin aktif dapat melihat dan bertindak pada validation queue lintas event.
 - Keputusan validation bersifat append-only di `validation_reviews`; action tidak menghapus
   review sebelumnya.
 - Action validation utama: `START_REVIEW`, `RELEASE_CLAIM`, `APPROVE`,
@@ -118,7 +118,7 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - `APPROVED` menetapkan `approved_revision_id` latest dan `ranking_eligible = true`.
 - `REJECTED` dan `DISQUALIFIED` tidak eligible ranking.
 - Participant hanya melihat status aggregate dan `participant_visible_note`; `internal_note`
-  validator tidak boleh ditampilkan di UI peserta.
+  admin tidak boleh ditampilkan di UI peserta.
 - Deterministic warning membantu reviewer melihat jarak, tanggal aktivitas, pace, evidence,
   dan duplicate evidence, tetapi warning tidak otomatis mengambil keputusan.
 
@@ -133,10 +133,16 @@ Belum diimplementasikan. Aturan target:
 
 ## Certificate
 
-Belum diimplementasikan. Aturan target:
-
-- Sertifikat dibuat per approved registration category.
+- Template sertifikat adalah PNG private object per event; hanya satu template `ACTIVE` per event.
+- Sertifikat dibuat per approved registration category saat event berubah ke `COMPLETED`.
+- Category harus memiliki `certificate_enabled = true`, submission harus `APPROVED`, dan
+  `approved_revision_id` wajib ada.
+- Event tanpa template sertifikat tidak membuat job sertifikat dan tidak boleh menyebabkan crash.
 - Certificate number dan verification code unik.
+- Worker membuat PNG sertifikat dengan Sharp dari template event dan overlay nama peserta,
+  event/kategori, BIB, certificate number, dan tanggal validasi.
+- Sertifikat v1 dikirim melalui email attachment PNG; belum ada dashboard/download peserta atau
+  public verification page.
 - Perubahan submission setelah sertifikat terbit harus meng-invalidate sertifikat lama.
 
 ## Audit

@@ -198,50 +198,9 @@ export async function listValidationEventIdsForAdmin(
   admin: Pick<AuthenticatedAdmin, 'id' | 'roles'>,
   client?: PoolClient,
 ): Promise<string[] | null> {
-  if (admin.roles.includes('SUPER_ADMIN')) {
-    return null;
-  }
-
-  const values: unknown[] = [admin.id];
-  const conditions: string[] = [];
-
-  if (admin.roles.includes('EVENT_ADMIN')) {
-    conditions.push(
-      `(e.created_by_admin_user_id = $1 OR EXISTS (
-        SELECT 1 FROM admin_event_assignments aea
-        WHERE aea.event_id = e.id AND aea.admin_user_id = $1
-      ))`,
-    );
-  }
-
-  if (
-    admin.roles.includes('VALIDATOR') ||
-    admin.roles.includes('REPORT_VIEWER')
-  ) {
-    conditions.push(
-      `EXISTS (
-        SELECT 1 FROM event_validator_assignments eva
-        WHERE eva.event_id = e.id AND eva.admin_user_id = $1 AND eva.revoked_at IS NULL
-      )`,
-    );
-  }
-
-  if (conditions.length === 0) {
-    return [];
-  }
-
-  const result = await query<{ event_id: string }>(
-    `
-      SELECT e.id AS event_id
-      FROM events e
-      WHERE ${conditions.join(' OR ')}
-      ORDER BY e.updated_at DESC
-    `,
-    values,
-    client,
-  );
-
-  return result.rows.map((row) => row.event_id);
+  void admin;
+  void client;
+  return null;
 }
 
 export async function listEligibleValidators(

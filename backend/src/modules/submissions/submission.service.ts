@@ -4,6 +4,7 @@ import { withTransaction } from '@/db/transaction';
 import { createAuditLog } from '@/modules/audit/audit.repository';
 import { canAccessEventManagement } from '@/modules/auth/auth.policy';
 import type { AuthenticatedAdmin } from '@/modules/auth/auth.types';
+import { invalidateCertificateAfterSubmissionRevision } from '@/modules/certificates/certificate.service';
 import { getManageableEvent } from '@/modules/events/event.service';
 import { enqueueBackgroundJob } from '@/modules/jobs/job.repository';
 import {
@@ -666,6 +667,7 @@ export async function submitParticipantRevision(input: {
       },
       client,
     );
+    await invalidateCertificateAfterSubmissionRevision(lockedSubmission.id, client);
     await completeIdempotencyRecord(
       {
         operation,
@@ -778,7 +780,7 @@ export async function listAdminEventSubmissions(input: {
     throw new ApplicationError({
       code: 'FORBIDDEN',
       message: 'Admin cannot list submissions',
-      safeMessage: 'Role Anda tidak dapat melihat submission event.',
+      safeMessage: 'Akun admin belum dapat melihat submission event.',
       statusCode: 403,
     });
   }
@@ -795,7 +797,7 @@ export async function getAdminEventSubmissionDetail(input: {
     throw new ApplicationError({
       code: 'FORBIDDEN',
       message: 'Admin cannot view submission',
-      safeMessage: 'Role Anda tidak dapat melihat submission event.',
+      safeMessage: 'Akun admin belum dapat melihat submission event.',
       statusCode: 403,
     });
   }

@@ -23,7 +23,8 @@ Sudah dibuat:
 - Contoh konfigurasi systemd, Nginx, logrotate, dan script backup/restore/verify.
 - Admin authentication server-side dengan Argon2id, opaque session token hash, HttpOnly
   cookie, CSRF token, logout, login rate limiting, dan audit log.
-- RBAC dasar untuk `SUPER_ADMIN`, `EVENT_ADMIN`, `VALIDATOR`, dan `REPORT_VIEWER`.
+- Single active admin app-level authorization. Role dan assignment lama tetap ada sebagai
+  legacy schema compatibility.
 - Event management: list, search, filter status, create, edit, publish, unpublish, archive,
   dan preview.
 - Category management: create, edit, active/inactive, display order.
@@ -45,11 +46,12 @@ Sudah dibuat:
 - Upload hasil peserta dengan activity URL dan/atau screenshot private object.
 - Revision history append-only; submit revisi baru tidak menimpa revision lama.
 - Admin validation queue, detail review, claim dengan expiry, dan deterministic warning.
-- Validator assignment per event untuk role `VALIDATOR`.
 - Keputusan validation: approve, request revision, reject, dan disqualify.
 - Validation review append-only dan audit log untuk action penting.
 - Participant melihat status validation dan catatan validator yang participant-visible.
 - Notification job untuk revision request, approved, rejected, disqualified, dan revised submission.
+- Template sertifikat PNG per event, certificate records, worker render PNG, dan email attachment
+  ketika event diselesaikan.
 - Worker handler `CLEAN_EXPIRED_UPLOADS` untuk membersihkan upload session expired.
 
 ## Tidak Termasuk Foundation
@@ -57,7 +59,7 @@ Sudah dibuat:
 Belum diimplementasikan:
 
 - Leaderboard calculation.
-- Certificate generation dan verification page.
+- Public certificate verification page dan dashboard/download peserta untuk sertifikat.
 - Export Excel.
 - Payment gateway.
 - Upload banner R2. Untuk development tersedia fixture lokal eksplisit.
@@ -75,8 +77,7 @@ Belum diimplementasikan:
 
 - Peserta Virtual Run di Indonesia yang memakai perangkat mobile.
 - Admin organizer.
-- Validator hasil.
-- Report viewer.
+- Admin organizer yang mengelola event, peserta, BIB, validasi hasil, email, dan sertifikat.
 
 ## Timezone
 

@@ -785,7 +785,7 @@ export async function listEventRegistrationsForAdmin(input: {
     throw new ApplicationError({
       code: "FORBIDDEN",
       message: "Admin cannot list participants",
-      safeMessage: "Role Anda tidak dapat melihat peserta event.",
+      safeMessage: "Akun admin belum dapat melihat peserta event.",
       statusCode: 403,
     });
   }
@@ -822,7 +822,7 @@ export async function getGlobalParticipantsForAdmin(input: {
     throw new ApplicationError({
       code: "FORBIDDEN",
       message: "Admin cannot list global participants",
-      safeMessage: "Role Anda tidak dapat melihat database peserta.",
+      safeMessage: "Akun admin belum dapat melihat database peserta.",
       statusCode: 403,
     });
   }
@@ -830,7 +830,7 @@ export async function getGlobalParticipantsForAdmin(input: {
   const filters = normalizeGlobalParticipantFilters(input.filters);
   const scope = {
     adminId: input.admin.id,
-    isSuperAdmin: input.admin.roles.includes("SUPER_ADMIN"),
+    isSuperAdmin: true,
   };
 
   const [stats, listResult, latestParticipants, topEvents, recentActivities, filterOptions] =
@@ -868,7 +868,7 @@ export async function getEventRegistrationForAdmin(input: {
     throw new ApplicationError({
       code: "FORBIDDEN",
       message: "Admin cannot view participant",
-      safeMessage: "Role Anda tidak dapat melihat peserta event.",
+      safeMessage: "Akun admin belum dapat melihat peserta event.",
       statusCode: 403,
     });
   }
@@ -899,7 +899,7 @@ export async function requestRegistrationEmailResendForAdmin(input: {
     throw new ApplicationError({
       code: "FORBIDDEN",
       message: "Admin cannot resend registration email",
-      safeMessage: "Role Anda tidak dapat mengirim ulang email peserta.",
+      safeMessage: "Akun admin belum dapat mengirim ulang email peserta.",
       statusCode: 403,
     });
   }
@@ -1002,7 +1002,7 @@ export async function updateParticipantForAdmin(input: {
     throw new ApplicationError({
       code: "FORBIDDEN",
       message: "Admin role cannot edit participant",
-      safeMessage: "Role Anda tidak dapat memperbarui data peserta.",
+      safeMessage: "Akun admin belum dapat memperbarui data peserta.",
       statusCode: 403,
     });
   }

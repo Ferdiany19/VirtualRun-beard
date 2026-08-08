@@ -193,26 +193,9 @@ function applyAdminVisibilityCondition(
   admin: Pick<AuthenticatedAdmin, 'id' | 'roles'>,
   values: unknown[],
 ): string | null {
-  if (admin.roles.includes('SUPER_ADMIN')) {
-    return null;
-  }
-
-  if (admin.roles.includes('EVENT_ADMIN')) {
-    values.push(admin.id);
-    return `
-      (
-        e.created_by_admin_user_id = $${values.length}
-        OR EXISTS (
-          SELECT 1
-          FROM admin_event_assignments aea_filter
-          WHERE aea_filter.event_id = e.id
-            AND aea_filter.admin_user_id = $${values.length}
-        )
-      )
-    `;
-  }
-
-  return 'false';
+  void admin;
+  void values;
+  return null;
 }
 
 export async function listEventsForAdmin(

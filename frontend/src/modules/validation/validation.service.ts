@@ -80,7 +80,7 @@ function assertCanViewValidation(admin: AuthenticatedAdmin): void {
   if (!canViewValidation(admin)) {
     throw forbidden(
       "Admin role cannot view validation",
-      "Role Anda belum dapat melihat validation.",
+      "Akun admin belum dapat melihat validation.",
     );
   }
 }
@@ -89,7 +89,7 @@ function assertCanActValidation(admin: AuthenticatedAdmin): void {
   if (!canActOnValidation(admin)) {
     throw forbidden(
       "Admin role cannot perform validation",
-      "Role Anda belum dapat mengubah validation.",
+      "Akun admin belum dapat mengubah validation.",
     );
   }
 }
@@ -584,7 +584,7 @@ export async function saveValidationDecision(input: {
     if (parsed.action === "DISQUALIFY" && !canDisqualifySubmission(input.admin)) {
       throw forbidden(
         "Disqualification permission denied",
-        "Role Anda tidak dapat mendiskualifikasi submission.",
+        "Akun admin belum dapat mendiskualifikasi submission.",
       );
     }
 
@@ -705,7 +705,7 @@ export async function getEventValidatorManagement(input: {
   eligibleValidators: EligibleValidator[];
 }> {
   if (!canManageValidatorAssignments(input.admin)) {
-    throw forbidden("Admin cannot manage validators", "Role Anda belum dapat mengelola validator.");
+    throw forbidden("Admin cannot manage validators", "Akun admin belum dapat mengelola data legacy validator.");
   }
 
   await getManageableEvent(input.eventId, input.admin);
@@ -724,7 +724,7 @@ export async function assignEventValidator(input: {
   requestContext: RequestContext;
 }): Promise<void> {
   if (!canManageValidatorAssignments(input.admin)) {
-    throw forbidden("Admin cannot assign validator", "Role Anda belum dapat menugaskan validator.");
+    throw forbidden("Admin cannot assign validator", "Akun admin belum dapat menugaskan validator legacy.");
   }
 
   const parsed = validatorAssignmentSchema.parse({
@@ -777,7 +777,7 @@ export async function revokeEventValidator(input: {
   requestContext: RequestContext;
 }): Promise<void> {
   if (!canManageValidatorAssignments(input.admin)) {
-    throw forbidden("Admin cannot revoke validator", "Role Anda belum dapat mencabut validator.");
+    throw forbidden("Admin cannot revoke validator", "Akun admin belum dapat mencabut validator legacy.");
   }
 
   const parsed = validatorRevocationSchema.parse({

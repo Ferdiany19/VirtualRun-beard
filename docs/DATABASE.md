@@ -20,6 +20,8 @@ Implemented migration files:
 - `011_make_montserrat_default_font.sql`
 - `012_bib_template_lifecycle.sql`
 - `013_event_create_metadata.sql`
+- `014_event_certificates.sql` di backend dan `012_event_certificates.sql` di frontend legacy
+  migration set
 
 Migration runner membuat dan memakai tabel:
 
@@ -44,6 +46,7 @@ erDiagram
   events ||--o{ event_categories : owns
   events ||--o{ admin_event_assignments : assigns
   events ||--o{ audit_logs : scopes
+  events ||--o{ event_certificate_templates : has
 
   admin_users {
     uuid id PK
@@ -115,6 +118,16 @@ erDiagram
     uuid entity_id
     uuid event_id FK
   }
+
+  event_certificate_templates {
+    uuid id PK
+    uuid event_id FK
+    text object_key
+    integer width
+    integer height
+    text status
+    uuid uploaded_by_admin_user_id FK
+  }
 ```
 
 ## Registration, BIB, and Submission ERD Extension
@@ -137,6 +150,9 @@ erDiagram
   upload_sessions ||--o{ submission_files : finalizes
   background_jobs ||--o{ event_registrations : processes
   events ||--o{ event_validator_assignments : assigns_validators
+  events ||--o{ certificates : issues
+  registration_categories ||--o{ certificates : receives
+  submissions ||--o{ certificates : approves
 ```
 
 Implemented tables in migration 006:
@@ -178,6 +194,15 @@ Implemented BIB template lifecycle extension in migration 012:
 - `bib_template_versions.updated_by_admin_user_id`
 - `bib_template_versions.updated_at`
 
+Implemented certificate extension:
+
+- `event_certificate_templates` untuk template PNG private per event dengan lifecycle
+  `ACTIVE` dan `ARCHIVED`.
+- `certificates` untuk hasil sertifikat per registration category dengan status `PENDING`,
+  `GENERATING`, `READY`, `EMAILED`, `FAILED`, dan `INVALIDATED`.
+- `background_jobs` menerima type `GENERATE_CERTIFICATE` dan `SEND_CERTIFICATE_EMAIL`.
+- `email_deliveries` menerima type `CERTIFICATE`.
+
 Participant table extension:
 
 - `city_or_regency`
@@ -194,7 +219,9 @@ Participant table extension:
 - Category slug unik per event.
 - Event FAQ disimpan sebagai `jsonb` array.
 - Category memiliki `description` nullable.
-- `admin_event_assignments` menghubungkan admin dengan event untuk scope EVENT_ADMIN.
+- `admin_event_assignments`, `admin_user_roles`, dan `event_validator_assignments` adalah
+  legacy compatibility untuk schema lama; production authorization saat ini single admin
+  app-level.
 - Event/category price amount tidak boleh negatif.
 - Time window event wajib memiliki start tidak setelah end.
 - Audit log action dan entity type tidak boleh kosong.
@@ -217,19 +244,26 @@ Participant table extension:
 - Screenshot evidence path:
   `events/{eventId}/submissions/{submissionId}/revisions/{revisionId}/{fileId}.jpg`.
 - Participant sessions store CSRF token hash for participant submission forms.
-- Active validator assignment is unique per `(event_id, admin_user_id)`.
+- Active validator assignment is unique per `(event_id, admin_user_id)` sebagai constraint
+  legacy.
+- Active certificate template is unique per event.
+- Active certificate is unique per `registration_category_id`.
+- Certificate number and verification code are globally unique.
+- Certificate template path:
+  `events/{eventId}/templates/certificates/{templateId}.png`.
+- Certificate output path:
+  `events/{eventId}/certificates/{certificateId}.png`.
 - Validation review actions and reason codes are protected by CHECK constraints.
 - Submission claim indexes support queue filtering and expired claim detection.
 - Background job and email delivery type constraints include submission validation
-  notification types.
+  notification types and certificate jobs/email.
 
 ## Development Seed
 
 `pnpm db:seed:dev` menjalankan migration lalu membuat:
 
-- Admin `admin@beard.test` dengan password default `ChangeMe!2026`, plus akun demo
-  `event.admin@beard.test`, `validator@beard.test`, dan `reporter@beard.test` dengan password
-  development yang sama.
+- Admin `admin@beard.test` dengan password default `ChangeMe!2026`. Akun dan role demo lama
+  dapat tetap ada di development seed sebagai data legacy, tetapi tidak membatasi akses admin.
 - Dataset demo development idempotent dengan source `DEV_SEED`.
 - Event publik dan admin-only dengan berbagai kondisi: registration open, upload open, review,
   completed, scheduled, quota kecil, dan draft/unpublished.

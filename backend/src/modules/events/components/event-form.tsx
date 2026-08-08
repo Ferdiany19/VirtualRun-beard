@@ -173,7 +173,7 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         >
           <div className="grid gap-4 md:grid-cols-[1fr_1fr_180px]">
             <Field
-              description="Gunakan object key lokal/R2 yang sudah tersedia."
+              
               htmlFor="bannerObjectKey"
               label="Banner object key"
             >

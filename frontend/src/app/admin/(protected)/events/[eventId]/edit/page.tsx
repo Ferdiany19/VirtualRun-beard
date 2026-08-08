@@ -27,8 +27,9 @@ export default async function EditEventPage({ params, searchParams }: EditEventP
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        description="Perubahan disimpan sebagai draft data terbaru. Preview admin selalu memakai data ini."
-        eyebrow="Event"
+        actionHref={`/admin/events/${event.id}`}
+        actionLabel="Detail event"
+        description="Atur konten public page, window pendaftaran, window upload, instruksi peserta, dan kontak organizer."
         title={`Edit ${event.name}`}
       />
       <FormMessage error={query.error ?? null} success={query.success ?? null} />

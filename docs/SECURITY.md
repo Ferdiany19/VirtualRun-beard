@@ -45,12 +45,11 @@ Lax, dan Secure pada production.
 
 ## Authorization
 
-- Role: `SUPER_ADMIN`, `EVENT_ADMIN`, `VALIDATOR`, `REPORT_VIEWER`.
-- Role tidak boleh hanya disimpan atau diputuskan di client.
-- Validator assignment per event membatasi role `VALIDATOR` ke event yang ditugaskan.
-- Event admin assignment dasar tersedia melalui `admin_event_assignments`.
-- `REPORT_VIEWER` dapat melihat validation queue sesuai izin event tetapi tidak dapat claim
-  atau menyimpan keputusan.
+- Production memakai single-role app-level admin: setiap admin session aktif memiliki akses penuh
+  ke event, peserta, BIB, validation, email operasional, dan sertifikat.
+- Authorization tetap wajib diputuskan server-side; client hanya mengatur tampilan.
+- Role legacy `SUPER_ADMIN`, `EVENT_ADMIN`, `VALIDATOR`, dan `REPORT_VIEWER` serta tabel
+  assignment lama dipertahankan untuk kompatibilitas migration, bukan pembatas akses produksi.
 
 ## CSRF
 
@@ -70,6 +69,8 @@ Jika validasi gagal, action ditolak sebelum service mutasi berjalan.
 - Object storage private dan download memakai signed URL berumur pendek.
 - BIB/template objects tetap private. Participant dan admin download diproxy melalui endpoint
   yang memverifikasi session/authorization sebelum membaca object.
+- Template dan hasil sertifikat disimpan sebagai private object. Sertifikat v1 hanya dikirim
+  lewat email attachment PNG dan tidak membuat public object URL.
 - Development storage/email adapter (`local`, `log`) ditolak saat `NODE_ENV=production`.
 - Validation review memiliki `participant_visible_note` dan `internal_note`. UI peserta hanya
   memakai participant-visible note; internal note hanya tampil pada admin validation detail.
@@ -78,8 +79,7 @@ Jika validasi gagal, action ditolak sebelum service mutasi berjalan.
 
 ## Admin Participant Management
 
-- `SUPER_ADMIN` dan `EVENT_ADMIN` dapat memperbaiki participant sesuai event access policy.
-- `VALIDATOR` dan `REPORT_VIEWER` tidak boleh memperbarui participant.
+- Semua admin aktif dapat memperbaiki participant sesuai kebijakan single admin app-level.
 - Perubahan participant sensitif divalidasi global uniqueness dan dicatat di audit log.
 - Perubahan nama dapat menjadwalkan regenerate BIB tanpa mengubah BIB number atau
   registration code.

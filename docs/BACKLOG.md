@@ -18,16 +18,17 @@ progress.
 
 Dependencies: none.
 
-## Phase 1 - Admin Authentication and RBAC
+## Phase 1 - Admin Authentication and Authorization
 
-Status: implemented for base admin event management.
+Status: implemented for single active admin app-level access. Role/assignment tables remain
+legacy-compatible.
 
 - Implement admin login/logout.
 - Argon2id password hash.
 - Session token hashing, cookie, expiration, revocation.
 - CSRF protection.
 - Login rate limit.
-- Role guard dan server-side authorization.
+- Server-side authorization for active admin sessions.
 - Audit login success/failure.
 
 Dependencies: Phase 0 schema.
@@ -76,9 +77,9 @@ Dependencies: Phase 3 registration, storage foundation, jobs foundation.
 
 ## Phase 5 - Submission and Validation
 
-Status: implemented untuk upload hasil, revision history, validation queue, validator
-assignment, claim review, keputusan validation, audit review, dan notification job dasar.
-Leaderboard, certificates, payment, dan export tetap belum aktif.
+Status: implemented untuk upload hasil, revision history, validation queue, claim review,
+keputusan validation, audit review, dan notification job dasar. Validator assignment route
+legacy disembunyikan dari navigasi. Leaderboard, payment, dan export tetap belum aktif.
 
 - Upload lookup using event, registration code, and email. Implemented via participant access
   session.
@@ -106,11 +107,18 @@ Dependencies: Phase 5 validation.
 
 ## Phase 7 - Certificates
 
-- Certificate template editor.
-- Certificate number and verification code.
-- Sharp/PDF generation.
-- Public verification page with minimal PII.
-- Invalidation and regeneration after approved revision changes.
+Status: implemented v1 untuk template PNG per event, queue saat event `COMPLETED`, render PNG
+dengan Sharp, email attachment, dan invalidasi saat revisi baru. Public verification dan editor
+koordinat visual belum aktif.
+
+- Certificate template PNG upload and preview. Implemented.
+- Certificate number and verification code. Implemented.
+- Sharp PNG generation. Implemented.
+- Email certificate attachment. Implemented.
+- Public verification page with minimal PII. Pending.
+- Visual certificate template editor. Pending.
+- Regeneration after approved revision changes. Pending; current behavior invalidates old
+  certificate when a new revision is submitted.
 
 Dependencies: Phase 5 validation, Phase 4 jobs/storage.
 

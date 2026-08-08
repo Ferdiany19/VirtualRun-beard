@@ -3,6 +3,25 @@ const nextConfig = {
   output: "standalone",
   poweredByHeader: false,
   reactStrictMode: true,
+  images: {
+    localPatterns: [
+      {
+        pathname: "/assets/**",
+      },
+      {
+        pathname: "/events/**",
+      },
+      {
+        pathname: "/api/admin/bib/template-preview",
+      },
+      {
+        pathname: "/api/admin/submission-file/download",
+      },
+      {
+        pathname: "/api/admin/certificates/template-preview",
+      },
+    ],
+  },
   async rewrites() {
     const apiBaseUrl =
       process.env.NEXT_PUBLIC_API_BASE_URL ??

@@ -83,7 +83,7 @@ function assertCanViewValidation(admin: AuthenticatedAdmin): void {
   if (!canViewValidation(admin)) {
     throw forbidden(
       'Admin role cannot view validation',
-      'Role Anda belum dapat melihat validation.',
+      'Akun admin belum dapat melihat validation.',
     );
   }
 }
@@ -92,7 +92,7 @@ function assertCanActValidation(admin: AuthenticatedAdmin): void {
   if (!canActOnValidation(admin)) {
     throw forbidden(
       'Admin role cannot perform validation',
-      'Role Anda belum dapat mengubah validation.',
+      'Akun admin belum dapat mengubah validation.',
     );
   }
 }
@@ -631,7 +631,7 @@ export async function saveValidationDecision(input: {
     ) {
       throw forbidden(
         'Disqualification permission denied',
-        'Role Anda tidak dapat mendiskualifikasi submission.',
+        'Akun admin belum dapat mendiskualifikasi submission.',
       );
     }
 
@@ -760,7 +760,7 @@ export async function getEventValidatorManagement(input: {
   if (!canManageValidatorAssignments(input.admin)) {
     throw forbidden(
       'Admin cannot manage validators',
-      'Role Anda belum dapat mengelola validator.',
+      'Akun admin belum dapat mengelola data legacy validator.',
     );
   }
 
@@ -782,7 +782,7 @@ export async function assignEventValidator(input: {
   if (!canManageValidatorAssignments(input.admin)) {
     throw forbidden(
       'Admin cannot assign validator',
-      'Role Anda belum dapat menugaskan validator.',
+      'Akun admin belum dapat menugaskan validator legacy.',
     );
   }
 
@@ -838,7 +838,7 @@ export async function revokeEventValidator(input: {
   if (!canManageValidatorAssignments(input.admin)) {
     throw forbidden(
       'Admin cannot revoke validator',
-      'Role Anda belum dapat mencabut validator.',
+      'Akun admin belum dapat mencabut validator legacy.',
     );
   }
 

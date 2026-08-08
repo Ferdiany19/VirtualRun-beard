@@ -86,23 +86,8 @@ export function assertCanManageEvent(
   admin: AuthenticatedAdmin,
   event: Pick<EventRecord, "createdByAdminUserId" | "assignedAdminUserIds">,
 ): void {
-  if (admin.roles.includes("SUPER_ADMIN")) {
-    return;
-  }
-
-  if (
-    admin.roles.includes("EVENT_ADMIN") &&
-    (event.createdByAdminUserId === admin.id || event.assignedAdminUserIds.includes(admin.id))
-  ) {
-    return;
-  }
-
-  throw new ApplicationError({
-    code: "FORBIDDEN",
-    message: "Admin is not allowed to manage this event",
-    safeMessage: "Anda tidak memiliki akses untuk mengelola event ini.",
-    statusCode: 403,
-  });
+  void admin;
+  void event;
 }
 
 export function assertCanArchiveEvent(event: EventRecord): void {
@@ -111,6 +96,17 @@ export function assertCanArchiveEvent(event: EventRecord): void {
       code: "VALIDATION_FAILED",
       message: `Event status ${event.eventStatus} cannot transition to ARCHIVED`,
       safeMessage: "Event tidak dapat diarsipkan dari status saat ini.",
+      statusCode: 400,
+    });
+  }
+}
+
+export function assertCanCompleteEvent(event: EventRecord): void {
+  if (!canTransitionEventStatus(event.eventStatus, "COMPLETED")) {
+    throw new ApplicationError({
+      code: "VALIDATION_FAILED",
+      message: `Event status ${event.eventStatus} cannot transition to COMPLETED`,
+      safeMessage: "Event hanya dapat diselesaikan dari fase review.",
       statusCode: 400,
     });
   }

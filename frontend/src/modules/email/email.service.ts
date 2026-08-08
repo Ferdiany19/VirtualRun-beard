@@ -31,6 +31,16 @@ export type SubmissionValidationEmailInput = {
   contact: string;
 };
 
+export type CertificateEmailInput = {
+  to: string;
+  participantName: string;
+  eventName: string;
+  categoryName: string;
+  certificateNumber: string;
+  contact: string;
+  certificateAttachment: EmailAttachment;
+};
+
 type EmailAttachment = {
   filename: string;
   contentType: string;
@@ -345,5 +355,41 @@ export async function sendSubmissionValidationEmail(
     eventName: input.eventName,
     categoryName: input.categoryName,
     status: input.status,
+  });
+}
+
+function buildCertificateEmail(input: CertificateEmailInput): { subject: string; body: string } {
+  return {
+    subject: `Sertifikat ${input.eventName} - ${input.categoryName}`,
+    body: [
+      `Halo ${input.participantName},`,
+      "",
+      `Selamat, hasil Anda untuk ${input.eventName} kategori ${input.categoryName} sudah valid.`,
+      `Nomor sertifikat: ${input.certificateNumber}`,
+      "",
+      "Sertifikat terlampir pada email ini dalam format PNG.",
+      `Kontak organizer: ${input.contact}`,
+      "",
+      "Email ini dikirim setelah event dinyatakan selesai oleh admin.",
+    ].join("\n"),
+  };
+}
+
+export async function sendCertificateEmail(input: CertificateEmailInput): Promise<void> {
+  if (env.EMAIL_DRIVER === "smtp") {
+    const message = buildCertificateEmail(input);
+    await sendRawSmtpEmail({
+      to: input.to,
+      subject: message.subject,
+      body: message.body,
+      attachments: [input.certificateAttachment],
+    });
+    return;
+  }
+
+  logger.info("Certificate email prepared", {
+    eventName: input.eventName,
+    categoryName: input.categoryName,
+    certificateNumber: input.certificateNumber,
   });
 }

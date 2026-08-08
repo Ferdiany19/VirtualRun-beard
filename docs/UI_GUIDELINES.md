@@ -117,7 +117,9 @@ Token berada di `src/app/globals.css` dan `tailwind.config.ts`:
   aktivitas audit terbaru. Pada viewport kecil tabel berubah menjadi daftar terstruktur.
 - Event create memakai dashboard form satu layar dengan informasi event, jadwal, kategori dan
   harga inline, upload banner, benefit, peraturan/FAQ, pengaturan publikasi, live preview, dan
-  ringkasan cepat. Event editor lama tetap memakai hierarchy setting page untuk update bertahap.
+  ringkasan cepat. Event edit memakai workbench operasional: satu panel form utama, section
+  berbasis fungsi, rail navigasi, ringkasan status, dan sticky save tanpa card berulang yang
+  membuat UX terasa kabur.
 - Preview admin memakai public presentation component yang sama; preview bar berada di route admin,
   bukan di public component.
 - Public registration memakai shell event yang sama, form mobile-first, checkbox kategori,
@@ -152,6 +154,10 @@ Token berada di `src/app/globals.css` dan `tailwind.config.ts`:
   status badge, claim state, warning count, dan link review per submission.
 - Detail validation menampilkan evidence, deterministic checks, riwayat revisi, riwayat
   validation, claim/release, dan form keputusan tanpa mengekspos internal note ke peserta.
-- Validator assignment memakai table aktif/revoked dan form assign/revoke yang ringkas.
+- Validator assignment adalah UI legacy dan disembunyikan dari navigasi utama karena production
+  memakai single admin app-level.
+- Detail event admin memiliki panel sertifikat untuk upload/preview template PNG per event,
+  melihat ringkasan antrean/terkirim/gagal/invalid, dan menyelesaikan event untuk memicu job
+  sertifikat.
 - Participant submission menampilkan catatan validator yang participant-visible pada dashboard,
   form revisi, dan riwayat.

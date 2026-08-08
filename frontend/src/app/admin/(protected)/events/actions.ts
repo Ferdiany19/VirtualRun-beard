@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireAdminSession, validateAdminCsrfToken } from "@/modules/auth/session";
+import { uploadManagedCertificateTemplate } from "@/modules/certificates/certificate.service";
 import { parseCategoryFormData } from "@/modules/categories/category.schema";
 import {
   createManagedCategory,
@@ -13,6 +14,7 @@ import {
 import { parseEventFormData } from "@/modules/events/event.schema";
 import {
   archiveManagedEvent,
+  completeManagedEvent,
   publishManagedEvent,
   unpublishManagedEvent,
   updateManagedEvent,
@@ -166,6 +168,47 @@ export async function archiveEventAction(eventId: string, formData: FormData): P
     revalidatePath("/");
     revalidatePath("/events");
     redirect(`/admin/events/${eventId}?success=archived`);
+  } catch (error) {
+    redirect(`/admin/events/${eventId}?error=${errorToSearchParam(error)}`);
+  }
+}
+
+export async function completeEventAction(eventId: string, formData: FormData): Promise<void> {
+  const admin = await requireAdminSession();
+  await validateAdminCsrfToken(formData, admin);
+  const requestContext = await getRequestContext();
+
+  try {
+    await completeManagedEvent({ eventId, admin, correlationId: requestContext.correlationId });
+    revalidatePath(`/admin/events/${eventId}`);
+    redirect(`/admin/events/${eventId}?success=completed`);
+  } catch (error) {
+    redirect(`/admin/events/${eventId}?error=${errorToSearchParam(error)}`);
+  }
+}
+
+export async function uploadCertificateTemplateAction(
+  eventId: string,
+  formData: FormData,
+): Promise<void> {
+  const admin = await requireAdminSession();
+  await validateAdminCsrfToken(formData, admin);
+  const requestContext = await getRequestContext();
+  const template = formData.get("certificateTemplate");
+
+  try {
+    if (!(template instanceof File) || template.size === 0) {
+      throw new Error("certificate template missing");
+    }
+
+    await uploadManagedCertificateTemplate({
+      eventId,
+      admin,
+      file: template,
+      correlationId: requestContext.correlationId,
+    });
+    revalidatePath(`/admin/events/${eventId}`);
+    redirect(`/admin/events/${eventId}?success=certificate-template`);
   } catch (error) {
     redirect(`/admin/events/${eventId}?error=${errorToSearchParam(error)}`);
   }

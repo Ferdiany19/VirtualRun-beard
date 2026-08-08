@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { activityPlatformSchema } from "@/modules/submissions/submission.schema";
 
+const emptyStringToUndefined = (value: unknown) => (value === "" ? undefined : value);
+const optionalFilter = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess(emptyStringToUndefined, schema.optional().nullable());
+const optionalQueryValue = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess(emptyStringToUndefined, schema.optional());
+
 export const revisionRequestReasonCodes = [
   "EVIDENCE_UNREADABLE",
   "ACTIVITY_URL_INACCESSIBLE",
@@ -34,27 +40,28 @@ export const disqualificationReasonCodes = [
 ] as const;
 
 export const validationQueueSchema = z.object({
-  eventId: z.string().uuid().optional().nullable(),
-  categoryId: z.string().uuid().optional().nullable(),
-  status: z
-    .enum([
+  eventId: optionalFilter(z.string().uuid()),
+  categoryId: optionalFilter(z.string().uuid()),
+  status: optionalFilter(
+    z.enum([
       "SUBMITTED",
       "UNDER_REVIEW",
       "REVISION_REQUIRED",
       "APPROVED",
       "REJECTED",
       "DISQUALIFIED",
-    ])
-    .optional()
-    .nullable(),
-  reviewer: z.string().trim().max(80).optional().nullable(),
-  activityPlatform: activityPlatformSchema.optional().nullable(),
-  evidenceType: z.enum(["URL", "SCREENSHOT", "BOTH"]).optional().nullable(),
-  search: z.string().trim().max(120).optional().nullable(),
-  hasWarning: z.coerce.boolean().optional().nullable(),
-  distanceCheck: z.enum(["inside", "outside"]).optional().nullable(),
-  sort: z.enum(["submitted_desc", "submitted_asc", "bib_asc", "claim_expiry_asc"]).optional(),
-  page: z.coerce.number().int().positive().optional(),
+    ]),
+  ),
+  reviewer: optionalFilter(z.string().trim().max(80)),
+  activityPlatform: optionalFilter(activityPlatformSchema),
+  evidenceType: optionalFilter(z.enum(["URL", "SCREENSHOT", "BOTH"])),
+  search: optionalFilter(z.string().trim().max(120)),
+  hasWarning: optionalFilter(z.coerce.boolean()),
+  distanceCheck: optionalFilter(z.enum(["inside", "outside"])),
+  sort: optionalQueryValue(
+    z.enum(["submitted_desc", "submitted_asc", "bib_asc", "claim_expiry_asc"]),
+  ),
+  page: optionalQueryValue(z.coerce.number().int().positive()),
 });
 
 export const claimSubmissionSchema = z.object({

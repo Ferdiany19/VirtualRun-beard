@@ -18,6 +18,7 @@ const errorMessages: Record<string, string> = {
   "bib-publish": "Template BIB belum dapat dipublikasikan.",
   "bib-archive": "Template BIB belum dapat diarsipkan.",
   "bib-duplicate": "Template BIB belum dapat diduplikat.",
+  certificate: "Template sertifikat belum dapat diproses.",
 };
 
 const successMessages: Record<string, string> = {
@@ -31,6 +32,8 @@ const successMessages: Record<string, string> = {
   published: "Template BIB berhasil dipublikasikan.",
   archived: "Template BIB berhasil diarsipkan.",
   duplicated: "Template BIB berhasil diduplikat.",
+  completed: "Event selesai. Sertifikat eligible dimasukkan ke antrean pengiriman.",
+  "certificate-template": "Template sertifikat berhasil diupload.",
 };
 
 export function FormMessage({

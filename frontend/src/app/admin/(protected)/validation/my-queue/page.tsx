@@ -28,7 +28,7 @@ export default async function MyValidationQueuePage({ searchParams }: MyValidati
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        description="Daftar submission yang bisa Anda review, termasuk assignment validator event dan role admin."
+        description="Daftar submission lintas event yang bisa direview oleh admin aktif."
         eyebrow="Validation"
         title="Queue Validation"
       />

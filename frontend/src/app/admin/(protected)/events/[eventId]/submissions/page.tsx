@@ -39,7 +39,7 @@ export default async function AdminSubmissionsPage({
       <AdminPageHeader
         actionHref={`/admin/events/${event.id}`}
         actionLabel="Kembali"
-        description="Review submission, claim pekerjaan, dan simpan keputusan validator."
+        description="Review submission, claim pekerjaan, dan simpan keputusan admin."
         eyebrow="Submission Validation"
         title={event.name}
       />

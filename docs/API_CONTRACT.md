@@ -91,14 +91,17 @@ Implemented admin registration/BIB routes:
 - `/admin/events/[eventId]/submissions/[submissionId]`
 - `/admin/validation/my-queue`
 - `/admin/events/[eventId]/validation`
-- `/admin/events/[eventId]/validators`
+- `/admin/events/[eventId]/validators` legacy route, hidden from primary navigation
+- Certificate template upload server action on `/admin/events/[eventId]`
+- Event completion server action on `/admin/events/[eventId]` queues certificate jobs
 - `GET /api/admin/bib/download?registrationId=...`
 - `GET /api/admin/submission-file/download?fileId=...`
 
 Admin mutation target berpindah ke NestJS API dengan CSRF validation. Participant list uses
 server-side filtering and dynamic sorting through an internal allowlist. Submission admin
 views include validation claim, release claim, approve, request revision, reject, and
-disqualify actions. Validator assignment/revoke is handled server-side by the backend API.
+disqualify actions. Production authorization uses a single active admin model; validator
+assignment/revoke endpoints remain legacy-compatible and are hidden from the main UI.
 
 Implemented Nest API foundation:
 
@@ -127,6 +130,8 @@ Implemented Nest API foundation:
 - `POST /api/admin/events/:eventId/publish`
 - `POST /api/admin/events/:eventId/unpublish`
 - `POST /api/admin/events/:eventId/archive`
+- `POST /api/admin/events/:eventId/complete` planned API parity; current UI completion uses a
+  protected server action and service transaction
 - `GET /api/admin/events/:eventId/categories`
 - `POST /api/admin/events/:eventId/categories`
 - `PATCH /api/admin/categories/:categoryId`
@@ -159,6 +164,7 @@ Implemented Nest API foundation:
 - `POST /api/admin/events/:eventId/validators/revoke`
 - `GET /api/admin/bib/download?registrationId=...`
 - `GET /api/admin/bib/template-preview?templateVersionId=...`
+- `GET /api/admin/certificates/template-preview?eventId=...`
 - `GET /api/admin/events/export`
 - `GET /api/admin/submission-file/download?fileId=...`
 - `GET /api/participant/bib/download?registrationId=...`
@@ -201,6 +207,6 @@ Admin:
 - `/admin/events/[eventId]/submissions/[submissionId]`
 - `/admin/validation/my-queue`
 - `/admin/events/[eventId]/validation`
-- `/admin/events/[eventId]/validators`
+- `/admin/events/[eventId]/validators` legacy route, hidden from primary navigation
 
 Admin preview tidak diindeks dan tidak membuka draft ke route public.

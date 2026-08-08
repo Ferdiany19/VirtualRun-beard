@@ -22,6 +22,10 @@ import {
 import { sendRegistrationConfirmationEmail } from "@/modules/email/email.service";
 import { cleanExpiredUploads } from "@/modules/submissions/submission.service";
 import { sendSubmissionValidationEmail } from "@/modules/email/email.service";
+import {
+  renderCertificate,
+  sendCertificateEmailForCertificate,
+} from "@/modules/certificates/certificate.service";
 import { getValidationNotificationSummary } from "@/modules/validation/validation.service";
 import { getPrivateObject } from "@/modules/storage/storage.service";
 import { decryptString } from "@/shared/security/encryption";
@@ -47,7 +51,7 @@ process.on("SIGINT", requestShutdown);
 process.on("SIGTERM", requestShutdown);
 
 logger.info("Worker foundation started", {
-  handlersRegistered: 8,
+  handlersRegistered: 10,
   workerId,
 });
 
@@ -228,6 +232,14 @@ async function handleSubmissionValidationEmail(job: BackgroundJob): Promise<void
   });
 }
 
+async function handleGenerateCertificate(job: BackgroundJob): Promise<void> {
+  await renderCertificate(payloadString(job, "certificateId"));
+}
+
+async function handleCertificateEmail(job: BackgroundJob): Promise<void> {
+  await sendCertificateEmailForCertificate(payloadString(job, "certificateId"));
+}
+
 async function handleJob(job: BackgroundJob): Promise<void> {
   if (job.jobType === "GENERATE_BIB") {
     await handleGenerateBib(job);
@@ -252,6 +264,16 @@ async function handleJob(job: BackgroundJob): Promise<void> {
     job.jobType === "SEND_REVISED_SUBMISSION_RECEIVED_NOTIFICATION"
   ) {
     await handleSubmissionValidationEmail(job);
+    return;
+  }
+
+  if (job.jobType === "GENERATE_CERTIFICATE") {
+    await handleGenerateCertificate(job);
+    return;
+  }
+
+  if (job.jobType === "SEND_CERTIFICATE_EMAIL") {
+    await handleCertificateEmail(job);
     return;
   }
 

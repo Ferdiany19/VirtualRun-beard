@@ -30,6 +30,8 @@
 | 2026-07-24 | Validation review bersifat append-only dan participant note dipisah dari internal note.       | Menjaga audit trail sekaligus mencegah catatan internal bocor ke peserta.                  |
 | 2026-07-24 | Warning validation deterministic tidak otomatis menentukan keputusan.                         | Reviewer tetap bertanggung jawab atas approve/reject, warning hanya alat bantu review.     |
 | 2026-07-26 | Repository menjadi pnpm workspace `frontend/` + `backend/`, dengan NestJS sebagai backend API. | Memisahkan boundary HTTP/backend tanpa memperkenalkan microservice atau teknologi terlarang. |
+| 2026-08-08 | Production authorization memakai single active admin app-level.                               | Operasional saat ini tidak membutuhkan role validator/report viewer; tabel role lama dipertahankan agar migration aman. |
+| 2026-08-08 | Sertifikat v1 berupa PNG dari template event dan dikirim otomatis saat event `COMPLETED`.     | Memenuhi kebutuhan sertifikat tanpa menambah dependency PDF atau public verification sebelum dibutuhkan. |
 
 ## Assumptions
 
@@ -48,10 +50,10 @@
 
 ## Open Questions
 
-- Apakah organizer perlu multi-event tenancy dengan assignment validator sejak MVP?
+- Apakah role/assignment legacy perlu dibersihkan penuh setelah production stabil?
 - Field participant apa saja yang wajib secara legal dan operasional?
 - Apakah age division dihitung dari tanggal event start atau tanggal activity?
 - Apakah leaderboard publik menyembunyikan sebagian identitas secara default?
 - Email provider mana yang akan digunakan untuk registration/submission notification di production?
-- Apakah certificate output final berupa PDF saja atau PNG + PDF?
+- Apakah certificate output berikutnya perlu PDF, public verification, atau editor posisi visual?
 - Kebijakan retention data pribadi final mengikuti durasi berapa lama setelah event selesai?

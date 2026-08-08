@@ -8,6 +8,7 @@ import {
   getParticipantEvidenceFile,
 } from '@/modules/submissions/submission.service';
 import { getBibTemplatePreviewForAdmin } from '@/modules/bib/bib.service';
+import { getCertificateTemplatePreviewForAdmin } from '@/modules/certificates/certificate.service';
 import { getPrivateObject } from '@/modules/storage/storage.service';
 import { eventStatuses } from '@/modules/events/domain/event-status';
 import { publicationStatuses } from '@/modules/events/event.schema';
@@ -185,6 +186,36 @@ export class FilesController {
         cause: error,
       });
     }
+  }
+
+  @Get('admin/certificates/template-preview')
+  async certificateTemplatePreview(
+    @Query('eventId') eventId: string | undefined,
+    @Req() request: Request,
+    @Res() response: Response,
+  ) {
+    const admin = await requireAdminSessionFromToken(
+      getAdminSessionToken(request),
+    );
+
+    if (!eventId) {
+      throw new ApplicationError({
+        code: 'VALIDATION_FAILED',
+        message: 'Event id is required',
+        safeMessage: 'Event wajib diisi.',
+        statusCode: 400,
+      });
+    }
+
+    const { buffer } = await getCertificateTemplatePreviewForAdmin({
+      eventId,
+      admin,
+    });
+    response
+      .status(200)
+      .setHeader('Cache-Control', 'private, max-age=60')
+      .setHeader('Content-Type', 'image/png')
+      .send(buffer);
   }
 
   @Get('admin/submission-file/download')

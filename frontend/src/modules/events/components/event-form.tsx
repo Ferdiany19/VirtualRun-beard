@@ -6,8 +6,11 @@ import { useState } from "react";
 import type { EventInput, EventRecord } from "@/modules/events/event.types";
 import { Field } from "@/modules/events/components/field";
 import { createSlugSuggestion } from "@/modules/events/event.policy";
-import { toJakartaDateTimeLocalValue } from "@/shared/date/business-timezone";
-import { Icon } from "@/shared/ui/icons";
+import {
+  formatBusinessDateTime,
+  toJakartaDateTimeLocalValue,
+} from "@/shared/date/business-timezone";
+import { Icon, type IconName } from "@/shared/ui/icons";
 import { StatusBadge } from "@/shared/ui/status-badge";
 
 type EventFormProps = {
@@ -40,35 +43,178 @@ function defaultDates(): Pick<
 
 function FormSection({
   id,
-  number,
   title,
   description,
   children,
 }: {
   id?: string;
-  number: number;
   title: string;
   description?: string;
   children: ReactNode;
 }) {
   return (
-    <section
-      className="scroll-mt-24 rounded-section border border-border bg-surface p-5 shadow-soft"
-      id={id}
-    >
-      <div className="flex items-start gap-3">
-        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-          {number}
-        </span>
-        <div>
-          <h2 className="text-lg font-bold text-navy">{title}</h2>
+    <section className="scroll-mt-24 border-t border-border py-6 first:border-t-0" id={id}>
+      <div className="mb-5 max-w-3xl">
+        <div className="min-w-0">
+          <h2 className="text-xl font-black text-navy">{title}</h2>
           {description ? (
             <p className="mt-1 text-sm leading-6 text-foreground-muted">{description}</p>
           ) : null}
         </div>
       </div>
-      <div className="mt-5">{children}</div>
+      <div>{children}</div>
     </section>
+  );
+}
+
+function SummaryLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-t border-border py-3 first:border-t-0">
+      <dt className="caption-copy font-bold">{label}</dt>
+      <dd className="mt-1 break-words text-sm font-bold text-navy">{value || "-"}</dd>
+    </div>
+  );
+}
+
+function SectionJump({ href, icon, label }: { href: string; icon: IconName; label: string }) {
+  return (
+    <a
+      className="flex min-h-11 items-center gap-3 border-t border-border px-1 py-2 text-sm font-bold text-navy first:border-t-0 hover:text-primary focus-visible:text-primary"
+      href={href}
+    >
+      <Icon className="h-4 w-4 shrink-0 text-primary" name={icon} />
+      <span className="truncate">{label}</span>
+    </a>
+  );
+}
+
+function dateTimeParts(value: Date): { date: string; time: string } {
+  const localValue = toJakartaDateTimeLocalValue(value);
+  const [date = "", time = "00:00"] = localValue.split("T");
+
+  return { date, time: time.slice(0, 5) };
+}
+
+function DateTimeRangeInput({
+  startName,
+  startLabel,
+  startValue,
+  endName,
+  endLabel,
+  endValue,
+}: {
+  startName: keyof Pick<
+    EventInput,
+    "registrationStartsAt" | "activityStartsAt" | "uploadStartsAt"
+  >;
+  startLabel: string;
+  startValue: Date;
+  endName: keyof Pick<EventInput, "registrationEndsAt" | "activityEndsAt" | "uploadEndsAt">;
+  endLabel: string;
+  endValue: Date;
+}) {
+  const startInitial = dateTimeParts(startValue);
+  const endInitial = dateTimeParts(endValue);
+  const [startDate, setStartDate] = useState(startInitial.date);
+  const [startTime, setStartTime] = useState(startInitial.time);
+  const [endDate, setEndDate] = useState(endInitial.date);
+  const [endTime, setEndTime] = useState(endInitial.time);
+
+  return (
+    <fieldset className="rounded-app border border-border bg-surface p-3">
+      <input name={startName} type="hidden" value={`${startDate}T${startTime}`} />
+      <input name={endName} type="hidden" value={`${endDate}T${endTime}`} />
+      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-end">
+        <div className="grid gap-2">
+          <label className="text-sm font-bold text-navy" htmlFor={`${startName}Date`}>
+            {startLabel}
+          </label>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
+            <input
+              className="form-control"
+              id={`${startName}Date`}
+              onChange={(eventTarget) => setStartDate(eventTarget.target.value)}
+              required
+              type="date"
+              value={startDate}
+            />
+            <input
+              aria-label={`${startLabel} jam`}
+              className="form-control"
+              onChange={(eventTarget) => setStartTime(eventTarget.target.value)}
+              required
+              type="time"
+              value={startTime}
+            />
+          </div>
+        </div>
+        <div className="hidden h-11 items-center px-1 text-xs font-bold text-foreground-muted md:flex">
+          sampai
+        </div>
+        <div className="grid gap-2">
+          <label className="text-sm font-bold text-navy" htmlFor={`${endName}Date`}>
+            {endLabel}
+          </label>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
+            <input
+              className="form-control"
+              id={`${endName}Date`}
+              min={startDate}
+              onChange={(eventTarget) => setEndDate(eventTarget.target.value)}
+              required
+              type="date"
+              value={endDate}
+            />
+            <input
+              aria-label={`${endLabel} jam`}
+              className="form-control"
+              onChange={(eventTarget) => setEndTime(eventTarget.target.value)}
+              required
+              type="time"
+              value={endTime}
+            />
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  );
+}
+
+function TimelinePair({
+  title,
+  startName,
+  startLabel,
+  startValue,
+  endName,
+  endLabel,
+  endValue,
+}: {
+  title: string;
+  startName: keyof Pick<
+    EventInput,
+    "registrationStartsAt" | "activityStartsAt" | "uploadStartsAt"
+  >;
+  startLabel: string;
+  startValue: Date;
+  endName: keyof Pick<EventInput, "registrationEndsAt" | "activityEndsAt" | "uploadEndsAt">;
+  endLabel: string;
+  endValue: Date;
+}) {
+  return (
+    <div className="grid gap-4 border-t border-border py-5 first:border-t-0 lg:grid-cols-[150px_minmax(0,1fr)]">
+      <div>
+        <p className="text-sm font-black text-navy">{title}</p>
+        <p className="mt-1 text-xs leading-5 text-foreground-muted">Range tanggal dan jam WIB.</p>
+      </div>
+      <DateTimeRangeInput
+        endLabel={endLabel}
+        endName={endName}
+        endValue={endValue}
+        startLabel={startLabel}
+        startName={startName}
+        startValue={startValue}
+      />
+    </div>
   );
 }
 
@@ -87,8 +233,15 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
     }
   };
 
+  const registrationStart = event?.registrationStartsAt ?? dates.registrationStartsAt;
+  const registrationEnd = event?.registrationEndsAt ?? dates.registrationEndsAt;
+  const activityStart = event?.activityStartsAt ?? dates.activityStartsAt;
+  const activityEnd = event?.activityEndsAt ?? dates.activityEndsAt;
+  const uploadStart = event?.uploadStartsAt ?? dates.uploadStartsAt;
+  const uploadEnd = event?.uploadEndsAt ?? dates.uploadEndsAt;
+
   return (
-    <form action={action} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+    <form action={action} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
       <input name="csrfToken" type="hidden" value={csrfToken} />
       <input name="seoTitle" type="hidden" value={event?.seoTitle ?? ""} />
       <input name="seoDescription" type="hidden" value={event?.seoDescription ?? ""} />
@@ -108,14 +261,31 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         value={JSON.stringify(event?.participantBenefits ?? [])}
       />
 
-      <div className="space-y-6">
+      <div className="rounded-section border border-border bg-surface px-4 py-2 shadow-soft sm:px-6">
+        <div className="grid gap-4 border-b border-border py-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+          <div className="min-w-0">
+            <h2 className="text-2xl font-black text-navy">Konten, jadwal, operasional</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground-muted">
+              Field utama untuk public page, pendaftaran, upload hasil, dan kontak organizer.
+            </p>
+          </div>
+          {event ? (
+            <Link
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app border border-border px-4 py-2 text-sm font-bold text-navy hover:border-primary hover:text-primary"
+              href={`/admin/events/${event.id}`}
+            >
+              Detail event
+              <Icon className="h-4 w-4" name="arrow-right" />
+            </Link>
+          ) : null}
+        </div>
+
         <FormSection
-          description="Nama, slug, dan copy utama yang terlihat di public event page."
+          description="Nama, URL, dan ringkasan yang tampil paling awal untuk peserta."
           id="informasi"
-          number={1}
-          title="Informasi Event"
+          title="Nama, URL, dan narasi event"
         >
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <Field htmlFor="name" label="Nama event">
               <input
                 className="form-control"
@@ -148,7 +318,11 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
                 value={slug}
               />
             </Field>
-            <Field htmlFor="shortDescription" label="Deskripsi pendek">
+            <Field
+              description="Ringkasan singkat untuk kartu event, preview, dan bagian pembuka public page."
+              htmlFor="shortDescription"
+              label="Deskripsi pendek"
+            >
               <textarea
                 className="form-textarea min-h-28"
                 defaultValue={event?.shortDescription}
@@ -157,7 +331,11 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
                 required
               />
             </Field>
-            <Field htmlFor="fullDescription" label="Tentang event">
+            <Field
+              description="Cerita utama event. Tulis jelas tanpa klaim sponsor atau benefit yang belum tersedia."
+              htmlFor="fullDescription"
+              label="Tentang event"
+            >
               <textarea
                 className="form-textarea min-h-40"
                 defaultValue={event?.fullDescription}
@@ -170,34 +348,35 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-          description="Banner dan warna brand dipakai di public presentation. Upload R2 belum tersedia pada fase ini."
+              description="Banner dan warna brand dipakai di public presentation. Warna ini juga membantu membedakan event di katalog."
           id="branding"
-          number={2}
-          title="Branding dan Banner"
+          title="Banner dan warna event"
         >
-          <div className="grid gap-4 md:grid-cols-[1fr_1fr_180px]">
-            <Field
-              description="Gunakan object key lokal/R2 yang sudah tersedia."
-              htmlFor="bannerObjectKey"
-              label="Banner object key"
-            >
-              <input
-                className="form-control"
-                defaultValue={event?.bannerObjectKey ?? ""}
-                id="bannerObjectKey"
-                name="bannerObjectKey"
-                placeholder="/events/example/banner.png"
-              />
-            </Field>
-            <Field htmlFor="thumbnailObjectKey" label="Thumbnail object key">
-              <input
-                className="form-control"
-                defaultValue={event?.thumbnailObjectKey ?? ""}
-                id="thumbnailObjectKey"
-                name="thumbnailObjectKey"
-                placeholder="/events/example/banner.png"
-              />
-            </Field>
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_180px]">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field
+                description="Gunakan object key lokal/R2 yang sudah tersedia."
+                htmlFor="bannerObjectKey"
+                label="Banner object key"
+              >
+                <input
+                  className="form-control"
+                  defaultValue={event?.bannerObjectKey ?? ""}
+                  id="bannerObjectKey"
+                  name="bannerObjectKey"
+                  placeholder="/events/example/banner.png"
+                />
+              </Field>
+              <Field htmlFor="thumbnailObjectKey" label="Thumbnail object key">
+                <input
+                  className="form-control"
+                  defaultValue={event?.thumbnailObjectKey ?? ""}
+                  id="thumbnailObjectKey"
+                  name="thumbnailObjectKey"
+                  placeholder="/events/example/banner.png"
+                />
+              </Field>
+            </div>
             <Field htmlFor="brandPrimaryColor" label="Primary color">
               <div className="flex min-h-11 overflow-hidden rounded-app border border-border bg-surface">
                 <input
@@ -220,64 +399,62 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-          description="Semua tanggal dibaca dan ditampilkan sebagai WIB."
+          description="Pendaftaran, aktivitas, dan upload hasil. Semua jam memakai WIB."
           id="periode"
-          number={3}
-          title="Periode Event"
+          title="Timeline operasional"
         >
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {[
-              [
-                "registrationStartsAt",
-                "Pendaftaran dibuka",
-                event?.registrationStartsAt ?? dates.registrationStartsAt,
-              ],
-              [
-                "registrationEndsAt",
-                "Pendaftaran ditutup",
-                event?.registrationEndsAt ?? dates.registrationEndsAt,
-              ],
-              [
-                "activityStartsAt",
-                "Aktivitas dimulai",
-                event?.activityStartsAt ?? dates.activityStartsAt,
-              ],
-              [
-                "activityEndsAt",
-                "Aktivitas berakhir",
-                event?.activityEndsAt ?? dates.activityEndsAt,
-              ],
-              ["uploadStartsAt", "Upload dibuka", event?.uploadStartsAt ?? dates.uploadStartsAt],
-              ["uploadEndsAt", "Upload ditutup", event?.uploadEndsAt ?? dates.uploadEndsAt],
-            ].map(([nameValue, label, value]) => (
-              <Field key={String(nameValue)} htmlFor={String(nameValue)} label={`${label} (WIB)`}>
-                <input
-                  className="form-control"
-                  defaultValue={toJakartaDateTimeLocalValue(value as Date)}
-                  id={String(nameValue)}
-                  name={String(nameValue)}
-                  required
-                  type="datetime-local"
-                />
-              </Field>
-            ))}
+          <div className="rounded-app border border-border px-4">
+            <TimelinePair
+              endLabel="Pendaftaran ditutup"
+              endName="registrationEndsAt"
+              endValue={registrationEnd}
+              startLabel="Pendaftaran dibuka"
+              startName="registrationStartsAt"
+              startValue={registrationStart}
+              title="Pendaftaran"
+            />
+            <TimelinePair
+              endLabel="Aktivitas berakhir"
+              endName="activityEndsAt"
+              endValue={activityEnd}
+              startLabel="Aktivitas dimulai"
+              startName="activityStartsAt"
+              startValue={activityStart}
+              title="Aktivitas"
+            />
+            <TimelinePair
+              endLabel="Upload ditutup"
+              endName="uploadEndsAt"
+              endValue={uploadEnd}
+              startLabel="Upload dibuka"
+              startName="uploadStartsAt"
+              startValue={uploadStart}
+              title="Upload hasil"
+            />
           </div>
         </FormSection>
 
         <FormSection
-          description="Kategori dikelola sebagai resource terpisah agar publish rule tetap jelas."
+          description="Jarak, quota, ranking, dan sertifikat kategori dikelola terpisah."
           id="kategori"
-          number={4}
-          title="Category"
+          title="Kategori event"
         >
           {event ? (
-            <Link
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app border border-border bg-surface px-4 py-2 text-sm font-bold text-navy hover:border-primary hover:text-primary"
-              href={`/admin/events/${event.id}/categories`}
-            >
-              Kelola kategori
-              <Icon className="h-4 w-4" name="arrow-right" />
-            </Link>
+            <div className="flex flex-col gap-3 rounded-app border border-border bg-surface-muted p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-navy">Kategori, quota, ranking, sertifikat</p>
+                <p className="mt-1 text-xs leading-5 text-foreground-muted">
+                  Tambahkan minimal satu kategori aktif sebelum publish.
+                </p>
+              </div>
+              <Link
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app border border-border bg-surface px-4 py-2 text-sm font-bold text-navy hover:border-primary hover:text-primary"
+                href={`/admin/events/${event.id}/categories`}
+              >
+                Kelola kategori
+                <Icon className="h-4 w-4" name="arrow-right" />
+              </Link>
+            </div>
           ) : (
             <p className="small-copy">
               Simpan draft event terlebih dahulu, lalu tambahkan minimal satu kategori aktif sebelum
@@ -286,9 +463,17 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
           )}
         </FormSection>
 
-        <FormSection id="instruksi" number={5} title="Instruksi">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Field htmlFor="registrationInstructions" label="Instruksi pendaftaran">
+        <FormSection
+          description="Copy yang muncul di flow peserta saat daftar dan upload hasil."
+          id="instruksi"
+          title="Arahan untuk peserta"
+        >
+          <div className="grid gap-5 lg:grid-cols-2">
+            <Field
+              description="Contoh isi: cara memilih kategori, data yang harus benar, dan kapan email/BIB dikirim."
+              htmlFor="registrationInstructions"
+              label="Instruksi pendaftaran"
+            >
               <textarea
                 className="form-textarea min-h-36"
                 defaultValue={event?.registrationInstructions}
@@ -297,7 +482,11 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
                 required
               />
             </Field>
-            <Field htmlFor="uploadInstructions" label="Instruksi upload">
+            <Field
+              description="Contoh isi: platform yang diterima, toleransi jarak, screenshot, dan batas revisi."
+              htmlFor="uploadInstructions"
+              label="Instruksi upload"
+            >
               <textarea
                 className="form-textarea min-h-36"
                 defaultValue={event?.uploadInstructions}
@@ -309,7 +498,11 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
           </div>
         </FormSection>
 
-        <FormSection id="syarat" number={6} title="Syarat dan Ketentuan">
+        <FormSection
+          description="Rujukan peserta sebelum mendaftar dan saat hasil divalidasi."
+          id="syarat"
+          title="Syarat dan ketentuan"
+        >
           <Field htmlFor="termsAndConditions" label="Syarat event">
             <textarea
               className="form-textarea min-h-44"
@@ -324,14 +517,13 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         <FormSection
           description="FAQ kosong tidak akan ditampilkan di public page."
           id="faq"
-          number={7}
-          title="FAQ"
+          title="Pertanyaan umum"
         >
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {[0, 1, 2, 3].map((index) => (
               <div
                 key={index}
-                className="grid gap-3 rounded-app border border-border bg-surface-muted p-4"
+                className="grid gap-3 border-l-2 border-border bg-surface-muted px-4 py-3"
               >
                 <Field htmlFor={`faqQuestion${index}`} label={`FAQ ${index + 1} - Pertanyaan`}>
                   <input
@@ -354,8 +546,12 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
           </div>
         </FormSection>
 
-        <FormSection id="kontak" number={8} title="Kontak">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <FormSection
+          description="Kontak organizer dan batas kapasitas event."
+          id="kontak"
+          title="Kontak dan kapasitas"
+        >
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             <Field htmlFor="contactEmail" label="Email organizer">
               <input
                 className="form-control"
@@ -397,11 +593,10 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
       </div>
 
-      <aside className="space-y-4 lg:sticky lg:top-24">
+      <aside className="space-y-4 xl:sticky xl:top-24">
         <section className="rounded-section border border-border bg-surface p-5 shadow-soft">
-          <p className="eyebrow">Publication</p>
-          <h2 className="mt-2 text-lg font-bold text-navy">
-            {event ? "Status event" : "Draft baru"}
+          <h2 className="text-lg font-black text-navy">
+            {event ? "Event saat ini" : "Draft baru"}
           </h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {event ? (
@@ -415,9 +610,18 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
               <StatusBadge tone="warning">DRAFT</StatusBadge>
             )}
           </div>
-          <div className="mt-4 rounded-app bg-amber-50 p-3 text-xs leading-5 text-amber-900">
-            Publish hanya berhasil jika event memiliki minimal satu kategori aktif.
-          </div>
+          <dl className="mt-4">
+            <SummaryLine label="Nama" value={name} />
+            <SummaryLine label="Slug public" value={slug ? `/${slug}` : ""} />
+            <SummaryLine
+              label="Pendaftaran dibuka"
+              value={`${formatBusinessDateTime(registrationStart)} WIB`}
+            />
+            <SummaryLine
+              label="Upload ditutup"
+              value={`${formatBusinessDateTime(uploadEnd)} WIB`}
+            />
+          </dl>
           {event ? (
             <Link
               className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-app border border-border px-4 py-2 text-sm font-bold text-navy hover:border-primary hover:text-primary"
@@ -429,7 +633,21 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </section>
 
         <section className="rounded-section border border-border bg-surface p-5">
-          <p className="eyebrow">Brand color</p>
+          <h2 className="text-lg font-black text-navy">Navigasi editor</h2>
+          <nav aria-label="Section editor event" className="mt-3">
+            <SectionJump href="#informasi" icon="document" label="Identitas" />
+            <SectionJump href="#branding" icon="image" label="Visual" />
+            <SectionJump href="#periode" icon="calendar" label="Timeline" />
+            <SectionJump href="#kategori" icon="grid" label="Kategori" />
+            <SectionJump href="#instruksi" icon="clipboard" label="Instruksi" />
+            <SectionJump href="#syarat" icon="shield" label="Syarat" />
+            <SectionJump href="#faq" icon="info" label="FAQ" />
+            <SectionJump href="#kontak" icon="phone" label="Kontak" />
+          </nav>
+        </section>
+
+        <section className="rounded-section border border-border bg-surface p-5">
+          <h2 className="text-lg font-black text-navy">Brand color</h2>
           <div
             className="mt-3 h-16 rounded-app border border-border"
             style={{ backgroundColor: brandPrimaryColor }}
@@ -440,9 +658,12 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </section>
 
         <div className="sticky bottom-4 rounded-section border border-border bg-surface/95 p-4 shadow-floating backdrop-blur">
+          <p className="mb-3 text-xs leading-5 text-foreground-muted">
+            Simpan hanya memperbarui data event. Publish tetap dari detail event.
+          </p>
           <button className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-app bg-primary px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-hover">
             <Icon className="h-4 w-4" name="check" />
-            Simpan draft
+            Simpan perubahan
           </button>
         </div>
       </aside>

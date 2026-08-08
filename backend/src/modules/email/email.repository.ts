@@ -5,7 +5,14 @@ export async function createEmailDelivery(
   input: {
     eventRegistrationId: string;
     recipientEmail: string;
-    emailType: 'REGISTRATION_CONFIRMATION';
+    emailType:
+      | 'REGISTRATION_CONFIRMATION'
+      | 'REVISION_REQUEST'
+      | 'SUBMISSION_APPROVED'
+      | 'SUBMISSION_REJECTED'
+      | 'SUBMISSION_DISQUALIFIED'
+      | 'REVISED_SUBMISSION_RECEIVED'
+      | 'CERTIFICATE';
   },
   client?: PoolClient,
 ): Promise<string> {
@@ -28,13 +35,22 @@ export async function createEmailDelivery(
 
 export async function markEmailDeliverySent(
   input:
-    { eventRegistrationId: string; emailDeliveryId?: string | null } | string,
+    | {
+        eventRegistrationId: string;
+        emailDeliveryId?: string | null;
+        emailType?: string;
+      }
+    | string,
   client?: PoolClient,
 ): Promise<void> {
   const eventRegistrationId =
     typeof input === 'string' ? input : input.eventRegistrationId;
   const emailDeliveryId =
     typeof input === 'string' ? null : (input.emailDeliveryId ?? null);
+  const emailType =
+    typeof input === 'string'
+      ? 'REGISTRATION_CONFIRMATION'
+      : (input.emailType ?? 'REGISTRATION_CONFIRMATION');
 
   await query(
     `
@@ -45,10 +61,10 @@ export async function markEmailDeliverySent(
         sent_at = now(),
         updated_at = now()
       WHERE event_registration_id = $1
-        AND email_type = 'REGISTRATION_CONFIRMATION'
-        AND ($2::uuid IS NULL OR id = $2::uuid)
+        AND email_type = $2
+        AND ($3::uuid IS NULL OR id = $3::uuid)
     `,
-    [eventRegistrationId, emailDeliveryId],
+    [eventRegistrationId, emailType, emailDeliveryId],
     client,
   );
 }
@@ -58,6 +74,7 @@ export async function markEmailDeliveryFailed(
     eventRegistrationId: string;
     sanitizedError: string;
     emailDeliveryId?: string | null;
+    emailType?: string;
   },
   client?: PoolClient,
 ): Promise<void> {
@@ -67,14 +84,15 @@ export async function markEmailDeliveryFailed(
       SET
         status = 'FAILED',
         attempts = attempts + 1,
-        last_error = $2,
+        last_error = $3,
         updated_at = now()
       WHERE event_registration_id = $1
-        AND email_type = 'REGISTRATION_CONFIRMATION'
-        AND ($3::uuid IS NULL OR id = $3::uuid)
+        AND email_type = $2
+        AND ($4::uuid IS NULL OR id = $4::uuid)
     `,
     [
       input.eventRegistrationId,
+      input.emailType ?? 'REGISTRATION_CONFIRMATION',
       input.sanitizedError,
       input.emailDeliveryId ?? null,
     ],

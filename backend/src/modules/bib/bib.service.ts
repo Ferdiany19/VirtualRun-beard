@@ -58,7 +58,7 @@ function assertCanManageBib(admin: AuthenticatedAdmin): void {
     throw new ApplicationError({
       code: 'FORBIDDEN',
       message: 'Admin cannot manage BIB',
-      safeMessage: 'Role Anda tidak dapat mengelola BIB.',
+      safeMessage: 'Akun admin belum dapat mengelola BIB.',
       statusCode: 403,
     });
   }

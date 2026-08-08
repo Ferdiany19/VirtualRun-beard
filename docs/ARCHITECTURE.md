@@ -10,9 +10,9 @@ menghasilkan tiga proses:
 - Background worker dari backend.
 
 Worker memproses PostgreSQL-backed job queue untuk `GENERATE_BIB`,
-`SEND_REGISTRATION_CONFIRMATION`, submission validation notification, dan
-`CLEAN_EXPIRED_UPLOADS`. Handler job tetap berada dalam monolith yang sama dan tidak memakai
-Redis/BullMQ.
+`SEND_REGISTRATION_CONFIRMATION`, submission validation notification, certificate
+generation/email, dan `CLEAN_EXPIRED_UPLOADS`. Handler job tetap berada dalam monolith yang sama
+dan tidak memakai Redis/BullMQ.
 
 ## Request Boundary
 
@@ -47,8 +47,9 @@ backend/
 Slice registration/BIB menambahkan module `registrations`, `bib`, `jobs`, `storage`, dan
 `email`. Slice submission menambahkan module `submissions` untuk upload hasil, revision
 history, dan evidence file. Slice validation menambahkan module `validation` untuk queue,
-assignment validator, claim concurrency, decision policy, deterministic warnings, dan review
-audit. Folder leaderboard, certificates, dan reports tetap belum dibangun.
+claim concurrency, decision policy, deterministic warnings, dan review audit. Slice certificate
+menambahkan module `certificates` untuk template PNG per event, render Sharp, dan email
+attachment. Folder leaderboard dan reports tetap belum dibangun.
 
 ## Database Access
 
@@ -78,6 +79,9 @@ Protected admin pages memakai server component layout yang memanggil `requireAdm
 State-changing action memvalidasi CSRF token, lalu memanggil service. SQL tetap hanya berada
 di repository.
 
+Production authorization adalah single admin app-level: admin session aktif dapat mengakses
+seluruh area admin. Role dan assignment lama tetap ada di schema sebagai legacy compatibility.
+
 ## Public Event Flow
 
 `/`, `/events`, dan `/events/[slug]` hanya membaca event published dari repository public.
@@ -96,6 +100,8 @@ Job types aktif:
 - `SEND_SUBMISSION_REJECTED_NOTIFICATION`
 - `SEND_SUBMISSION_DISQUALIFIED_NOTIFICATION`
 - `SEND_REVISED_SUBMISSION_RECEIVED_NOTIFICATION`
+- `GENERATE_CERTIFICATE`
+- `SEND_CERTIFICATE_EMAIL`
 - `CLEAN_EXPIRED_UPLOADS`
 
 Worker mengambil job dengan lock, menjalankan handler idempotent, lalu menandai
@@ -109,14 +115,18 @@ metadata. Production memakai adapter R2 S3-compatible; development boleh memakai
 private. Evidence submission memakai object key
 `events/{eventId}/submissions/{submissionId}/revisions/{revisionId}/{fileId}.jpg` dan
 dipreview/diunduh melalui endpoint terotorisasi.
+Template sertifikat memakai object key
+`events/{eventId}/templates/certificates/{templateId}.png`; hasil sertifikat memakai
+`events/{eventId}/certificates/{certificateId}.png` dan tetap private.
 
 ## Email
 
 Email confirmation dikirim melalui job `SEND_REGISTRATION_CONFIRMATION`. Submission
 validation notification memakai job email yang sama untuk revision request, approved,
-rejected, disqualified, dan revised submission received. Production memakai SMTP lewat
-environment variable; development boleh memakai `EMAIL_DRIVER=log`. Registration code di
-payload job disimpan terenkripsi dengan `SESSION_SECRET`.
+rejected, disqualified, dan revised submission received. Sertifikat dikirim melalui
+`SEND_CERTIFICATE_EMAIL` dengan attachment PNG. Production memakai SMTP lewat environment
+variable; development boleh memakai `EMAIL_DRIVER=log`. Registration code di payload job
+disimpan terenkripsi dengan `SESSION_SECRET`.
 
 ## Deployment
 
