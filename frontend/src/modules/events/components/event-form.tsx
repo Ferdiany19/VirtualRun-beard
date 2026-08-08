@@ -43,18 +43,21 @@ function defaultDates(): Pick<
 
 function FormSection({
   id,
+  eyebrow,
   title,
   description,
   children,
 }: {
   id?: string;
+  eyebrow: string;
   title: string;
   description?: string;
   children: ReactNode;
 }) {
   return (
     <section className="scroll-mt-24 border-t border-border py-6 first:border-t-0" id={id}>
-      <div className="mb-5 max-w-3xl">
+      <div className="mb-5 grid gap-2 md:grid-cols-[180px_minmax(0,1fr)]">
+        <p className="eyebrow">{eyebrow}</p>
         <div className="min-w-0">
           <h2 className="text-xl font-black text-navy">{title}</h2>
           {description ? (
@@ -88,98 +91,6 @@ function SectionJump({ href, icon, label }: { href: string; icon: IconName; labe
   );
 }
 
-function dateTimeParts(value: Date): { date: string; time: string } {
-  const localValue = toJakartaDateTimeLocalValue(value);
-  const [date = "", time = "00:00"] = localValue.split("T");
-
-  return { date, time: time.slice(0, 5) };
-}
-
-function DateTimeRangeInput({
-  startName,
-  startLabel,
-  startValue,
-  endName,
-  endLabel,
-  endValue,
-}: {
-  startName: keyof Pick<
-    EventInput,
-    "registrationStartsAt" | "activityStartsAt" | "uploadStartsAt"
-  >;
-  startLabel: string;
-  startValue: Date;
-  endName: keyof Pick<EventInput, "registrationEndsAt" | "activityEndsAt" | "uploadEndsAt">;
-  endLabel: string;
-  endValue: Date;
-}) {
-  const startInitial = dateTimeParts(startValue);
-  const endInitial = dateTimeParts(endValue);
-  const [startDate, setStartDate] = useState(startInitial.date);
-  const [startTime, setStartTime] = useState(startInitial.time);
-  const [endDate, setEndDate] = useState(endInitial.date);
-  const [endTime, setEndTime] = useState(endInitial.time);
-
-  return (
-    <fieldset className="rounded-app border border-border bg-surface p-3">
-      <input name={startName} type="hidden" value={`${startDate}T${startTime}`} />
-      <input name={endName} type="hidden" value={`${endDate}T${endTime}`} />
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-end">
-        <div className="grid gap-2">
-          <label className="text-sm font-bold text-navy" htmlFor={`${startName}Date`}>
-            {startLabel}
-          </label>
-          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
-            <input
-              className="form-control"
-              id={`${startName}Date`}
-              onChange={(eventTarget) => setStartDate(eventTarget.target.value)}
-              required
-              type="date"
-              value={startDate}
-            />
-            <input
-              aria-label={`${startLabel} jam`}
-              className="form-control"
-              onChange={(eventTarget) => setStartTime(eventTarget.target.value)}
-              required
-              type="time"
-              value={startTime}
-            />
-          </div>
-        </div>
-        <div className="hidden h-11 items-center px-1 text-xs font-bold text-foreground-muted md:flex">
-          sampai
-        </div>
-        <div className="grid gap-2">
-          <label className="text-sm font-bold text-navy" htmlFor={`${endName}Date`}>
-            {endLabel}
-          </label>
-          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px]">
-            <input
-              className="form-control"
-              id={`${endName}Date`}
-              min={startDate}
-              onChange={(eventTarget) => setEndDate(eventTarget.target.value)}
-              required
-              type="date"
-              value={endDate}
-            />
-            <input
-              aria-label={`${endLabel} jam`}
-              className="form-control"
-              onChange={(eventTarget) => setEndTime(eventTarget.target.value)}
-              required
-              type="time"
-              value={endTime}
-            />
-          </div>
-        </div>
-      </div>
-    </fieldset>
-  );
-}
-
 function TimelinePair({
   title,
   startName,
@@ -201,19 +112,31 @@ function TimelinePair({
   endValue: Date;
 }) {
   return (
-    <div className="grid gap-4 border-t border-border py-5 first:border-t-0 lg:grid-cols-[150px_minmax(0,1fr)]">
+    <div className="grid gap-4 border-t border-border py-5 first:border-t-0 md:grid-cols-[160px_minmax(0,1fr)_minmax(0,1fr)]">
       <div>
         <p className="text-sm font-black text-navy">{title}</p>
-        <p className="mt-1 text-xs leading-5 text-foreground-muted">Range tanggal dan jam WIB.</p>
+        <p className="mt-1 text-xs leading-5 text-foreground-muted">Jam memakai WIB.</p>
       </div>
-      <DateTimeRangeInput
-        endLabel={endLabel}
-        endName={endName}
-        endValue={endValue}
-        startLabel={startLabel}
-        startName={startName}
-        startValue={startValue}
-      />
+      <Field htmlFor={startName} label={startLabel}>
+        <input
+          className="form-control"
+          defaultValue={toJakartaDateTimeLocalValue(startValue)}
+          id={startName}
+          name={startName}
+          required
+          type="datetime-local"
+        />
+      </Field>
+      <Field htmlFor={endName} label={endLabel}>
+        <input
+          className="form-control"
+          defaultValue={toJakartaDateTimeLocalValue(endValue)}
+          id={endName}
+          name={endName}
+          required
+          type="datetime-local"
+        />
+      </Field>
     </div>
   );
 }
@@ -264,9 +187,10 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
       <div className="rounded-section border border-border bg-surface px-4 py-2 shadow-soft sm:px-6">
         <div className="grid gap-4 border-b border-border py-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
           <div className="min-w-0">
-            <h2 className="text-2xl font-black text-navy">Konten, jadwal, operasional</h2>
+            <h2 className="mt-2 text-2xl font-black text-navy">Konten, jadwal, dan operasional</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground-muted">
-              Field utama untuk public page, pendaftaran, upload hasil, dan kontak organizer.
+              Perubahan di halaman ini memengaruhi public page, pendaftaran, upload hasil, dan
+              komunikasi peserta. Kategori, BIB, dan sertifikat dikelola dari halaman event detail.
             </p>
           </div>
           {event ? (
@@ -281,7 +205,8 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </div>
 
         <FormSection
-          description="Nama, URL, dan ringkasan yang tampil paling awal untuk peserta."
+          description="Bagian ini adalah sinyal pertama yang dilihat peserta di halaman public."
+          eyebrow="Identitas"
           id="informasi"
           title="Nama, URL, dan narasi event"
         >
@@ -348,14 +273,15 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-              description="Banner dan warna brand dipakai di public presentation. Warna ini juga membantu membedakan event di katalog."
+          description="Banner dan warna brand dipakai di public presentation. Warna ini juga membantu membedakan event di katalog."
+          eyebrow="Visual"
           id="branding"
-          title="Banner dan warna event"
+          title="Aset dan warna public page"
         >
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_180px]">
             <div className="grid gap-4 md:grid-cols-2">
               <Field
-                description="Gunakan object key lokal/R2 yang sudah tersedia."
+                
                 htmlFor="bannerObjectKey"
                 label="Banner object key"
               >
@@ -399,7 +325,8 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-          description="Pendaftaran, aktivitas, dan upload hasil. Semua jam memakai WIB."
+          description="Urutan window harus jelas: pendaftaran, aktivitas, lalu upload hasil. Semua jam disimpan dan ditampilkan sebagai WIB."
+          eyebrow="Jadwal"
           id="periode"
           title="Timeline operasional"
         >
@@ -435,9 +362,10 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-          description="Jarak, quota, ranking, dan sertifikat kategori dikelola terpisah."
+          description="Kategori tidak diedit di form ini supaya quota, jarak, ranking, dan sertifikat tetap punya audit yang jelas."
+          eyebrow="Kategori"
           id="kategori"
-          title="Kategori event"
+          title="Race category"
         >
           {event ? (
             <div className="flex flex-col gap-3 rounded-app border border-border bg-surface-muted p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -464,7 +392,8 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-          description="Copy yang muncul di flow peserta saat daftar dan upload hasil."
+          description="Instruksi muncul di flow peserta. Pisahkan instruksi daftar dan instruksi upload supaya tidak tercampur."
+          eyebrow="Instruksi"
           id="instruksi"
           title="Arahan untuk peserta"
         >
@@ -499,7 +428,8 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-          description="Rujukan peserta sebelum mendaftar dan saat hasil divalidasi."
+          description="Teks ini menjadi rujukan peserta sebelum mendaftar dan saat validasi hasil."
+          eyebrow="Legal"
           id="syarat"
           title="Syarat dan ketentuan"
         >
@@ -516,6 +446,7 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
 
         <FormSection
           description="FAQ kosong tidak akan ditampilkan di public page."
+          eyebrow="Bantuan"
           id="faq"
           title="Pertanyaan umum"
         >
@@ -547,7 +478,8 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </FormSection>
 
         <FormSection
-          description="Kontak organizer dan batas kapasitas event."
+          description="Kontak ini dipakai di public page dan email operasional."
+          eyebrow="Operasional"
           id="kontak"
           title="Kontak dan kapasitas"
         >
@@ -595,7 +527,8 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
 
       <aside className="space-y-4 xl:sticky xl:top-24">
         <section className="rounded-section border border-border bg-surface p-5 shadow-soft">
-          <h2 className="text-lg font-black text-navy">
+          <p className="eyebrow">Status</p>
+          <h2 className="mt-2 text-lg font-black text-navy">
             {event ? "Event saat ini" : "Draft baru"}
           </h2>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -633,7 +566,7 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </section>
 
         <section className="rounded-section border border-border bg-surface p-5">
-          <h2 className="text-lg font-black text-navy">Navigasi editor</h2>
+          <p className="eyebrow">Navigasi</p>
           <nav aria-label="Section editor event" className="mt-3">
             <SectionJump href="#informasi" icon="document" label="Identitas" />
             <SectionJump href="#branding" icon="image" label="Visual" />
@@ -647,7 +580,7 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
         </section>
 
         <section className="rounded-section border border-border bg-surface p-5">
-          <h2 className="text-lg font-black text-navy">Brand color</h2>
+          <p className="eyebrow">Brand color</p>
           <div
             className="mt-3 h-16 rounded-app border border-border"
             style={{ backgroundColor: brandPrimaryColor }}
@@ -659,7 +592,7 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
 
         <div className="sticky bottom-4 rounded-section border border-border bg-surface/95 p-4 shadow-floating backdrop-blur">
           <p className="mb-3 text-xs leading-5 text-foreground-muted">
-            Simpan hanya memperbarui data event. Publish tetap dari detail event.
+            Simpan memperbarui data terbaru yang dipakai preview admin dan public page.
           </p>
           <button className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-app bg-primary px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-hover">
             <Icon className="h-4 w-4" name="check" />
