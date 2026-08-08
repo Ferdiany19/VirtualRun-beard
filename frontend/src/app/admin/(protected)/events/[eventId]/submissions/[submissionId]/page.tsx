@@ -1,8 +1,4 @@
-import {
-  claimSubmissionAction,
-  releaseSubmissionClaimAction,
-  saveValidationDecisionAction,
-} from "@/app/admin/(protected)/events/[eventId]/submissions/[submissionId]/actions";
+import { saveValidationDecisionAction } from "@/app/admin/(protected)/events/[eventId]/submissions/[submissionId]/actions";
 import { getAdminCsrfTokenForForm, requireAdminSession } from "@/modules/auth/session";
 import { getManagedSubmissionCertificateSummary } from "@/modules/certificates/certificate.service";
 import type { SubmissionCertificateSummary } from "@/modules/certificates/certificate.types";
@@ -61,8 +57,6 @@ export default async function AdminSubmissionDetailPage({
   const event = await getValidationEvent({ eventId, admin });
   const detail = await getValidationSubmissionDetail({ submissionId, admin });
   const certificateSummary = await getManagedSubmissionCertificateSummary({ submissionId, admin });
-  const claimAction = claimSubmissionAction.bind(null, event.id, submissionId);
-  const releaseAction = releaseSubmissionClaimAction.bind(null, event.id, submissionId);
   const decisionAction = saveValidationDecisionAction.bind(null, event.id, submissionId);
 
   return (
@@ -70,7 +64,7 @@ export default async function AdminSubmissionDetailPage({
       <AdminPageHeader
         actionHref={`/admin/events/${event.id}/submissions`}
         actionLabel="Kembali"
-        description="Claim submission sebelum menyimpan approve, request revision, reject, atau disqualify."
+        description="Review bukti peserta, lalu simpan approve, request revisi, atau reject."
         eyebrow="Validation Detail"
         title={`${event.name} - ${detail.participant.fullName}`}
       />
@@ -96,12 +90,9 @@ export default async function AdminSubmissionDetailPage({
         </div>
       </section>
       <ValidationDetailView
-        admin={admin}
-        claimAction={claimAction}
         csrfToken={csrfToken}
         decisionAction={decisionAction}
         detail={detail}
-        releaseAction={releaseAction}
       />
     </div>
   );

@@ -49,7 +49,6 @@ function queueFilters(query: Record<string, string | undefined>) {
     eventId: query.eventId ?? null,
     categoryId: query.categoryId ?? null,
     status: query.status ?? null,
-    reviewer: query.reviewer ?? null,
     activityPlatform: query.activityPlatform ?? null,
     evidenceType: query.evidenceType ?? null,
     search: query.search ?? null,

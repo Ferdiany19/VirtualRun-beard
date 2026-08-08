@@ -391,20 +391,6 @@ function assertCurrentRevision(locked: LockedSubmissionForValidation, revisionId
   }
 }
 
-function assertOwnsClaim(locked: LockedSubmissionForValidation, admin: AuthenticatedAdmin): void {
-  if (
-    locked.reviewClaimedByAdminUserId !== admin.id ||
-    !isClaimActive(locked.reviewClaimExpiresAt)
-  ) {
-    throw new ApplicationError({
-      code: "CONFLICT",
-      message: "Review claim is missing or expired",
-      safeMessage: "Claim review sudah tidak aktif. Ambil ulang claim sebelum menyimpan keputusan.",
-      statusCode: 409,
-    });
-  }
-}
-
 export async function claimSubmissionForReview(input: {
   admin: AuthenticatedAdmin;
   form: { submissionId: string; expectedReviewVersion: number; reason?: string | null };
@@ -592,9 +578,6 @@ export async function saveValidationDecision(input: {
     assertCurrentRevision(locked, parsed.revisionId);
 
     const isReopen = parsed.action === "REOPEN_SUBMISSION" || parsed.action === "RESTORE_TO_REVIEW";
-    if (!isReopen) {
-      assertOwnsClaim(locked, input.admin);
-    }
 
     const resultingStatus = assertStatusTransition({
       action: parsed.action,

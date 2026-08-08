@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { requireAdminSession } from "@/modules/auth/session";
 import { AdminPageHeader } from "@/modules/events/components/admin-page-header";
 import { FormMessage } from "@/modules/events/components/form-message";
@@ -16,18 +17,24 @@ type EventValidationPageProps = {
   searchParams: Promise<Record<string, string | undefined>>;
 };
 
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(value);
+}
+
 export default async function EventValidationPage({
   params,
   searchParams,
 }: EventValidationPageProps) {
   const admin = await requireAdminSession();
   const { eventId } = await params;
+  if (!isUuid(eventId)) {
+    redirect("/admin/events");
+  }
   const query = await searchParams;
   const event = await getValidationEvent({ eventId, admin });
   const filters: ValidationQueueFilters = {
     categoryId: query.categoryId,
     status: query.status as ValidationQueueFilters["status"],
-    reviewer: query.reviewer,
     evidenceType: query.evidenceType as ValidationQueueFilters["evidenceType"],
     search: query.search,
     distanceCheck: query.distanceCheck as ValidationQueueFilters["distanceCheck"],

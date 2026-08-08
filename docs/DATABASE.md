@@ -181,7 +181,7 @@ Implemented validation extension in migration 009:
 
 - `event_validator_assignments`
 - `validation_reviews`
-- Additional validation columns on `submissions` for claim state, `review_version`,
+- Additional validation columns on `submissions` for legacy claim state, `review_version`,
   approved revision, ranking eligibility, latest participant-visible note, and latest reason
   code.
 - `events.allow_same_activity_across_categories` for future duplicate evidence policy tuning.
@@ -254,7 +254,7 @@ Participant table extension:
 - Certificate output path:
   `events/{eventId}/certificates/{certificateId}.png`.
 - Validation review actions and reason codes are protected by CHECK constraints.
-- Submission claim indexes support queue filtering and expired claim detection.
+- Submission claim indexes remain for legacy compatibility and future cleanup evaluation.
 - Background job and email delivery type constraints include submission validation
   notification types and certificate jobs/email.
 

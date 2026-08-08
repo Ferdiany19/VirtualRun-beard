@@ -131,7 +131,6 @@ export async function publishBibTemplateAction(
 ): Promise<void> {
   const admin = await requireAdminSession();
   await validateAdminCsrfToken(formData, admin);
-  let duplicateId = "";
 
   try {
     const response = await fetch(apiUrl(`/api/admin/bib-templates/${templateVersionId}/publish`), {
@@ -188,6 +187,7 @@ export async function duplicateBibTemplateAction(
 ): Promise<void> {
   const admin = await requireAdminSession();
   await validateAdminCsrfToken(formData, admin);
+  let duplicateId = "";
 
   try {
     const response = await fetch(

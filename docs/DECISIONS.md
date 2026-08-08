@@ -26,11 +26,12 @@
 | 2026-07-24 | Local storage dan log email hanya development-only.                                           | Membuat slice bisa dicoba lokal tanpa melemahkan production security.                      |
 | 2026-07-24 | Submission fase awal tidak memakai server-side draft.                                         | Submit valid langsung mencatat revision append-only `SUBMITTED`; validasi admin fase lain. |
 | 2026-07-24 | Screenshot submission dinormalisasi server-side menjadi JPEG private object.                  | Menghapus metadata, menyeragamkan preview, dan menjaga evidence tetap tidak public.        |
-| 2026-07-24 | Validation memakai claim dengan expiry dan optimistic `review_version`.                       | Mengurangi race condition antar validator tanpa memperkenalkan queue eksternal.            |
+| 2026-07-24 | Validation awal memakai claim dengan expiry dan optimistic `review_version`.                  | Keputusan ini disupersede oleh direct admin decision pada 2026-08-08; field/API claim tetap legacy. |
 | 2026-07-24 | Validation review bersifat append-only dan participant note dipisah dari internal note.       | Menjaga audit trail sekaligus mencegah catatan internal bocor ke peserta.                  |
 | 2026-07-24 | Warning validation deterministic tidak otomatis menentukan keputusan.                         | Reviewer tetap bertanggung jawab atas approve/reject, warning hanya alat bantu review.     |
 | 2026-07-26 | Repository menjadi pnpm workspace `frontend/` + `backend/`, dengan NestJS sebagai backend API. | Memisahkan boundary HTTP/backend tanpa memperkenalkan microservice atau teknologi terlarang. |
 | 2026-08-08 | Production authorization memakai single active admin app-level.                               | Operasional saat ini tidak membutuhkan role validator/report viewer; tabel role lama dipertahankan agar migration aman. |
+| 2026-08-08 | Validation produksi memakai direct admin decision tanpa claim.                                | Operasional single admin tidak membutuhkan claim/release; `review_version` dan row lock cukup untuk konflik tab lama. Field/API claim tetap legacy sampai cleanup terpisah. |
 | 2026-08-08 | Sertifikat v1 berupa PNG dari template event dan dikirim otomatis saat event `COMPLETED`.     | Memenuhi kebutuhan sertifikat tanpa menambah dependency PDF atau public verification sebelum dibutuhkan. |
 
 ## Assumptions

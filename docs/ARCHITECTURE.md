@@ -47,7 +47,7 @@ backend/
 Slice registration/BIB menambahkan module `registrations`, `bib`, `jobs`, `storage`, dan
 `email`. Slice submission menambahkan module `submissions` untuk upload hasil, revision
 history, dan evidence file. Slice validation menambahkan module `validation` untuk queue,
-claim concurrency, decision policy, deterministic warnings, dan review audit. Slice certificate
+direct admin decision policy, optimistic `review_version`, deterministic warnings, dan review audit. Slice certificate
 menambahkan module `certificates` untuk template PNG per event, render Sharp, dan email
 attachment. Folder leaderboard dan reports tetap belum dibangun.
 

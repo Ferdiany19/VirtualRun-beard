@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { AuthenticatedAdmin } from "@/modules/auth/auth.types";
 import { formatDateTimeRange } from "@/modules/events/components/event-display";
 import type { EventRecord } from "@/modules/events/event.types";
 import { activityPlatformLabels } from "@/modules/submissions/submission.schema";
@@ -11,7 +10,6 @@ import {
 } from "@/modules/submissions/components/submission-views";
 import type { SubmissionDetail } from "@/modules/submissions/submission.types";
 import {
-  disqualificationReasonCodes,
   rejectionReasonCodes,
   revisionRequestReasonCodes,
 } from "@/modules/validation/validation.schema";
@@ -37,10 +35,9 @@ function warningTone(tone: ValidationWarning["tone"]) {
   return "neutral" as const;
 }
 
-function canShowActions(detail: SubmissionDetail, admin: AuthenticatedAdmin): boolean {
-  const claimOwner = detail.submission?.reviewClaimedByAdminUserId;
-  const expiresAt = detail.submission?.reviewClaimExpiresAt;
-  return Boolean(claimOwner === admin.id && expiresAt && expiresAt > new Date());
+function canShowDecisionForms(detail: SubmissionDetail): boolean {
+  const status = detail.submission?.status;
+  return Boolean(detail.currentRevision && (status === "SUBMITTED" || status === "UNDER_REVIEW"));
 }
 
 export function ValidationQueueView({
@@ -97,15 +94,6 @@ export function ValidationQueueView({
         </select>
         <select
           className="min-h-11 rounded-app border border-border px-3 text-sm"
-          defaultValue={query.reviewer ?? ""}
-          name="reviewer"
-        >
-          <option value="">Semua reviewer</option>
-          <option value="me">Claim saya</option>
-          <option value="unassigned">Belum di-claim</option>
-        </select>
-        <select
-          className="min-h-11 rounded-app border border-border px-3 text-sm"
           defaultValue={query.distanceCheck ?? ""}
           name="distanceCheck"
         >
@@ -139,7 +127,6 @@ export function ValidationQueueView({
                 <th className="px-4 py-3">Hasil</th>
                 <th className="px-4 py-3">Bukti</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Reviewer</th>
                 <th className="px-4 py-3">Aksi</th>
               </tr>
             </thead>
@@ -177,14 +164,6 @@ export function ValidationQueueView({
                     <StatusBadge tone={submissionStatusTone(item.status)}>
                       {submissionStatusLabel(item.status)}
                     </StatusBadge>
-                  </td>
-                  <td className="px-4 py-3">
-                    {item.reviewClaimedByAdminName ?? "Belum di-claim"}
-                    {item.reviewClaimExpiresAt ? (
-                      <span className="block text-xs text-foreground-muted">
-                        sampai {formatBusinessDateTime(item.reviewClaimExpiresAt)} WIB
-                      </span>
-                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     <Link
@@ -288,7 +267,7 @@ function DecisionForm({
       <textarea
         className="min-h-24 rounded-app border border-border px-3 py-2 text-sm"
         name="internalNote"
-        placeholder="Catatan internal validator"
+        placeholder="Catatan internal admin"
         required={needsInternalNote}
       />
       <button className="min-h-11 rounded-app bg-primary px-4 py-2 text-sm font-bold text-white">
@@ -335,22 +314,16 @@ function ReviewHistory({ reviews }: { reviews: ValidationReviewRecord[] }) {
 
 export function ValidationDetailView({
   detail,
-  admin,
   csrfToken,
-  claimAction,
-  releaseAction,
   decisionAction,
 }: {
   detail: SubmissionDetail;
-  admin: AuthenticatedAdmin;
   csrfToken: string;
-  claimAction: Action;
-  releaseAction: Action;
   decisionAction: Action;
 }) {
   const current = detail.currentRevision;
   const file = detail.currentFile;
-  const canAct = canShowActions(detail, admin);
+  const canAct = canShowDecisionForms(detail);
 
   return (
     <div className="space-y-6">
@@ -411,52 +384,9 @@ export function ValidationDetailView({
         </article>
 
         <aside className="space-y-4">
-          <section className="rounded-section border border-border bg-surface p-5 shadow-soft">
-            <p className="eyebrow">Claim</p>
-            <p className="mt-2 font-bold text-navy">
-              {detail.submission?.reviewClaimedByAdminName ?? "Belum di-claim"}
-            </p>
-            {detail.submission?.reviewClaimExpiresAt ? (
-              <p className="small-copy mt-1">
-                Expire {formatBusinessDateTime(detail.submission.reviewClaimExpiresAt)} WIB
-              </p>
-            ) : null}
-            <form action={claimAction} className="mt-4 grid gap-3">
-              <input name="csrfToken" type="hidden" value={csrfToken} />
-              <input name="submissionId" type="hidden" value={detail.submission?.id ?? ""} />
-              <input
-                name="expectedReviewVersion"
-                type="hidden"
-                value={detail.submission?.reviewVersion ?? 0}
-              />
-              <input
-                className="min-h-11 rounded-app border border-border px-3 text-sm"
-                name="reason"
-                placeholder="Alasan override jika claim aktif"
-              />
-              <button className="min-h-11 rounded-app bg-primary px-4 py-2 text-sm font-bold text-white">
-                Claim / Refresh
-              </button>
-            </form>
-            {canAct ? (
-              <form action={releaseAction} className="mt-3">
-                <input name="csrfToken" type="hidden" value={csrfToken} />
-                <input name="submissionId" type="hidden" value={detail.submission?.id ?? ""} />
-                <input
-                  name="expectedReviewVersion"
-                  type="hidden"
-                  value={detail.submission?.reviewVersion ?? 0}
-                />
-                <button className="min-h-11 w-full rounded-app border border-border px-4 py-2 text-sm font-bold text-navy">
-                  Release Claim
-                </button>
-              </form>
-            ) : null}
-          </section>
-
           {canAct ? (
             <section className="grid gap-4 rounded-section border border-border bg-surface p-5 shadow-soft">
-              <p className="eyebrow">Keputusan</p>
+              <p className="eyebrow">Keputusan admin</p>
               <DecisionForm
                 action={decisionAction}
                 actionName="APPROVE"
@@ -482,22 +412,13 @@ export function ValidationDetailView({
                 reasonCodes={rejectionReasonCodes}
                 title="Reject"
               />
-              <DecisionForm
-                action={decisionAction}
-                actionName="DISQUALIFY"
-                csrfToken={csrfToken}
-                detail={detail}
-                needsInternalNote
-                needsParticipantNote
-                reasonCodes={disqualificationReasonCodes}
-                title="Disqualify"
-              />
             </section>
           ) : (
             <section className="rounded-section border border-border bg-surface p-5 shadow-soft">
-              <p className="font-bold text-navy">Read-only</p>
+              <p className="font-bold text-navy">Keputusan sudah terkunci</p>
               <p className="small-copy mt-2">
-                Claim submission ini terlebih dahulu, atau tunggu claim reviewer lain berakhir.
+                Submission ini belum memiliki revisi aktif yang bisa diputuskan atau statusnya
+                sudah final.
               </p>
             </section>
           )}

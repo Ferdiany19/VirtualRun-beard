@@ -77,9 +77,9 @@ Dependencies: Phase 3 registration, storage foundation, jobs foundation.
 
 ## Phase 5 - Submission and Validation
 
-Status: implemented untuk upload hasil, revision history, validation queue, claim review,
-keputusan validation, audit review, dan notification job dasar. Validator assignment route
-legacy disembunyikan dari navigasi. Leaderboard, payment, dan export tetap belum aktif.
+Status: implemented untuk upload hasil, revision history, validation queue, direct admin
+decision, audit review, dan notification job dasar. Validator assignment dan claim/release
+route legacy disembunyikan dari navigasi/UI. Leaderboard, payment, dan export tetap belum aktif.
 
 - Upload lookup using event, registration code, and email. Implemented via participant access
   session.
@@ -87,11 +87,13 @@ legacy disembunyikan dari navigasi. Leaderboard, payment, dan export tetap belum
 - Revision history. Implemented append-only.
 - Screenshot/activity URL validation. Implemented basic evidence requirement and image
   normalization.
-- Validator queue. Implemented.
-- Approve, request revision, reject, disqualify. Implemented.
+- Validator queue. Implemented sebagai admin validation queue tanpa claim.
+- Approve, request revision, reject. Implemented sebagai keputusan langsung admin.
+- Disqualify. Legacy/internal; tidak ditampilkan di UI produksi.
 - Restore/reopen internal action tersedia di service policy, tetapi belum dibuka sebagai UI
   umum.
 - Audit every validation action. Implemented for validation workflow.
+- Cleanup legacy claim field/API setelah data production aman dievaluasi. Pending.
 
 Dependencies: Phase 3 registration, Phase 4 storage/jobs.
 

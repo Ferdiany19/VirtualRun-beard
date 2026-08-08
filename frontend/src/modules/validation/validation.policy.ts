@@ -53,12 +53,15 @@ export function assertStatusTransition(input: {
       UNDER_REVIEW: "SUBMITTED",
     },
     APPROVE: {
+      SUBMITTED: "APPROVED",
       UNDER_REVIEW: "APPROVED",
     },
     REQUEST_REVISION: {
+      SUBMITTED: "REVISION_REQUIRED",
       UNDER_REVIEW: "REVISION_REQUIRED",
     },
     REJECT: {
+      SUBMITTED: "REJECTED",
       UNDER_REVIEW: "REJECTED",
     },
     DISQUALIFY: {

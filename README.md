@@ -4,14 +4,14 @@ Virtual Run Beard adalah fondasi platform virtual run untuk event Indonesia. UI 
 menggunakan Bahasa Indonesia dan timezone bisnis default adalah `Asia/Jakarta` atau WIB.
 
 Status repository saat ini: vertical slice event management + pendaftaran peserta, BIB,
-upload hasil peserta, dan workflow validation admin/validator.
+upload hasil peserta, dan workflow validation admin.
 Admin authentication, RBAC dasar, event/category management, admin preview, public event
 routes, registrasi publik tanpa akun, participant access session, BIB allocation, BIB
 template, PostgreSQL job queue, storage private, email confirmation job, admin participant
-management, submission per kategori, riwayat revisi, validation queue, claim review,
-validator assignment, keputusan approve/request revision/reject/disqualify, validation
-audit, dan notification job validation sudah tersedia. Leaderboard, certificate, payment,
-dan report export belum diimplementasikan sebagai fitur produk.
+management, submission per kategori, riwayat revisi, validation queue, direct admin
+decision approve/request revision/reject, validator assignment legacy, validation audit,
+notification job validation, dan certificate v1 sudah tersedia. Leaderboard, payment, dan
+report export belum diimplementasikan sebagai fitur produk.
 
 ## Stack
 

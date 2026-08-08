@@ -99,9 +99,11 @@ Implemented admin registration/BIB routes:
 
 Admin mutation target berpindah ke NestJS API dengan CSRF validation. Participant list uses
 server-side filtering and dynamic sorting through an internal allowlist. Submission admin
-views include validation claim, release claim, approve, request revision, reject, and
-disqualify actions. Production authorization uses a single active admin model; validator
-assignment/revoke endpoints remain legacy-compatible and are hidden from the main UI.
+views use direct validation decision actions: approve, request revision, and reject. The
+decision endpoint does not require a review claim; optimistic `review_version` remains the
+concurrency guard. Production authorization uses a single active admin model; validator
+assignment/revoke and claim/release endpoints remain legacy-compatible and are hidden from the
+main UI.
 
 Implemented Nest API foundation:
 
@@ -156,8 +158,8 @@ Implemented Nest API foundation:
 - `GET /api/admin/events/:eventId/submissions`
 - `GET /api/admin/submissions/:submissionId`
 - `GET /api/admin/validation/submissions/:submissionId`
-- `POST /api/admin/validation/submissions/:submissionId/claim`
-- `POST /api/admin/validation/submissions/:submissionId/release`
+- `POST /api/admin/validation/submissions/:submissionId/claim` legacy compatibility, hidden from UI
+- `POST /api/admin/validation/submissions/:submissionId/release` legacy compatibility, hidden from UI
 - `POST /api/admin/validation/submissions/:submissionId/decision`
 - `GET /api/admin/events/:eventId/validators`
 - `POST /api/admin/events/:eventId/validators`

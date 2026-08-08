@@ -107,13 +107,12 @@ export type ValidationQueueFilters = {
   eventId?: string | null;
   categoryId?: string | null;
   status?: SubmissionStatus | null;
-  reviewer?: 'me' | 'unassigned' | string | null;
   activityPlatform?: ActivityPlatform | null;
   evidenceType?: 'URL' | 'SCREENSHOT' | 'BOTH' | null;
   search?: string | null;
   hasWarning?: boolean | null;
   distanceCheck?: 'inside' | 'outside' | null;
-  sort?: 'submitted_desc' | 'submitted_asc' | 'bib_asc' | 'claim_expiry_asc';
+  sort?: 'submitted_desc' | 'submitted_asc' | 'bib_asc';
   page?: number;
 };
 

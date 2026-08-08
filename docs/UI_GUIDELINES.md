@@ -109,8 +109,11 @@ Token berada di `src/app/globals.css` dan `tailwind.config.ts`:
   sticky. Panel konten memakai rule dan negative space; pada mobile seluruh konten dan form
   kembali menjadi satu kolom.
 - CTA registrasi/upload tampil disabled dengan copy jelas karena fitur belum tersedia.
-- Admin UI memakai sidebar navy, topbar ringan, KPI compact, table desktop, structured list mobile,
-  filter fungsional, overflow action, dan form section bernomor.
+- Admin UI memakai workbench operasional: sidebar navy dengan grup kerja ringkas, topbar
+  pencarian global, header halaman bergaris tegas tanpa eyebrow, KPI meter compact, table
+  desktop, structured list mobile, filter fungsional, overflow action, dan status inline.
+- Copy admin mengikuti model single active admin; jangan tampilkan role lama sebagai informasi
+  operasional utama.
 - Daftar Event admin mengikuti dashboard operasional padat: KPI total/aktif/draft/arsip dari
   database, filter nama/status/periode server-side, tabel event dengan banner dan jumlah pendaftar
   nyata, pagination, export Excel, panel event mendekati penutupan, ranking registrasi, serta
@@ -151,9 +154,10 @@ Token berada di `src/app/globals.css` dan `tailwind.config.ts`:
   validator, dan riwayat revisi berbasis timeline/card tegas. Progress upload granular belum
   dibuat karena flow fase ini memakai server action.
 - Admin validation queue memakai table desktop dan structured list mobile, filter server-side,
-  status badge, claim state, warning count, dan link review per submission.
+  status badge, warning count, dan link review per submission tanpa konsep claim/reviewer.
 - Detail validation menampilkan evidence, deterministic checks, riwayat revisi, riwayat
-  validation, claim/release, dan form keputusan tanpa mengekspos internal note ke peserta.
+  validation, serta form keputusan langsung untuk approve, request revisi, atau reject tanpa
+  mengekspos internal note ke peserta.
 - Validator assignment adalah UI legacy dan disembunyikan dari navigasi utama karena production
   memakai single admin app-level.
 - Detail event admin memiliki panel sertifikat untuk upload/preview template PNG per event,

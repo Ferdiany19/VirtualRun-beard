@@ -7,6 +7,8 @@ const optionalFilter = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess(emptyStringToUndefined, schema.optional().nullable());
 const optionalQueryValue = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess(emptyStringToUndefined, schema.optional());
+const legacyClaimSortToUndefined = (value: unknown) =>
+  value === 'claim_expiry_asc' ? undefined : emptyStringToUndefined(value);
 
 export const revisionRequestReasonCodes = [
   'EVIDENCE_UNREADABLE',
@@ -53,14 +55,14 @@ export const validationQueueSchema = z.object({
       'DISQUALIFIED',
     ]),
   ),
-  reviewer: optionalFilter(z.string().trim().max(80)),
   activityPlatform: optionalFilter(activityPlatformSchema),
   evidenceType: optionalFilter(z.enum(['URL', 'SCREENSHOT', 'BOTH'])),
   search: optionalFilter(z.string().trim().max(120)),
   hasWarning: optionalFilter(z.coerce.boolean()),
   distanceCheck: optionalFilter(z.enum(['inside', 'outside'])),
-  sort: optionalQueryValue(
-    z.enum(['submitted_desc', 'submitted_asc', 'bib_asc', 'claim_expiry_asc']),
+  sort: z.preprocess(
+    legacyClaimSortToUndefined,
+    z.enum(['submitted_desc', 'submitted_asc', 'bib_asc']).optional(),
   ),
   page: optionalQueryValue(z.coerce.number().int().positive()),
 });

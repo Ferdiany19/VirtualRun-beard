@@ -106,20 +106,21 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - Approval lama tidak dipakai lagi untuk leaderboard setelah revision baru.
 - Admin upload override harus memiliki expiration, reason, actor, dan audit log. Tabel sudah
   tersedia, UI/action override belum dibangun.
-- Admin mereview submission dari queue validation. Claim review memiliki expiry
-  (`REVIEW_CLAIM_DURATION_MINUTES`) dan optimistic `review_version`.
+- Admin mereview submission dari queue validation dan langsung menyimpan keputusan tanpa step
+  claim. Optimistic `review_version` tetap dipakai untuk mencegah keputusan dari tab lama.
 - Semua admin aktif dapat melihat dan bertindak pada validation queue lintas event.
 - Keputusan validation bersifat append-only di `validation_reviews`; action tidak menghapus
   review sebelumnya.
-- Action validation utama: `START_REVIEW`, `RELEASE_CLAIM`, `APPROVE`,
-  `REQUEST_REVISION`, `REJECT`, `DISQUALIFY`, dan override claim oleh event manager.
+- Action validation utama UI produksi: `APPROVE`, `REQUEST_REVISION`, dan `REJECT`.
+  `DISQUALIFY`, claim/release, restore, dan reopen tetap legacy/internal sampai cleanup
+  terpisah.
 - `REQUEST_REVISION` mengembalikan submission ke `REVISION_REQUIRED`; peserta boleh
   mengirim revision baru dan aggregate status kembali ke `SUBMITTED`.
 - `APPROVED` menetapkan `approved_revision_id` latest dan `ranking_eligible = true`.
 - `REJECTED` dan `DISQUALIFIED` tidak eligible ranking.
 - Participant hanya melihat status aggregate dan `participant_visible_note`; `internal_note`
   admin tidak boleh ditampilkan di UI peserta.
-- Deterministic warning membantu reviewer melihat jarak, tanggal aktivitas, pace, evidence,
+- Deterministic warning membantu admin melihat jarak, tanggal aktivitas, pace, evidence,
   dan duplicate evidence, tetapi warning tidak otomatis mengambil keputusan.
 
 ## Leaderboard

@@ -45,10 +45,11 @@ Sudah dibuat:
 - Participant dashboard untuk BIB dan submission per kategori.
 - Upload hasil peserta dengan activity URL dan/atau screenshot private object.
 - Revision history append-only; submit revisi baru tidak menimpa revision lama.
-- Admin validation queue, detail review, claim dengan expiry, dan deterministic warning.
-- Keputusan validation: approve, request revision, reject, dan disqualify.
+- Admin validation queue, detail review, direct decision tanpa claim, dan deterministic warning.
+- Keputusan validation UI produksi: approve, request revision, dan reject. Disqualify tetap
+  legacy/internal.
 - Validation review append-only dan audit log untuk action penting.
-- Participant melihat status validation dan catatan validator yang participant-visible.
+- Participant melihat status validation dan catatan admin yang participant-visible.
 - Notification job untuk revision request, approved, rejected, disqualified, dan revised submission.
 - Template sertifikat PNG per event, certificate records, worker render PNG, dan email attachment
   ketika event diselesaikan.

@@ -18,7 +18,6 @@ export default async function MyValidationQueuePage({ searchParams }: MyValidati
   const filters: ValidationQueueFilters = {
     eventId: query.eventId,
     status: query.status as ValidationQueueFilters["status"],
-    reviewer: query.reviewer,
     evidenceType: query.evidenceType as ValidationQueueFilters["evidenceType"],
     search: query.search,
     distanceCheck: query.distanceCheck as ValidationQueueFilters["distanceCheck"],

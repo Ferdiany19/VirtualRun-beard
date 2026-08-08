@@ -33,8 +33,8 @@ yang membutuhkan schema baru.
 
 ## Runtime Configuration
 
-- `REVIEW_CLAIM_DURATION_MINUTES` mengatur lama claim validation aktif sebelum dapat
-  diambil ulang.
+- `REVIEW_CLAIM_DURATION_MINUTES` hanya dipakai endpoint claim legacy; flow validation produksi
+  memakai direct admin decision tanpa claim.
 - Email production dikirim dari backend/worker melalui `EMAIL_DRIVER=smtp`. Untuk Gmail,
   gunakan `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USERNAME` alamat Gmail,
   `SMTP_PASSWORD` App Password 16 digit, dan `SMTP_FROM_EMAIL` alamat pengirim yang sama.

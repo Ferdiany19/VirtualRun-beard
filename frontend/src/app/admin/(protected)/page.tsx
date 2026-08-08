@@ -29,24 +29,24 @@ function StatCard({
   tone: "primary" | "warning" | "success" | "info";
 }) {
   const toneClass = {
-    primary: "bg-primary/10 text-primary",
-    warning: "bg-amber-50 text-warning",
-    success: "bg-emerald-50 text-success",
-    info: "bg-blue-50 text-info",
+    primary: "border-primary text-primary",
+    warning: "border-warning text-warning",
+    success: "border-success text-success",
+    info: "border-info text-info",
   }[tone];
 
   return (
-    <article className="rounded-app border border-border bg-surface p-4 shadow-soft">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-bold text-foreground-muted">{label}</p>
-          <p className="mt-2 text-3xl font-bold text-navy">{value}</p>
-        </div>
+    <article className="border-t-2 border-navy bg-surface p-4">
+      <div className="grid gap-3">
         <span
-          className={`inline-flex h-10 w-10 items-center justify-center rounded-app ${toneClass}`}
+          className={`inline-flex h-10 w-10 items-center justify-center rounded-app border ${toneClass}`}
         >
           <Icon className="h-5 w-5" name={icon} />
         </span>
+        <div>
+          <p className="text-sm font-bold text-foreground-muted">{label}</p>
+          <p className="mt-1 text-4xl font-black text-navy">{value}</p>
+        </div>
       </div>
     </article>
   );
@@ -61,12 +61,11 @@ export default async function AdminDashboardPage() {
       <AdminPageHeader
         actionHref="/admin/events/new"
         actionLabel="Buat Event"
-        description="Ringkasan operasional event yang bisa Anda kelola."
-        eyebrow="Dashboard"
-        title="Operasional event"
+        description="Pusat kerja admin untuk event, peserta, BIB, validasi hasil, dan sertifikat."
+        title="Dashboard admin"
       />
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-3 rounded-section border border-border bg-surface p-3 shadow-soft sm:grid-cols-2 xl:grid-cols-5">
         <StatCard icon="calendar" label="Total event" tone="primary" value={counts.totalEvents} />
         <StatCard icon="clipboard" label="Draft" tone="warning" value={counts.draftEvents} />
         <StatCard icon="check" label="Published" tone="success" value={counts.publishedEvents} />
@@ -86,17 +85,23 @@ export default async function AdminDashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <article className="rounded-section border border-border bg-surface shadow-soft">
-          <div className="border-b border-border p-4">
-            <h2 className="text-base font-bold text-navy">Perubahan terbaru</h2>
+          <div className="border-b-2 border-navy p-5">
+            <h2 className="text-xl font-black text-navy">Log aktivitas terbaru</h2>
+            <p className="mt-1 text-sm text-foreground-muted">
+              Jejak perubahan penting dari seluruh area admin.
+            </p>
           </div>
           <div className="divide-y divide-border">
             {recentAuditLogs.length === 0 ? (
-              <p className="p-4 text-sm text-foreground-muted">
+              <p className="p-5 text-sm text-foreground-muted">
                 Belum ada aktivitas admin yang tercatat.
               </p>
             ) : (
               recentAuditLogs.map((auditLog) => (
-                <div key={auditLog.id} className="grid gap-1 p-4 text-sm sm:grid-cols-[1fr_auto]">
+                <div
+                  key={auditLog.id}
+                  className="grid gap-2 p-5 text-sm sm:grid-cols-[1fr_auto] sm:items-start"
+                >
                   <div>
                     <p className="font-bold text-navy">
                       {labels[auditLog.action] ?? auditLog.action}
@@ -113,11 +118,13 @@ export default async function AdminDashboardPage() {
         </article>
 
         <aside className="rounded-section border border-border bg-surface p-5 shadow-soft">
-          <p className="eyebrow">Shortcut</p>
-          <h2 className="mt-2 text-lg font-bold text-navy">Kerja event berikutnya</h2>
+          <h2 className="text-xl font-black text-navy">Aksi berikutnya</h2>
+          <p className="mt-1 text-sm leading-6 text-foreground-muted">
+            Mulai dari event, lalu lanjutkan kategori, peserta, BIB, dan validasi.
+          </p>
           <div className="mt-4 grid gap-3">
             <Link
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app bg-action px-4 py-2 text-sm font-bold text-white hover:bg-action-hover"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app border-2 border-navy bg-navy px-4 py-2 text-sm font-bold text-white hover:bg-primary"
               href="/admin/events/new"
             >
               <Icon className="h-4 w-4" name="plus" />
@@ -129,11 +136,13 @@ export default async function AdminDashboardPage() {
             >
               Kelola event
             </Link>
+            <Link
+              className="inline-flex min-h-11 items-center justify-center rounded-app border border-border px-4 py-2 text-sm font-bold text-navy hover:border-primary hover:text-primary"
+              href="/admin/participants"
+            >
+              Database peserta
+            </Link>
           </div>
-          <p className="caption-copy mt-4">
-            Chart peserta dan submission belum ditampilkan karena modul registration/upload belum
-            tersedia.
-          </p>
         </aside>
       </section>
     </div>

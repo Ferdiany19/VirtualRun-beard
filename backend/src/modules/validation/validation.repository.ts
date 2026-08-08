@@ -433,7 +433,7 @@ export async function listValidationQueue(
     return [];
   }
 
-  const values: unknown[] = [input.adminUserId];
+  const values: unknown[] = [];
   const conditions = ['s.id IS NOT NULL', 'sr.id IS NOT NULL'];
 
   if (input.eventIds) {
@@ -450,9 +450,7 @@ export async function listValidationQueue(
     values.push(input.filters.status);
     conditions.push(`s.status = $${values.length}`);
   } else {
-    conditions.push(
-      `(s.status = 'SUBMITTED' OR (s.status = 'UNDER_REVIEW' AND s.review_claimed_by_admin_user_id = $1))`,
-    );
+    conditions.push("s.status IN ('SUBMITTED', 'UNDER_REVIEW')");
   }
 
   if (input.filters.categoryId) {
@@ -470,17 +468,6 @@ export async function listValidationQueue(
     conditions.push(
       `(p.full_name ILIKE '%' || $${values.length} || '%' OR er.bib_number ILIKE '%' || $${values.length} || '%')`,
     );
-  }
-
-  if (input.filters.reviewer === 'me') {
-    conditions.push('s.review_claimed_by_admin_user_id = $1');
-  } else if (input.filters.reviewer === 'unassigned') {
-    conditions.push(
-      '(s.review_claimed_by_admin_user_id IS NULL OR s.review_claim_expires_at <= now())',
-    );
-  } else if (input.filters.reviewer) {
-    values.push(input.filters.reviewer);
-    conditions.push(`s.review_claimed_by_admin_user_id = $${values.length}`);
   }
 
   if (input.filters.evidenceType === 'URL') {
@@ -524,7 +511,6 @@ export async function listValidationQueue(
       submitted_desc: 'sr.submitted_at DESC',
       submitted_asc: 'sr.submitted_at ASC',
       bib_asc: 'er.bib_sequence ASC',
-      claim_expiry_asc: 's.review_claim_expires_at ASC NULLS LAST',
     }[input.filters.sort ?? 'submitted_desc'] ?? 'sr.submitted_at DESC';
   const page = Math.max(1, input.filters.page ?? 1);
   values.push((page - 1) * 25);

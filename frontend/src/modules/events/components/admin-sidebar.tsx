@@ -36,7 +36,10 @@ type SidebarSection = {
 
 function currentEventIdFromPath(pathname: string): string | null {
   const match = /^\/admin\/events\/([^/]+)/.exec(pathname);
-  return match?.[1] ?? null;
+  const eventId = match?.[1] ?? null;
+  return eventId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(eventId)
+    ? eventId
+    : null;
 }
 
 function eventHref(eventId: string | null, suffix = "") {
@@ -57,7 +60,7 @@ function navigationForEvent(eventId: string | null, pendingUploadCount: number):
       ],
     },
     {
-      group: "Event",
+      group: "Operasional",
       items: [
         {
           href: "/admin/events",
@@ -97,7 +100,7 @@ function navigationForEvent(eventId: string | null, pendingUploadCount: number):
       ],
     },
     {
-      group: "Hasil Lari",
+      group: "Validasi",
       items: [
         {
           href: eventHref(eventId, "/submissions"),
@@ -117,27 +120,6 @@ function navigationForEvent(eventId: string | null, pendingUploadCount: number):
           requiresValidation: true,
           match: (pathname) =>
             pathname.endsWith("/validation") || pathname.startsWith("/admin/validation"),
-        },
-      ],
-    },
-    {
-      group: "Laporan",
-      items: [
-        {
-          href: eventHref(eventId, "/participants"),
-          label: "Laporan Pendaftaran",
-          icon: "document",
-          requiresEvent: true,
-          requiresEventManagement: true,
-          match: () => false,
-        },
-        {
-          href: eventHref(eventId, "/submissions"),
-          label: "Laporan Hasil",
-          icon: "clipboard",
-          requiresEvent: true,
-          requiresValidation: true,
-          match: () => false,
         },
       ],
     },
@@ -172,20 +154,20 @@ function NavLinks({
   const navigation = navigationForEvent(eventId, pendingUploadCount);
 
   return (
-    <nav aria-label="Navigasi admin" className="grid gap-5">
+    <nav aria-label="Navigasi admin" className="grid gap-6">
       {navigation.map((section) => (
         <div key={section.group ?? "utama"}>
           {section.group ? (
             <p
               className={[
-                "px-3 text-[10px] font-bold uppercase text-white/45",
+                "px-3 text-[10px] font-black uppercase text-white/45",
                 collapsed ? "sr-only" : "",
               ].join(" ")}
             >
               {section.group}
             </p>
           ) : null}
-          <div className="mt-2 grid gap-1">
+          <div className="mt-2 grid gap-1.5">
             {section.items
               .filter((item) => !item.requiresEventManagement || canManageEvents)
               .filter((item) => !item.requiresValidation || canViewValidation)
@@ -197,11 +179,11 @@ function NavLinks({
                   <Link
                     key={item.href}
                     className={[
-                      "flex min-h-10 items-center rounded-app text-sm font-bold transition-colors",
+                      "flex min-h-11 items-center rounded-app border border-transparent text-sm font-bold transition-colors",
                       collapsed ? "justify-center px-2" : "gap-3 px-3",
                       active
-                        ? "bg-primary text-white"
-                        : "text-white/80 hover:bg-white/10 hover:text-white",
+                        ? "border-white/15 bg-white text-navy"
+                        : "text-white/76 hover:border-white/10 hover:bg-white/10 hover:text-white",
                       mobile ? "text-base" : "",
                     ].join(" ")}
                     href={item.href}
@@ -275,9 +257,8 @@ export function AdminSidebar({
       </div>
       {collapsed ? null : (
         <footer className="mt-auto border-t border-white/10 pt-4 text-xs leading-5 text-white/55">
-          <p className="font-bold text-white/80">VirtualRun Admin v1.0.0</p>
-          <p className="mt-2">&copy; 2026 VirtualRun.</p>
-          <p>All rights reserved.</p>
+          <p className="font-bold text-white/80">VirtualRun Admin</p>
+          <p className="mt-2">Event, peserta, BIB, validasi, sertifikat.</p>
         </footer>
       )}
     </aside>

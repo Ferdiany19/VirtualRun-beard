@@ -74,8 +74,9 @@ Jika validasi gagal, action ditolak sebelum service mutasi berjalan.
 - Development storage/email adapter (`local`, `log`) ditolak saat `NODE_ENV=production`.
 - Validation review memiliki `participant_visible_note` dan `internal_note`. UI peserta hanya
   memakai participant-visible note; internal note hanya tampil pada admin validation detail.
-- Review claim dan decision memakai CSRF admin, authorization server-side, optimistic
-  `review_version`, dan audit log.
+- Validation decision memakai CSRF admin, authorization server-side, optimistic
+  `review_version`, row lock, dan audit log. Field/endpoint review claim masih legacy dan bukan
+  flow produksi utama.
 
 ## Admin Participant Management
 

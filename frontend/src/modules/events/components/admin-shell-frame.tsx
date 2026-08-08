@@ -31,7 +31,7 @@ export function AdminShellFrame({
   children,
 }: AdminShellFrameProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(initialSidebarCollapsed);
-  const primaryRole = adminRoles[0] ?? "ADMIN";
+  void adminRoles;
 
   function toggleSidebar() {
     setSidebarCollapsed((current) => {
@@ -59,8 +59,8 @@ export function AdminShellFrame({
         pendingUploadCount={pendingUploadCount}
       />
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 border-b border-border bg-surface">
-          <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
+          <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3">
               <AdminMobileMenu
                 activeEventId={activeEventId}
@@ -71,23 +71,23 @@ export function AdminShellFrame({
               <div className="lg:hidden">
                 <BrandLogo compact href="/admin" />
               </div>
-              <form action="/admin/events" className="relative hidden w-[380px] lg:block">
+              <form action="/admin/events" className="relative hidden w-[420px] lg:block">
                 <Icon
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-muted"
                   name="search"
                 />
                 <input
                   aria-label="Cari event"
-                  className="h-10 w-full rounded-app border border-border bg-surface pl-9 pr-3 text-xs text-navy placeholder:text-foreground-muted focus:border-primary focus:outline-none"
+                  className="h-11 w-full rounded-app border border-border bg-background pl-9 pr-3 text-sm text-navy placeholder:text-foreground-muted focus:border-primary focus:outline-none"
                   name="search"
-                  placeholder="Cari event..."
+                  placeholder="Cari event, peserta, atau halaman kerja"
                   type="search"
                 />
               </form>
             </div>
             <details className="relative">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-app border border-border bg-surface px-3 py-2">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-app border border-border bg-background px-3 py-2">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-app bg-navy text-xs font-bold text-white">
                   {adminFullName
                     .split(/\s+/)
                     .filter(Boolean)
@@ -97,12 +97,12 @@ export function AdminShellFrame({
                 </span>
                 <span className="hidden text-left sm:block">
                   <span className="block text-sm font-bold text-navy">{adminFullName}</span>
-                  <span className="block text-xs text-foreground-muted">{primaryRole}</span>
+                  <span className="block text-xs text-foreground-muted">Admin</span>
                 </span>
               </summary>
               <div className="absolute right-0 z-40 mt-2 w-72 rounded-app border border-border bg-surface p-3 shadow-floating">
                 <p className="text-sm font-bold text-navy">{adminFullName}</p>
-                <p className="mt-1 text-xs text-foreground-muted">{adminRoles.join(", ")}</p>
+                <p className="mt-1 text-xs text-foreground-muted">Akses penuh admin aktif</p>
                 <form action={logoutAction} className="mt-3">
                   <input name="csrfToken" type="hidden" value={csrfToken} />
                   <button className="min-h-11 w-full rounded-app border border-border bg-surface px-4 py-2 text-sm font-bold text-danger hover:border-danger">

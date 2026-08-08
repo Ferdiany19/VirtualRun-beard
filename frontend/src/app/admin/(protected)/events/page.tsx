@@ -14,6 +14,7 @@ import {
   EventListFilters,
   PageSizeAutoSelect,
 } from "@/modules/events/components/event-list-filters";
+import { AdminPageHeader } from "@/modules/events/components/admin-page-header";
 import { FormMessage } from "@/modules/events/components/form-message";
 import { publicationStatuses } from "@/modules/events/event.schema";
 import { getEventManagementPageData } from "@/modules/events/event.service";
@@ -220,50 +221,33 @@ export default async function AdminEventsPage({ searchParams }: EventsPageProps)
 
   return (
     <div className="space-y-6 pb-4">
-      <section className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold leading-tight text-navy sm:text-3xl">
-            Event Virtual Run
-          </h1>
-          <nav
-            aria-label="Breadcrumb"
-            className="mt-2 flex items-center gap-2 text-xs text-foreground-muted"
-          >
-            <Link className="hover:text-primary" href="/admin">
-              Dashboard
-            </Link>
-            <Icon className="h-3 w-3" name="chevron-right" />
-            <span>Event</span>
-            <Icon className="h-3 w-3" name="chevron-right" />
-            <span aria-current="page">Daftar Event</span>
-          </nav>
-        </div>
-        <Link
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app bg-action px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-action-hover"
-          href="/admin/events/new"
-        >
-          <Icon className="h-4 w-4" name="plus" />
-          Buat Event Baru
-        </Link>
-      </section>
+      <AdminPageHeader
+        actionHref="/admin/events/new"
+        actionLabel="Buat Event"
+        description="Inventori event virtual run, status publikasi, window operasional, peserta, dan aksi cepat."
+        title="Event Virtual Run"
+      />
 
       <FormMessage error={params.error ?? null} success={params.success ?? null} />
 
-      <section aria-label="Ringkasan event" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section
+        aria-label="Ringkasan event"
+        className="grid gap-3 rounded-section border border-border bg-surface p-3 shadow-soft sm:grid-cols-2 xl:grid-cols-4"
+      >
         {stats.map((stat) => (
           <article
-            className="flex min-h-28 items-center gap-4 rounded-section border border-border bg-surface p-5"
+            className="border-t-2 border-navy bg-surface p-4"
             key={stat.label}
           >
-            <span
-              className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${stat.tone}`}
-            >
-              <Icon className="h-6 w-6" name={stat.icon} />
-            </span>
-            <div>
+            <div className="grid gap-3">
+              <span
+                className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-app ${stat.tone}`}
+              >
+                <Icon className="h-5 w-5" name={stat.icon} />
+              </span>
               <p className="text-sm font-semibold text-foreground-muted">{stat.label}</p>
-              <p className="mt-0.5 text-2xl font-bold text-navy">{formatNumber(stat.value)}</p>
-              <p className="mt-1 text-[11px] leading-4 text-foreground-muted">{stat.detail}</p>
+              <p className="text-3xl font-black text-navy">{formatNumber(stat.value)}</p>
+              <p className="text-[11px] leading-4 text-foreground-muted">{stat.detail}</p>
             </div>
           </article>
         ))}
