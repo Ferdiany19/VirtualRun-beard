@@ -1,0 +1,17 @@
+frontend/.next/
+backend/dist/
+node_modules/
+backend/_legacy_nested_git/
+backend/_legacy_node_modules/
+coverage/
+test-results/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+*.log
+tmp/
+backups/

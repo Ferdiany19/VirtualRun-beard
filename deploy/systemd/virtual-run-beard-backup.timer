@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Virtual Run Beard database backup daily
+
+[Timer]
+OnCalendar=*-*-* 02:30:00 Asia/Jakarta
+Persistent=true
+Unit=virtual-run-beard-backup.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,16 @@
+[Unit]
+Description=Virtual Run Beard database backup
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+User=virtual-run-beard
+Group=virtual-run-beard
+WorkingDirectory=/opt/virtual-run-beard/current
+EnvironmentFile=/etc/virtual-run-beard/backup.env
+ExecStart=/opt/virtual-run-beard/current/scripts/backup.sh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/backups/virtual-run-beard /var/log/virtual-run-beard

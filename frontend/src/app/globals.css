@@ -1,0 +1,186 @@
+      @import "../../../tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: 247 250 249;
+  --color-surface: 255 255 255;
+  --color-surface-muted: 241 247 246;
+  --color-foreground: 10 31 68;
+  --color-foreground-muted: 85 99 120;
+  --color-border: 216 226 226;
+  --color-primary-teal: 0 154 137;
+  --color-primary-teal-hover: 0 126 114;
+  --color-navy: 2 34 72;
+  --color-navy-muted: 40 70 109;
+  --color-action-orange: 255 112 18;
+  --color-action-orange-hover: 228 88 0;
+  --color-success: 18 132 96;
+  --color-warning: 191 112 12;
+  --color-danger: 190 34 47;
+  --color-info: 28 104 178;
+
+  --color-brand: var(--color-primary-teal);
+  --color-ink: var(--color-foreground);
+  --color-paper: var(--color-background);
+  --color-line: var(--color-border);
+  --color-muted: var(--color-foreground-muted);
+
+  --radius-app: 8px;
+  --radius-section: 12px;
+  --shadow-soft: 0 10px 28px rgb(2 34 72 / 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  overflow-x: clip;
+  background: rgb(var(--color-background));
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100%;
+  overflow-x: clip;
+  margin: 0;
+  color: rgb(var(--color-foreground));
+  background: rgb(var(--color-background));
+  font-family:
+    var(--font-montserrat), Montserrat, ui-sans-serif, system-ui, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+}
+
+.landing-display {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+}
+
+.landing-marquee-title {
+  font-size: var(--text-display);
+  line-height: 1;
+}
+
+.landing-section-title {
+  font-size: clamp(2.75rem, 6vw, 5.5rem);
+  line-height: 1;
+}
+
+.landing-action {
+  white-space: nowrap;
+  transition:
+    color var(--dur-short) var(--ease-out),
+    background-color var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    transform 100ms var(--ease-out);
+}
+
+.landing-action:active {
+  transform: translateY(1px);
+}
+
+.landing-action:disabled,
+.landing-action[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.landing-action:focus-visible {
+  outline: 3px solid var(--color-landing-white);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--color-landing-ink);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid rgb(var(--color-primary-teal) / 0.35);
+  outline-offset: 3px;
+}
+
+@layer components {
+  .app-container {
+    @apply w-full px-4 sm:px-6 lg:px-8;
+  }
+
+  .display-heading {
+    @apply text-4xl font-bold leading-tight text-foreground sm:text-5xl lg:text-6xl;
+  }
+
+  .page-heading {
+    @apply text-3xl font-bold leading-tight text-foreground sm:text-4xl;
+  }
+
+  .section-heading {
+    @apply text-2xl font-bold leading-tight text-foreground sm:text-3xl;
+  }
+
+  .card-heading {
+    @apply text-base font-bold text-foreground;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-normal text-primary;
+  }
+
+  .body-copy {
+    @apply text-sm leading-6 text-foreground-muted sm:text-base sm:leading-7;
+  }
+
+  .small-copy {
+    @apply text-sm leading-6 text-foreground-muted;
+  }
+
+  .caption-copy {
+    @apply text-xs leading-5 text-foreground-muted;
+  }
+
+  .surface-panel {
+    @apply rounded-app border border-border bg-surface;
+  }
+
+  .form-control {
+    @apply min-h-11 w-full rounded-app border border-border bg-surface px-3 text-sm text-foreground transition-colors placeholder:text-foreground-muted/70 focus:border-primary focus:outline-none;
+  }
+
+  .form-textarea {
+    @apply w-full rounded-app border border-border bg-surface px-3 py-2 text-sm leading-6 text-foreground transition-colors placeholder:text-foreground-muted/70 focus:border-primary focus:outline-none;
+  }
+
+  .form-select {
+    @apply min-h-11 w-full rounded-app border border-border bg-surface px-3 text-sm text-foreground transition-colors focus:border-primary focus:outline-none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

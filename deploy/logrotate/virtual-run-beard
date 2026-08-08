@@ -1,0 +1,9 @@
+/var/log/virtual-run-beard/*.log {
+  daily
+  rotate 14
+  compress
+  missingok
+  notifempty
+  copytruncate
+  create 0640 virtual-run-beard virtual-run-beard
+}

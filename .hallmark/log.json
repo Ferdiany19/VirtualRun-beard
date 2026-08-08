@@ -1,0 +1,51 @@
+[
+  {
+    "date": "2026-08-03",
+    "scope": "app",
+    "macrostructure": "Upload Ledger",
+    "theme": "Sport",
+    "enrichment": "none",
+    "nav": "N6 Newspaper masthead",
+    "footer": "Ft1 Mast-headed",
+    "brief": "BEARD public participant upload list, form, and history redesign"
+  },
+  {
+    "date": "2026-08-03",
+    "scope": "app",
+    "macrostructure": "Confirmation Docket",
+    "theme": "Sport",
+    "enrichment": "real event photography",
+    "nav": "N6 Newspaper masthead",
+    "footer": "Ft1 Mast-headed",
+    "brief": "BEARD public registration confirmation redesign"
+  },
+  {
+    "date": "2026-08-03",
+    "scope": "app",
+    "macrostructure": "Access Gate + Participant Workbench",
+    "theme": "Sport",
+    "enrichment": "real event photography",
+    "nav": "N6 Newspaper masthead",
+    "footer": "Ft1 Mast-headed",
+    "brief": "BEARD public participant access and dashboard redesign"
+  },
+  {
+    "date": "2026-08-03",
+    "scope": "app",
+    "macrostructure": "Catalogue + Photographic",
+    "theme": "Sport",
+    "enrichment": "real event photography",
+    "nav": "N6 Newspaper masthead",
+    "footer": "Ft1 Mast-headed",
+    "brief": "BEARD public event index and event detail redesign"
+  },
+  {
+    "date": "2026-08-03",
+    "macrostructure": "Marquee Hero",
+    "theme": "Sport",
+    "enrichment": "event photography",
+    "nav": "N6 Newspaper masthead",
+    "footer": "Ft1 Mast-headed",
+    "brief": "BEARD Virtual Run landing page redesign"
+  }
+]

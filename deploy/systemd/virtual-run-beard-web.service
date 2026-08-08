@@ -1,0 +1,22 @@
+[Unit]
+Description=Virtual Run Beard frontend application
+After=network.target virtual-run-beard-backend.service
+
+[Service]
+Type=simple
+User=virtual-run-beard
+Group=virtual-run-beard
+WorkingDirectory=/opt/virtual-run-beard/current/frontend
+EnvironmentFile=/etc/virtual-run-beard/web.env
+Environment=PORT=3000
+ExecStart=/usr/bin/node .next/standalone/server.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/virtual-run-beard/current/frontend/.next /var/log/virtual-run-beard
+
+[Install]
+WantedBy=multi-user.target

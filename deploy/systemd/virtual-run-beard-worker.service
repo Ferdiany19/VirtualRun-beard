@@ -1,0 +1,21 @@
+[Unit]
+Description=Virtual Run Beard background worker
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=virtual-run-beard
+Group=virtual-run-beard
+WorkingDirectory=/opt/virtual-run-beard/current
+EnvironmentFile=/etc/virtual-run-beard/worker.env
+ExecStart=/usr/bin/pnpm --filter backend worker
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/virtual-run-beard
+
+[Install]
+WantedBy=multi-user.target

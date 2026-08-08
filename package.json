@@ -1,0 +1,27 @@
+{
+  "name": "virtual-run-beard",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "corepack pnpm --parallel --filter frontend --filter backend dev",
+    "dev:frontend": "corepack pnpm --filter frontend dev",
+    "dev:backend": "corepack pnpm --filter backend dev",
+    "build": "corepack pnpm --filter backend build && corepack pnpm --filter frontend build",
+    "start:frontend": "corepack pnpm --filter frontend start",
+    "start:backend": "corepack pnpm --filter backend start:prod",
+    "worker": "corepack pnpm --filter backend worker",
+    "lint": "corepack pnpm --filter backend lint && corepack pnpm --filter fhjrontend lint",
+    "format": "corepack pnpm --filter backend format && corepack pnpm --filter frontend format",
+    "format:check": "corepack pnpm --filter backend format:check && corepack pnpm --filter frontend format:check",
+    "typecheck": "corepack pnpm --filter backend typecheck && corepack pnpm --filter frontend typecheck",
+    "test": "corepack pnpm --filter backend test && corepack pnpm --filter frontend test",
+    "test:unit": "corepack pnpm --filter backend test && corepack pnpm --filter frontend test:unit",
+    "test:integration": "corepack pnpm --filter frontend test:integration",
+    "test:e2e": "corepack pnpm --filter frontend test:e2e",
+    "db:migrate": "corepack pnpm --filter backend db:migrate",
+    "db:seed:dev": "corepack pnpm --filter backend db:seed:dev",
+    "email:test": "corepack pnpm --filter backend email:test",
+    "admin:set-password": "corepack pnpm --filter backend admin:set-password"
+  }
+}

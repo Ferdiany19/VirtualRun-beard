@@ -1,0 +1,48 @@
+/* Hallmark · genre: editorial · macrostructure: Marquee Hero · theme: Sport · enrichment: event photography · nav: N6 · footer: Ft1 · contrast: pass (40–41) · slop: pass (42–49) */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
+:root {
+  --color-landing-paper: oklch(97.8% 0.009 92);
+  --color-landing-paper-2: oklch(93.8% 0.014 172);
+  --color-landing-ink: oklch(24% 0.075 255);
+  --color-landing-ink-2: oklch(45% 0.045 250);
+  --color-landing-rule: oklch(82% 0.025 210);
+  --color-landing-teal: oklch(61% 0.13 178);
+  --color-landing-teal-dark: oklch(48% 0.105 178);
+  --color-landing-orange: oklch(70% 0.19 48);
+  --color-landing-accent-ink: oklch(24% 0.075 255);
+  --color-landing-white: oklch(99.5% 0.002 92);
+  --color-landing-focus: oklch(63% 0.18 48);
+  --color-landing-overlay: oklch(20% 0.065 255 / 0.58);
+
+  --font-display: var(--font-oswald), "Arial Narrow", sans-serif;
+  --font-body: var(--font-montserrat), sans-serif;
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4.5rem;
+  --space-3xl: 7rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.5rem;
+  --text-display-s: clamp(3.75rem, 9vw, 8rem);
+  --text-display: clamp(4.5rem, 12vw, 11rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-short: 150ms;
+  --dur-medium: 240ms;
+  --dur-long: 420ms;
+  --rule-hair: 1px;
+  --rule-heavy: 3px;
+  --radius-landing: 0;
+}

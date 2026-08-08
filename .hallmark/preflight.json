@@ -1,0 +1,14 @@
+{
+  "scannedAt": "2026-08-03",
+  "framework": "Next.js 16 App Router",
+  "fontStack": "Montserrat via next/font/google",
+  "palette": "Existing RGB CSS custom properties with teal, navy, orange, and neutral tokens",
+  "motion": "motion-cut; no animation library installed",
+  "spacing": "Tailwind default spacing scale with responsive 16px, 24px, and 32px public gutters",
+  "preserve": [
+    "Montserrat font stack",
+    "BEARD brand palette",
+    "existing spacing and public gutter system",
+    "existing data fetching and route ownership"
+  ]
+}

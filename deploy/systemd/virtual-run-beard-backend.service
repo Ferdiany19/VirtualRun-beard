@@ -1,0 +1,22 @@
+[Unit]
+Description=Virtual Run Beard NestJS backend API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=virtual-run-beard
+Group=virtual-run-beard
+WorkingDirectory=/opt/virtual-run-beard/current/backend
+EnvironmentFile=/etc/virtual-run-beard/backend.env
+Environment=PORT=3001
+ExecStart=/usr/bin/pnpm start:prod
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/virtual-run-beard/current/.local-storage /var/log/virtual-run-beard
+
+[Install]
+WantedBy=multi-user.target
