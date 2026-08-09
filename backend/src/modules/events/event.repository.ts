@@ -568,6 +568,7 @@ export async function createEvent(
       input.racePackEnabled,
       input.emergencyContactEnabled,
       adminUserId,
+      adminUserId,
     ],
     client,
   );
