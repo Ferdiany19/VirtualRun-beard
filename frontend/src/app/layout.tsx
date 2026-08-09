@@ -17,6 +17,13 @@ const oswald = Oswald({
 export const metadata: Metadata = {
   title: "Virtual Run Beard",
   description: "Platform operasional event virtual run untuk Indonesia.",
+  icons: {
+    icon: [
+      { url: "/assets/logo/BEARD CIRCLE LOGO.svg", type: "image/svg+xml" },
+      { url: "/assets/logo/BEARD CIRCLE LOGO.png", type: "image/png" },
+    ],
+    apple: [{ url: "/assets/logo/BEARD CIRCLE LOGO.png" }],
+  },
 };
 
 type RootLayoutProps = {
