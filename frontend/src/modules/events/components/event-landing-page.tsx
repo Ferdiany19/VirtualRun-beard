@@ -401,6 +401,7 @@ export function EventLandingPage(props: EventLandingPageProps) {
               priority
               sizes="100vw"
               src={imageSrc}
+              unoptimized={imageSrc.startsWith("/api/admin/")}
             />
           ) : null}
           <div className="absolute inset-0 -z-10 bg-[var(--color-landing-overlay)]" />

@@ -66,6 +66,7 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
                 height={900}
                 priority
                 src={bannerSrc}
+                unoptimized={bannerSrc.startsWith("/api/admin/")}
                 width={1600}
               />
             </div>

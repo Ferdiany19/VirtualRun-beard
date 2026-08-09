@@ -85,6 +85,7 @@ function EventThumbnail({
         alt={imageAlt(item)}
         className={`${sizeClass} shrink-0 rounded-app object-cover`}
         height={size === "small" ? 48 : 88}
+        unoptimized={imageSrc.startsWith("/api/admin/")}
         src={imageSrc}
         width={size === "small" ? 48 : 120}
       />
