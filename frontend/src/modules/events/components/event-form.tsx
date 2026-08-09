@@ -17,6 +17,7 @@ type EventFormProps = {
   action: (formData: FormData) => Promise<void>;
   csrfToken: string;
   event?: EventRecord | null;
+  bannerSrc?: string | null;
 };
 
 function defaultDates(): Pick<
@@ -141,12 +142,13 @@ function TimelinePair({
   );
 }
 
-export function EventForm({ action, csrfToken, event }: EventFormProps) {
+export function EventForm({ action, csrfToken, event, bannerSrc }: EventFormProps) {
   const dates = defaultDates();
   const [name, setName] = useState(event?.name ?? "");
   const [slug, setSlug] = useState(event?.slug ?? "");
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(event?.slug));
   const [brandPrimaryColor, setBrandPrimaryColor] = useState(event?.brandPrimaryColor ?? "#009a89");
+  const [bannerPreview, setBannerPreview] = useState<string | null>(bannerSrc ?? null);
 
   const onNameChange = (value: string) => {
     setName(value);
@@ -278,30 +280,47 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
           id="branding"
           title="Aset dan warna public page"
         >
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_180px]">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field
-                
-                htmlFor="bannerObjectKey"
-                label="Banner object key"
-              >
+          <div className="grid gap-5">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_180px] lg:items-center">
+              <div>
+                <div className="aspect-[16/5] overflow-hidden rounded-app border border-border bg-surface-muted">
+                  {bannerPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt="Preview banner event"
+                      className="h-full w-full object-cover"
+                      src={bannerPreview}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm font-bold text-foreground-muted">
+                      Banner belum dipilih
+                    </div>
+                  )}
+                </div>
+                <p className="mt-3 text-xs text-foreground-muted">
+                  Pilih file baru jika ingin mengganti banner. Format JPG/PNG, maksimal 2MB, rasio
+                  rekomendasi 16:9.
+                </p>
+                <input name="bannerObjectKey" type="hidden" value={event?.bannerObjectKey ?? ""} />
                 <input
-                  className="form-control"
-                  defaultValue={event?.bannerObjectKey ?? ""}
-                  id="bannerObjectKey"
-                  name="bannerObjectKey"
-                  placeholder="/events/example/banner.png"
-                />
-              </Field>
-              <Field htmlFor="thumbnailObjectKey" label="Thumbnail object key">
-                <input
-                  className="form-control"
-                  defaultValue={event?.thumbnailObjectKey ?? ""}
-                  id="thumbnailObjectKey"
                   name="thumbnailObjectKey"
-                  placeholder="/events/example/banner.png"
+                  type="hidden"
+                  value={event?.thumbnailObjectKey ?? event?.bannerObjectKey ?? ""}
                 />
-              </Field>
+              </div>
+              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-app border border-border bg-white px-4 py-2 text-sm font-bold text-navy hover:border-primary hover:text-primary">
+                Pilih File
+                <input
+                  accept="image/jpeg,image/png"
+                  className="sr-only"
+                  name="banner"
+                  onChange={(changeEvent) => {
+                    const file = changeEvent.target.files?.[0] ?? null;
+                    setBannerPreview(file ? URL.createObjectURL(file) : bannerSrc ?? null);
+                  }}
+                  type="file"
+                />
+              </label>
             </div>
             <Field htmlFor="brandPrimaryColor" label="Primary color">
               <div className="flex min-h-11 overflow-hidden rounded-app border border-border bg-surface">

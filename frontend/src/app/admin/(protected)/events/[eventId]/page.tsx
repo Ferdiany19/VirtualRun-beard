@@ -17,6 +17,7 @@ import {
   eventStatusLabel,
   formatDateTimeRange,
   publicationStatusLabel,
+  resolveAdminEventBannerSrc,
 } from "@/modules/events/components/event-display";
 import { AdminPageHeader } from "@/modules/events/components/admin-page-header";
 import { FormMessage } from "@/modules/events/components/form-message";
@@ -43,6 +44,7 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
   const categories = await listManageableCategories(event.id, admin);
   const certificateSummary = await getManagedEventCertificateSummary(event.id, admin);
   const activeCategoryCount = categories.filter((category) => category.isActive).length;
+  const bannerSrc = resolveAdminEventBannerSrc(event);
 
   return (
     <div className="space-y-6">
@@ -56,6 +58,19 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <article className="rounded-section border border-border bg-surface p-5 shadow-soft">
+          {bannerSrc ? (
+            <div className="mb-5 overflow-hidden rounded-app border border-border bg-surface-muted">
+              <Image
+                alt={`Banner ${event.name}`}
+                className="block aspect-[16/9] w-full object-cover"
+                height={900}
+                priority
+                src={bannerSrc}
+                width={1600}
+              />
+            </div>
+          ) : null}
+
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex flex-wrap gap-2">

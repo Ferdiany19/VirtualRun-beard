@@ -9,6 +9,7 @@ import { getAdminCsrfTokenForForm, requireAdminSession } from "@/modules/auth/se
 import {
   eventStatusLabel,
   publicationStatusLabel,
+  resolveAdminEventBannerSrc,
 } from "@/modules/events/components/event-display";
 import { StatusBadge } from "@/shared/ui/status-badge";
 
@@ -80,6 +81,7 @@ export default async function AdminEventPreviewPage({ params }: PreviewPageProps
         </div>
       </div>
       <EventLandingPage
+        bannerSrc={resolveAdminEventBannerSrc(eventWithCategories.event)}
         categories={eventWithCategories.categories}
         event={eventWithCategories.event}
       />

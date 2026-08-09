@@ -12,7 +12,10 @@ import { getCertificateTemplatePreviewForAdmin } from '@/modules/certificates/ce
 import { getPrivateObject } from '@/modules/storage/storage.service';
 import { eventStatuses } from '@/modules/events/domain/event-status';
 import { publicationStatuses } from '@/modules/events/event.schema';
-import { listManageableEventListItems } from '@/modules/events/event.service';
+import {
+  getManageableEvent,
+  listManageableEventListItems,
+} from '@/modules/events/event.service';
 import type { ManageableEventListItem } from '@/modules/events/event.types';
 import {
   eventStatusLabel,
@@ -56,6 +59,35 @@ export class FilesController {
       .status(200)
       .setHeader('content-type', 'image/png')
       .setHeader('cache-control', 'public, max-age=300')
+      .send(body);
+  }
+
+  @Get('admin/events/:eventId/banner')
+  async adminEventBanner(
+    @Param('eventId') eventId: string,
+    @Req() request: Request,
+    @Res() response: Response,
+  ) {
+    const admin = await requireAdminSessionFromToken(
+      getAdminSessionToken(request),
+    );
+    const event = await getManageableEvent(eventId, admin);
+    const objectKey = event.bannerObjectKey ?? event.thumbnailObjectKey ?? null;
+
+    if (!objectKey || objectKey.startsWith('/')) {
+      throw new ApplicationError({
+        code: 'NOT_FOUND',
+        message: 'Event banner not found',
+        safeMessage: 'Banner event tidak ditemukan.',
+        statusCode: 404,
+      });
+    }
+
+    const body = await getPrivateObject(objectKey);
+    response
+      .status(200)
+      .setHeader('content-type', 'image/png')
+      .setHeader('cache-control', 'private, max-age=60')
       .send(body);
   }
 

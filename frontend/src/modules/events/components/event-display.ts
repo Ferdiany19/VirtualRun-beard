@@ -16,6 +16,20 @@ export function resolveEventImageSrc(event: EventRecord): string | null {
   return null;
 }
 
+export function resolveAdminEventImageSrc(event: EventRecord): string | null {
+  const candidate = event.thumbnailObjectKey ?? event.bannerObjectKey;
+
+  if (candidate?.startsWith("/")) {
+    return candidate;
+  }
+
+  if (candidate) {
+    return `/api/admin/events/${event.id}/banner`;
+  }
+
+  return null;
+}
+
 export function resolveEventBannerSrc(event: EventRecord): string | null {
   if (event.bannerObjectKey?.startsWith("/")) {
     return event.bannerObjectKey;
@@ -26,6 +40,18 @@ export function resolveEventBannerSrc(event: EventRecord): string | null {
   }
 
   return resolveEventImageSrc(event);
+}
+
+export function resolveAdminEventBannerSrc(event: EventRecord): string | null {
+  if (event.bannerObjectKey?.startsWith("/")) {
+    return event.bannerObjectKey;
+  }
+
+  if (event.bannerObjectKey) {
+    return `/api/admin/events/${event.id}/banner`;
+  }
+
+  return resolveAdminEventImageSrc(event);
 }
 
 export function formatDistance(distanceMeters: number): string {

@@ -8,7 +8,7 @@ import {
   eventStatusLabel,
   formatDistance,
   publicationStatusLabel,
-  resolveEventImageSrc,
+  resolveAdminEventImageSrc,
 } from "@/modules/events/components/event-display";
 import {
   EventListFilters,
@@ -76,7 +76,7 @@ function EventThumbnail({
   item: ManageableEventListItem;
   size?: "small" | "large";
 }) {
-  const imageSrc = resolveEventImageSrc(item.event);
+  const imageSrc = resolveAdminEventImageSrc(item.event);
   const sizeClass = size === "small" ? "h-12 w-12" : "h-[88px] w-[120px]";
 
   if (imageSrc) {

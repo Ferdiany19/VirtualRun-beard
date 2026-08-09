@@ -12,6 +12,12 @@ const nextConfig = {
         pathname: "/events/**",
       },
       {
+        pathname: "/api/public/events/**",
+      },
+      {
+        pathname: "/api/admin/events/**",
+      },
+      {
         pathname: "/api/admin/bib/template-preview",
       },
       {

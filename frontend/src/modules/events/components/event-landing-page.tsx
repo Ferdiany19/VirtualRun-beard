@@ -22,6 +22,7 @@ type EventLandingPageProps = {
   event: EventRecord;
   categories: EventCategoryRecord[];
   action?: (formData: FormData) => void;
+  bannerSrc?: string | null;
   idempotencyKey?: string;
   registrationError?: string;
   registrationErrorMessage?: string;
@@ -376,7 +377,7 @@ function resolveBenefitIcon(key: string, index: number): IconName {
 
 export function EventLandingPage(props: EventLandingPageProps) {
   const { event, categories } = props;
-  const imageSrc = resolveEventBannerSrc(event);
+  const imageSrc = props.bannerSrc ?? resolveEventBannerSrc(event);
   const activeCategories = categories.filter((category) => category.isActive);
   const brandTextColor = getAccessibleTextColor(event.brandPrimaryColor);
   const enabledBenefits = (event.participantBenefits ?? []).filter((benefit) => benefit.enabled);

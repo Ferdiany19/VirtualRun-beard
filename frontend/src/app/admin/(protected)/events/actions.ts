@@ -40,6 +40,37 @@ async function csrfHeaders(formData: FormData) {
   };
 }
 
+async function uploadEventBanner(formData: FormData): Promise<string | null> {
+  const banner = formData.get("banner");
+
+  if (!(banner instanceof File) || banner.size === 0) {
+    return null;
+  }
+
+  const uploadForm = new FormData();
+  uploadForm.set("csrfToken", String(formData.get("csrfToken") ?? ""));
+  uploadForm.set("banner", banner);
+  const uploadResponse = await fetch(apiUrl("/api/admin/events/banner"), {
+    method: "POST",
+    cache: "no-store",
+    headers: await csrfHeaders(formData),
+    body: uploadForm,
+  });
+
+  if (!uploadResponse.ok) {
+    const responseData = (await uploadResponse.json().catch(() => null)) as {
+      error?: { message?: string };
+    } | null;
+    throw new Error(
+      responseData?.error?.message ??
+        "Banner event belum dapat diupload. Gunakan file JPG atau PNG yang valid.",
+    );
+  }
+
+  const uploadData = (await uploadResponse.json()) as { objectKey: string };
+  return uploadData.objectKey;
+}
+
 export type CreateEventActionState = {
   error: string | null;
 };
@@ -58,28 +89,13 @@ export async function createEventAction(
       event?: { bannerObjectKey?: string | null; thumbnailObjectKey?: string | null };
       categories?: unknown[];
     };
-    const banner = formData.get("banner");
+    const bannerObjectKey = await uploadEventBanner(formData);
 
-    if (banner instanceof File && banner.size > 0) {
-      const uploadForm = new FormData();
-      uploadForm.set("csrfToken", String(formData.get("csrfToken") ?? ""));
-      uploadForm.set("banner", banner);
-      const uploadResponse = await fetch(apiUrl("/api/admin/events/banner"), {
-        method: "POST",
-        cache: "no-store",
-        headers: await csrfHeaders(formData),
-        body: uploadForm,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("banner upload failed");
-      }
-
-      const uploadData = (await uploadResponse.json()) as { objectKey: string };
+    if (bannerObjectKey) {
       payload.event = {
         ...(payload.event ?? {}),
-        bannerObjectKey: uploadData.objectKey,
-        thumbnailObjectKey: uploadData.objectKey,
+        bannerObjectKey,
+        thumbnailObjectKey: bannerObjectKey,
       };
     }
 
@@ -128,10 +144,18 @@ export async function updateEventAction(eventId: string, formData: FormData): Pr
   const requestContext = await getRequestContext();
 
   try {
+    const bannerObjectKey = await uploadEventBanner(formData);
+    const event = parseEventFormData(formData);
+
+    if (bannerObjectKey) {
+      event.bannerObjectKey = bannerObjectKey;
+      event.thumbnailObjectKey = bannerObjectKey;
+    }
+
     await updateManagedEvent({
       eventId,
       admin,
-      event: parseEventFormData(formData),
+      event,
       correlationId: requestContext.correlationId,
     });
     revalidatePath("/");

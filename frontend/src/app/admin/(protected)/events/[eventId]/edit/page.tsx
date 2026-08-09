@@ -6,6 +6,7 @@ import { canAccessEventManagement } from "@/modules/auth/auth.policy";
 import { PermissionDenied } from "@/modules/auth/components/permission-denied";
 import { getAdminCsrfTokenForForm, requireAdminSession } from "@/modules/auth/session";
 import { getManageableEvent } from "@/modules/events/event.service";
+import { resolveAdminEventBannerSrc } from "@/modules/events/components/event-display";
 import { AdminPageHeader } from "@/modules/events/components/admin-page-header";
 import { EventForm } from "@/modules/events/components/event-form";
 import { FormMessage } from "@/modules/events/components/form-message";
@@ -53,6 +54,7 @@ export default async function EditEventPage({ params, searchParams }: EditEventP
         action={updateEventAction.bind(null, event.id)}
         csrfToken={csrfToken}
         event={event}
+        bannerSrc={resolveAdminEventBannerSrc(event)}
       />
     </div>
   );
