@@ -1,4 +1,7 @@
-import { updateEventAction } from "@/app/admin/(protected)/events/actions";
+import {
+  publishEventAction,
+  updateEventAction,
+} from "@/app/admin/(protected)/events/actions";
 import { canAccessEventManagement } from "@/modules/auth/auth.policy";
 import { PermissionDenied } from "@/modules/auth/components/permission-denied";
 import { getAdminCsrfTokenForForm, requireAdminSession } from "@/modules/auth/session";
@@ -32,6 +35,19 @@ export default async function EditEventPage({ params, searchParams }: EditEventP
         description="Atur konten public page, window pendaftaran, window upload, instruksi peserta, dan kontak organizer."
         title={`Edit ${event.name}`}
       />
+      {event.eventStatus === "DRAFT" ? (
+        <div className="flex justify-end">
+          <form action={publishEventAction.bind(null, event.id)}>
+            <input name="csrfToken" type="hidden" value={csrfToken} />
+            <button
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app bg-primary px-5 py-2 text-sm font-bold text-white hover:bg-primary-hover"
+              type="submit"
+            >
+              Publikasikan Event
+            </button>
+          </form>
+        </div>
+      ) : null}
       <FormMessage error={query.error ?? null} success={query.success ?? null} />
       <EventForm
         action={updateEventAction.bind(null, event.id)}

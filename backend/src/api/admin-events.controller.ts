@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
+import { z } from 'zod';
 import { fileToWebFile } from '@/http/file';
 import type { UploadedMemoryFile } from '@/http/file';
 import {
@@ -153,9 +154,76 @@ export class AdminEventsController {
       body && typeof body === 'object' ? (body as { csrfToken?: string }) : {};
     const admin = await this.requireAdminWithCsrf(request, bodyRecord);
 
+    let payload: z.infer<typeof eventFullCreateSchema>;
+
+    try {
+      payload = eventFullCreateSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const issue = error.issues[0];
+        const fieldPath = issue?.path.join('.') ?? 'data event';
+        const fieldLabels: Record<string, string> = {
+          'event.name': 'Nama event',
+          'event.slug': 'Slug',
+          'event.shortDescription': 'Deskripsi singkat',
+          'event.fullDescription': 'Deskripsi event',
+          'event.registrationStartsAt': 'Tanggal mulai pendaftaran',
+          'event.registrationEndsAt': 'Tanggal selesai pendaftaran',
+          'event.activityStartsAt': 'Tanggal mulai aktivitas',
+          'event.activityEndsAt': 'Tanggal selesai aktivitas',
+          'event.uploadStartsAt': 'Tanggal mulai upload',
+          'event.uploadEndsAt': 'Tanggal selesai upload',
+          categories: 'Kategori',
+        };
+        const categoryFieldLabels: Record<string, string> = {
+          name: 'Nama kategori',
+          slug: 'Slug kategori',
+          description: 'Deskripsi kategori',
+          distanceMeters: 'Jarak kategori',
+          distanceToleranceMeters: 'Toleransi jarak kategori',
+          participantQuota: 'Kuota kategori',
+          priceAmountCents: 'Harga kategori',
+        };
+        const categoryFieldMatch = /^categories\.(\d+)\.(.+)$/.exec(fieldPath);
+        const categoryField = categoryFieldMatch?.[2] ?? '';
+        const categoryNumber = categoryFieldMatch
+          ? Number(categoryFieldMatch[1]) + 1
+          : null;
+        const fieldLabel = categoryFieldMatch
+          ? `Kategori ke-${categoryNumber} — ${categoryFieldLabels[categoryField] ?? categoryField}`
+          : (fieldLabels[fieldPath] ?? fieldPath);
+        let issueMessage = 'Periksa kembali nilainya.';
+        if (categoryField === 'name' && issue?.code === 'too_small') {
+          issueMessage = 'Wajib diisi dan minimal 2 karakter.';
+        } else if (categoryField === 'slug' && issue?.code === 'invalid_string') {
+          issueMessage = 'Gunakan huruf kecil, angka, dan tanda hubung.';
+        } else if (fieldPath === 'categories' && issue?.code === 'too_small') {
+          issueMessage = 'Minimal satu kategori harus ditambahkan.';
+        } else if (fieldPath === 'event.slug') {
+          issueMessage = 'Gunakan huruf kecil, angka, dan tanda hubung.';
+        } else if (issue?.code === 'invalid_string') {
+          issueMessage = 'Gunakan format yang sesuai.';
+        } else if (issue?.code === 'invalid_type') {
+          issueMessage = 'Field ini wajib diisi.';
+        } else if (issue?.code === 'too_small') {
+          issueMessage = 'Nilainya terlalu pendek atau belum diisi.';
+        }
+
+        throw new ApplicationError({
+          code: 'VALIDATION_FAILED',
+          message: `Invalid event field: ${fieldPath}`,
+          safeMessage: `${fieldLabel} belum valid. ${issueMessage}`,
+          statusCode: 400,
+          cause: error,
+        });
+      }
+
+      throw error;
+    }
+
     return createManagedEventWithCategories({
       admin,
-      payload: eventFullCreateSchema.parse(body),
+      payload,
       correlationId: requestContext(request).correlationId,
     });
   }

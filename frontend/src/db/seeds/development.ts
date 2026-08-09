@@ -55,6 +55,8 @@ const seedEvent: EventInput = {
       enabled: true,
     },
   ],
+  racePackEnabled: false,
+  emergencyContactEnabled: false,
   faqItems: [
     {
       question: "Apakah event ini dilakukan di lokasi tertentu?",

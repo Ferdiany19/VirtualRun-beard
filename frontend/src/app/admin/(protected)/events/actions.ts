@@ -40,7 +40,14 @@ async function csrfHeaders(formData: FormData) {
   };
 }
 
-export async function createEventAction(formData: FormData): Promise<void> {
+export type CreateEventActionState = {
+  error: string | null;
+};
+
+export async function createEventAction(
+  _previousState: CreateEventActionState,
+  formData: FormData,
+): Promise<CreateEventActionState> {
   const admin = await requireAdminSession();
   await validateAdminCsrfToken(formData, admin);
   const mode = String(formData.get("mode") ?? "DRAFT") === "PUBLISH" ? "PUBLISH" : "DRAFT";
@@ -91,7 +98,15 @@ export async function createEventAction(formData: FormData): Promise<void> {
     });
 
     if (!response.ok) {
-      throw new Error("event create failed");
+      const responseData = (await response.json().catch(() => null)) as {
+        error?: { message?: string };
+      } | null;
+
+      return {
+        error:
+          responseData?.error?.message ??
+          "Event belum dapat disimpan. Periksa kembali data yang diisi.",
+      };
     }
 
     const data = (await response.json()) as { event: { id: string } };
@@ -99,7 +114,9 @@ export async function createEventAction(formData: FormData): Promise<void> {
     revalidatePath("/");
     revalidatePath("/events");
   } catch {
-    redirect("/admin/events/new?error=validation");
+    return {
+      error: "Event belum dapat disimpan. Periksa kembali data dan koneksi Anda.",
+    };
   }
 
   redirect(`/admin/events/${eventId}?success=${mode === "PUBLISH" ? "published" : "created"}`);
@@ -120,10 +137,11 @@ export async function updateEventAction(eventId: string, formData: FormData): Pr
     revalidatePath("/");
     revalidatePath("/events");
     revalidatePath(`/admin/events/${eventId}`);
-    redirect(`/admin/events/${eventId}/edit?success=updated`);
   } catch (error) {
     redirect(`/admin/events/${eventId}/edit?error=${errorToSearchParam(error)}`);
   }
+
+  redirect(`/admin/events/${eventId}/edit?success=updated`);
 }
 
 export async function publishEventAction(eventId: string, formData: FormData): Promise<void> {
@@ -135,12 +153,13 @@ export async function publishEventAction(eventId: string, formData: FormData): P
     await publishManagedEvent({ eventId, admin, correlationId: requestContext.correlationId });
     revalidatePath("/");
     revalidatePath("/events");
-    redirect(`/admin/events/${eventId}?success=published`);
   } catch (error) {
     redirect(
       `/admin/events/${eventId}?error=${errorToSearchParam(error) === "validation" ? "publish" : errorToSearchParam(error)}`,
     );
   }
+
+  redirect(`/admin/events/${eventId}?success=published`);
 }
 
 export async function unpublishEventAction(eventId: string, formData: FormData): Promise<void> {

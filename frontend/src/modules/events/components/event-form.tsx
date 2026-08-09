@@ -522,6 +522,26 @@ export function EventForm({ action, csrfToken, event }: EventFormProps) {
               />
             </Field>
           </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <label className="flex min-h-14 items-center justify-between gap-3 rounded-app border border-border p-3 text-sm font-bold text-navy">
+              Tampilkan Race Pack Digital
+              <input
+                className="h-5 w-5 accent-primary"
+                defaultChecked={event?.racePackEnabled ?? false}
+                name="racePackEnabled"
+                type="checkbox"
+              />
+            </label>
+            <label className="flex min-h-14 items-center justify-between gap-3 rounded-app border border-border p-3 text-sm font-bold text-navy">
+              Tampilkan Kontak Darurat saat pendaftaran
+              <input
+                className="h-5 w-5 accent-primary"
+                defaultChecked={event?.emergencyContactEnabled ?? false}
+                name="emergencyContactEnabled"
+                type="checkbox"
+              />
+            </label>
+          </div>
         </FormSection>
       </div>
 

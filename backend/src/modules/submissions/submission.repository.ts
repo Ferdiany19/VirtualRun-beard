@@ -111,6 +111,8 @@ type BaseRow = SubmissionRow &
     contact_whatsapp: string | null;
     brand_primary_color: string;
     faq_items: EventRecord['faqItems'];
+    race_pack_enabled: boolean;
+    emergency_contact_enabled: boolean;
     event_created_at: Date;
     event_updated_at: Date;
     registration_id: string;
@@ -202,6 +204,8 @@ function mapEvent(row: BaseRow): EventRecord {
     contactWhatsapp: row.contact_whatsapp,
     brandPrimaryColor: row.brand_primary_color,
     faqItems: row.faq_items,
+    racePackEnabled: row.race_pack_enabled,
+    emergencyContactEnabled: row.emergency_contact_enabled,
     createdByAdminUserId: null,
     updatedByAdminUserId: null,
     assignedAdminUserIds: [],
@@ -416,6 +420,8 @@ const baseSelection = `
   e.contact_whatsapp,
   e.brand_primary_color,
   e.faq_items,
+  e.race_pack_enabled,
+  e.emergency_contact_enabled,
   e.created_at AS event_created_at,
   e.updated_at AS event_updated_at,
   er.id AS registration_id,

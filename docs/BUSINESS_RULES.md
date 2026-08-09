@@ -26,8 +26,11 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
   bukan `ARCHIVED`.
 - Draft dapat dilihat melalui admin preview terproteksi, bukan melalui public route.
 - Publish event membutuhkan minimal satu kategori aktif.
-- Urutan tanggal yang divalidasi: start tidak boleh setelah end untuk registration,
-  activity, dan upload. Upload end juga tidak boleh sebelum activity start.
+- Race Pack Digital dan field kontak darurat dapat diaktifkan atau disembunyikan per event.
+- Urutan tanggal yang divalidasi berantai: registration start tidak boleh setelah
+  registration end, registration end tidak boleh setelah activity start, activity start
+  tidak boleh setelah activity end, activity end tidak boleh setelah upload start, dan
+  upload start tidak boleh setelah upload end.
 
 ## Category
 

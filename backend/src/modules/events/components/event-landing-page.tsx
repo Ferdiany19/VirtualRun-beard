@@ -449,23 +449,25 @@ export function EventLandingPage(props: EventLandingPageProps) {
                 </div>
               </Panel>
 
-              <Panel
-                className="relative min-h-[150px] overflow-hidden"
-                icon="shield"
-                title="Race Pack (Digital)"
-              >
-                <p className="relative z-10 mt-3 max-w-[44%] text-[10px] leading-4 text-foreground-muted">
-                  Semua peserta akan mendapatkan race pack digital yang dikirim melalui email
-                  terdaftar setelah registrasi.
-                </p>
-                <Image
-                  alt="Jersey, BIB, dan medali finisher"
-                  className="object-contain object-right"
-                  fill
-                  sizes="(max-width: 640px) 65vw, 420px"
-                  src="/events/race-pack.png"
-                />
-              </Panel>
+              {event.racePackEnabled ? (
+                <Panel
+                  className="relative min-h-[150px] overflow-hidden"
+                  icon="shield"
+                  title="Race Pack (Digital)"
+                >
+                  <p className="relative z-10 mt-3 max-w-[44%] text-[10px] leading-4 text-foreground-muted">
+                    Semua peserta akan mendapatkan race pack digital yang dikirim melalui email
+                    terdaftar setelah registrasi.
+                  </p>
+                  <Image
+                    alt="Jersey, BIB, dan medali finisher"
+                    className="object-contain object-right"
+                    fill
+                    sizes="(max-width: 640px) 65vw, 420px"
+                    src="/events/race-pack.png"
+                  />
+                </Panel>
+              ) : null}
 
               <Panel icon="calendar" id="jadwal" title="Timeline Event">
                 <ol className="mt-5 grid grid-cols-2 gap-y-5 sm:grid-cols-4">

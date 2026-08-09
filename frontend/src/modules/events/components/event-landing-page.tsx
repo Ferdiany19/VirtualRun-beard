@@ -250,23 +250,25 @@ function QuickRegistrationForm({
                 </select>
               </CompactField>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <CompactField label="Nama Kontak Darurat">
-                  <input
-                    className="form-control min-h-11 text-sm"
-                    name="emergencyContactName"
-                    placeholder="Nama kontak"
-                  />
-                </CompactField>
-                <CompactField label="Nomor Kontak">
-                  <input
-                    className="form-control min-h-11 text-sm"
-                    name="emergencyContactPhone"
-                    placeholder="08xxxxxxxxxx"
-                    type="tel"
-                  />
-                </CompactField>
-              </div>
+              {event.emergencyContactEnabled ? (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                  <CompactField label="Nama Kontak Darurat">
+                    <input
+                      className="form-control min-h-11 text-sm"
+                      name="emergencyContactName"
+                      placeholder="Nama kontak"
+                    />
+                  </CompactField>
+                  <CompactField label="Nomor Kontak">
+                    <input
+                      className="form-control min-h-11 text-sm"
+                      name="emergencyContactPhone"
+                      placeholder="08xxxxxxxxxx"
+                      type="tel"
+                    />
+                  </CompactField>
+                </div>
+              ) : null}
 
               <div className="mt-1 grid gap-2 border-t border-[var(--color-landing-rule)] pt-4 text-xs leading-5 text-[var(--color-landing-ink-2)]">
                 <label className="flex min-h-11 items-start gap-2 py-1">
@@ -495,23 +497,25 @@ export function EventLandingPage(props: EventLandingPageProps) {
               </Panel>
             ) : null}
 
-            <Panel
-              className="relative min-h-[18rem] overflow-hidden bg-[var(--color-landing-paper-2)] px-5 sm:px-8"
-              icon="shield"
-              title="Race Pack Digital"
-            >
-              <p className="relative z-10 mt-6 max-w-[45ch] text-sm leading-7 text-[var(--color-landing-ink-2)]">
-                Informasi BIB dan perlengkapan peserta mengikuti benefit yang ditetapkan organizer
-                untuk event ini.
-              </p>
-              <Image
-                alt="Ilustrasi perlengkapan peserta virtual run"
-                className="object-contain object-right-bottom opacity-90"
-                fill
-                sizes="(min-width: 1024px) 42vw, calc(100vw - 32px)"
-                src="/events/race-pack.png"
-              />
-            </Panel>
+            {event.racePackEnabled ? (
+              <Panel
+                className="relative min-h-[18rem] overflow-hidden bg-[var(--color-landing-paper-2)] px-5 sm:px-8"
+                icon="shield"
+                title="Race Pack Digital"
+              >
+                <p className="relative z-10 mt-6 max-w-[45ch] text-sm leading-7 text-[var(--color-landing-ink-2)]">
+                  Informasi BIB dan perlengkapan peserta mengikuti benefit yang ditetapkan organizer
+                  untuk event ini.
+                </p>
+                <Image
+                  alt="Ilustrasi perlengkapan peserta virtual run"
+                  className="object-contain object-right-bottom opacity-90"
+                  fill
+                  sizes="(min-width: 1024px) 42vw, calc(100vw - 32px)"
+                  src="/events/race-pack.png"
+                />
+              </Panel>
+            ) : null}
 
             <Panel icon="calendar" id="jadwal" title="Timeline Event">
               <ol className="mt-8 grid gap-6 sm:grid-cols-4 sm:gap-0">

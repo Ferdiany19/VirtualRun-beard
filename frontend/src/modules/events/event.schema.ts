@@ -17,6 +17,13 @@ export const eventSlugSchema = z
   .max(120)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
+export const categorySlugSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(120)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
 export const eventPrimaryColorSchema = z
   .string()
   .trim()
@@ -66,6 +73,8 @@ export const eventInputSchema = z.object({
   seoIndexEnabled: z.boolean().default(true),
   publicVisibilityEnabled: z.boolean().default(true),
   participantBenefits: z.array(eventParticipantBenefitSchema).max(12).default([]),
+  racePackEnabled: z.boolean().default(false),
+  emergencyContactEnabled: z.boolean().default(false),
 });
 
 export const eventListFilterSchema = z.object({
@@ -136,5 +145,7 @@ export function parseEventFormData(formData: FormData) {
     seoIndexEnabled: formData.get("seoIndexEnabled") === "on",
     publicVisibilityEnabled: formData.get("publicVisibilityEnabled") === "on",
     participantBenefits,
+    racePackEnabled: formData.get("racePackEnabled") === "on",
+    emergencyContactEnabled: formData.get("emergencyContactEnabled") === "on",
   });
 }

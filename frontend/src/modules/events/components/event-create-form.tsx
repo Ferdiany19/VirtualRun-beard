@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
+import type { CreateEventActionState } from "@/app/admin/(protected)/events/actions";
 import { createSlugSuggestion } from "@/modules/events/event.policy";
+import { FormMessage } from "@/modules/events/components/form-message";
 import { Icon } from "@/shared/ui/icons";
 
-type CreateEventAction = (formData: FormData) => Promise<void>;
+type CreateEventAction = (
+  previousState: CreateEventActionState,
+  formData: FormData,
+) => Promise<CreateEventActionState>;
 
 type CategoryDraft = {
   id: string;
@@ -139,6 +144,7 @@ export function EventCreateForm({
   action: CreateEventAction;
   csrfToken: string;
 }) {
+  const [actionState, formAction] = useActionState(action, { error: null });
   const today = useMemo(() => new Date(), []);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -169,6 +175,8 @@ export function EventCreateForm({
   const [seoDescription, setSeoDescription] = useState("");
   const [publicVisible, setPublicVisible] = useState(true);
   const [seoIndex, setSeoIndex] = useState(true);
+  const [racePackEnabled, setRacePackEnabled] = useState(false);
+  const [emergencyContactEnabled, setEmergencyContactEnabled] = useState(false);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
 
   const selectedCategories = categories.filter((category) => category.name.trim().length > 0);
@@ -221,6 +229,8 @@ export function EventCreateForm({
         ...benefit,
         enabled: Boolean(benefits[benefit.key]),
       })),
+      racePackEnabled,
+      emergencyContactEnabled,
     },
     categories: selectedCategories.map((category, index) => ({
       name: category.name.trim(),
@@ -254,9 +264,10 @@ export function EventCreateForm({
   };
 
   return (
-    <form action={action} className="space-y-5">
+    <form action={formAction} className="space-y-5">
       <input name="csrfToken" type="hidden" value={csrfToken} />
       <input name="payload" type="hidden" value={JSON.stringify(payload)} />
+      <FormMessage error={actionState.error} />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
         <div className="space-y-4">
@@ -365,6 +376,7 @@ export function EventCreateForm({
                   <input
                     className={inputClass()}
                     onChange={(event) => setRegistrationStart(event.target.value)}
+                    required
                     type="date"
                     value={registrationStart}
                   />
@@ -373,7 +385,9 @@ export function EventCreateForm({
                   s/d
                   <input
                     className={inputClass()}
+                    min={registrationStart}
                     onChange={(event) => setRegistrationEnd(event.target.value)}
+                    required
                     type="date"
                     value={registrationEnd}
                   />
@@ -384,7 +398,9 @@ export function EventCreateForm({
                   Lari dari
                   <input
                     className={inputClass()}
+                    min={registrationEnd}
                     onChange={(event) => setActivityStart(event.target.value)}
+                    required
                     type="date"
                     value={activityStart}
                   />
@@ -393,7 +409,9 @@ export function EventCreateForm({
                   s/d
                   <input
                     className={inputClass()}
+                    min={activityStart}
                     onChange={(event) => setActivityEnd(event.target.value)}
+                    required
                     type="date"
                     value={activityEnd}
                   />
@@ -404,7 +422,9 @@ export function EventCreateForm({
                   Upload dari
                   <input
                     className={inputClass()}
+                    min={activityEnd}
                     onChange={(event) => setUploadStart(event.target.value)}
+                    required
                     type="date"
                     value={uploadStart}
                   />
@@ -413,7 +433,9 @@ export function EventCreateForm({
                   s/d
                   <input
                     className={inputClass()}
+                    min={uploadStart}
                     onChange={(event) => setUploadEnd(event.target.value)}
+                    required
                     type="date"
                     value={uploadEnd}
                   />
@@ -712,6 +734,24 @@ export function EventCreateForm({
                   checked={seoIndex}
                   className="h-5 w-5 accent-primary"
                   onChange={(event) => setSeoIndex(event.target.checked)}
+                  type="checkbox"
+                />
+              </label>
+              <label className="flex items-center justify-between rounded-app border border-border p-3 text-sm font-bold text-navy">
+                Tampilkan Race Pack Digital
+                <input
+                  checked={racePackEnabled}
+                  className="h-5 w-5 accent-primary"
+                  onChange={(event) => setRacePackEnabled(event.target.checked)}
+                  type="checkbox"
+                />
+              </label>
+              <label className="flex items-center justify-between rounded-app border border-border p-3 text-sm font-bold text-navy">
+                Tampilkan Kontak Darurat saat pendaftaran
+                <input
+                  checked={emergencyContactEnabled}
+                  className="h-5 w-5 accent-primary"
+                  onChange={(event) => setEmergencyContactEnabled(event.target.checked)}
                   type="checkbox"
                 />
               </label>

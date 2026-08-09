@@ -22,6 +22,7 @@ Implemented migration files:
 - `013_event_create_metadata.sql`
 - `014_event_certificates.sql` di backend dan `012_event_certificates.sql` di frontend legacy
   migration set
+- `015_event_display_options.sql`
 
 Migration runner membuat dan memakai tabel:
 
@@ -80,6 +81,8 @@ erDiagram
     boolean seo_index_enabled
     boolean public_visibility_enabled
     jsonb participant_benefits
+    boolean race_pack_enabled
+    boolean emergency_contact_enabled
   }
 
   event_categories {

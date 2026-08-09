@@ -40,6 +40,8 @@ type EventRow = {
   contact_whatsapp: string | null;
   brand_primary_color: string;
   faq_items: EventFaqItem[];
+  race_pack_enabled: boolean;
+  emergency_contact_enabled: boolean;
   created_by_admin_user_id: string | null;
   updated_by_admin_user_id: string | null;
   assigned_admin_user_ids: string[];
@@ -78,6 +80,8 @@ function eventColumnSelection() {
     e.contact_whatsapp,
     e.brand_primary_color,
     e.faq_items,
+    e.race_pack_enabled,
+    e.emergency_contact_enabled,
     e.created_by_admin_user_id,
     e.updated_by_admin_user_id,
     COALESCE(
@@ -121,6 +125,8 @@ function eventGroupBySelection() {
     e.contact_whatsapp,
     e.brand_primary_color,
     e.faq_items,
+    e.race_pack_enabled,
+    e.emergency_contact_enabled,
     e.created_by_admin_user_id,
     e.updated_by_admin_user_id,
     e.created_at,
@@ -159,6 +165,8 @@ function mapEvent(row: EventRow): EventRecord {
     contactWhatsapp: row.contact_whatsapp,
     brandPrimaryColor: row.brand_primary_color,
     faqItems: row.faq_items,
+    racePackEnabled: row.race_pack_enabled,
+    emergencyContactEnabled: row.emergency_contact_enabled,
     createdByAdminUserId: row.created_by_admin_user_id,
     updatedByAdminUserId: row.updated_by_admin_user_id,
     assignedAdminUserIds: row.assigned_admin_user_ids,
@@ -419,6 +427,8 @@ export async function createEvent(
         contact_whatsapp,
         brand_primary_color,
         faq_items,
+        race_pack_enabled,
+        emergency_contact_enabled,
         created_by_admin_user_id,
         updated_by_admin_user_id
       )
@@ -441,7 +451,8 @@ export async function createEvent(
         $20,
         $21::jsonb,
         $22,
-        $22
+        $23,
+        $24
       )
       RETURNING
         id,
@@ -473,6 +484,8 @@ export async function createEvent(
         contact_whatsapp,
         brand_primary_color,
         faq_items,
+        race_pack_enabled,
+        emergency_contact_enabled,
         created_by_admin_user_id,
         updated_by_admin_user_id,
         ARRAY[]::text[] AS assigned_admin_user_ids,
@@ -501,6 +514,8 @@ export async function createEvent(
       input.contactWhatsapp,
       input.brandPrimaryColor,
       JSON.stringify(input.faqItems),
+      input.racePackEnabled,
+      input.emergencyContactEnabled,
       adminUserId,
     ],
     client,
@@ -540,7 +555,9 @@ export async function updateEvent(
         contact_whatsapp = $20,
         brand_primary_color = $21,
         faq_items = $22::jsonb,
-        updated_by_admin_user_id = $23,
+        race_pack_enabled = $23,
+        emergency_contact_enabled = $24,
+        updated_by_admin_user_id = $25,
         updated_at = now()
       WHERE id = $1
       RETURNING
@@ -573,6 +590,8 @@ export async function updateEvent(
         contact_whatsapp,
         brand_primary_color,
         faq_items,
+        race_pack_enabled,
+        emergency_contact_enabled,
         created_by_admin_user_id,
         updated_by_admin_user_id,
         ARRAY[]::text[] AS assigned_admin_user_ids,
@@ -602,6 +621,8 @@ export async function updateEvent(
       input.contactWhatsapp,
       input.brandPrimaryColor,
       JSON.stringify(input.faqItems),
+      input.racePackEnabled,
+      input.emergencyContactEnabled,
       adminUserId,
     ],
     client,
@@ -656,6 +677,8 @@ export async function setEventPublicationAndStatus(
         contact_whatsapp,
         brand_primary_color,
         faq_items,
+        race_pack_enabled,
+        emergency_contact_enabled,
         created_by_admin_user_id,
         updated_by_admin_user_id,
         ARRAY[]::text[] AS assigned_admin_user_ids,
@@ -762,6 +785,8 @@ export async function upsertSeedEventBySlug(
         contact_whatsapp,
         brand_primary_color,
         faq_items,
+        race_pack_enabled,
+        emergency_contact_enabled,
         created_by_admin_user_id,
         updated_by_admin_user_id
       )
@@ -784,7 +809,8 @@ export async function upsertSeedEventBySlug(
         $20,
         $21::jsonb,
         $22,
-        $22
+        $23,
+        $24
       )
       ON CONFLICT (slug)
       DO UPDATE SET
@@ -810,6 +836,8 @@ export async function upsertSeedEventBySlug(
         contact_whatsapp = EXCLUDED.contact_whatsapp,
         brand_primary_color = EXCLUDED.brand_primary_color,
         faq_items = EXCLUDED.faq_items,
+        race_pack_enabled = EXCLUDED.race_pack_enabled,
+        emergency_contact_enabled = EXCLUDED.emergency_contact_enabled,
         updated_by_admin_user_id = EXCLUDED.updated_by_admin_user_id,
         updated_at = now()
       RETURNING
@@ -842,6 +870,8 @@ export async function upsertSeedEventBySlug(
         contact_whatsapp,
         brand_primary_color,
         faq_items,
+        race_pack_enabled,
+        emergency_contact_enabled,
         created_by_admin_user_id,
         updated_by_admin_user_id,
         ARRAY[]::text[] AS assigned_admin_user_ids,
@@ -870,6 +900,8 @@ export async function upsertSeedEventBySlug(
       input.contactWhatsapp,
       input.brandPrimaryColor,
       JSON.stringify(input.faqItems),
+      input.racePackEnabled,
+      input.emergencyContactEnabled,
       adminUserId,
     ],
     client,

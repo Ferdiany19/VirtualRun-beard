@@ -35,11 +35,30 @@ export function assertEventDatePolicy(
     });
   }
 
+  if (input.activityStartsAt < input.registrationEndsAt) {
+    throw new ApplicationError({
+      code: "VALIDATION_FAILED",
+      message: "Activity starts before registration ends",
+      safeMessage:
+        "Tanggal mulai aktivitas tidak boleh sebelum pendaftaran selesai.",
+      statusCode: 400,
+    });
+  }
+
   if (input.activityStartsAt > input.activityEndsAt) {
     throw new ApplicationError({
       code: "VALIDATION_FAILED",
       message: "Activity start is after activity end",
       safeMessage: "Tanggal mulai aktivitas tidak boleh setelah tanggal akhir aktivitas.",
+      statusCode: 400,
+    });
+  }
+
+  if (input.uploadStartsAt < input.activityEndsAt) {
+    throw new ApplicationError({
+      code: "VALIDATION_FAILED",
+      message: "Upload starts before activity ends",
+      safeMessage: "Tanggal mulai upload tidak boleh sebelum aktivitas selesai.",
       statusCode: 400,
     });
   }

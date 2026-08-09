@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { eventSlugSchema } from "@/modules/events/event.schema";
+import { categorySlugSchema } from "@/modules/events/event.schema";
 
 export const categoryInputSchema = z.object({
   name: z.string().trim().min(2).max(120),
-  slug: eventSlugSchema,
+  slug: categorySlugSchema,
   description: z.string().trim().max(700).nullable(),
   distanceMeters: z.number().int().positive(),
   distanceToleranceMeters: z.number().int().min(0),

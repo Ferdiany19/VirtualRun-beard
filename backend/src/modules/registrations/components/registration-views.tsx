@@ -203,25 +203,27 @@ export function RegistrationFormView({
               </div>
             </section>
 
-            <section className="grid gap-4 border-b border-border pb-8">
-              <h2 className="text-xl font-bold text-navy">3. Kontak darurat</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-bold text-navy">
-                  Nama kontak darurat
-                  <input
-                    className="min-h-11 rounded-app border border-border px-3 text-foreground focus:border-primary focus:outline-none"
-                    name="emergencyContactName"
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-bold text-navy">
-                  Nomor kontak darurat
-                  <input
-                    className="min-h-11 rounded-app border border-border px-3 text-foreground focus:border-primary focus:outline-none"
-                    name="emergencyContactPhone"
-                  />
-                </label>
-              </div>
-            </section>
+            {event.emergencyContactEnabled ? (
+              <section className="grid gap-4 border-b border-border pb-8">
+                <h2 className="text-xl font-bold text-navy">3. Kontak darurat</h2>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-bold text-navy">
+                    Nama kontak darurat
+                    <input
+                      className="min-h-11 rounded-app border border-border px-3 text-foreground focus:border-primary focus:outline-none"
+                      name="emergencyContactName"
+                    />
+                  </label>
+                  <label className="grid gap-2 text-sm font-bold text-navy">
+                    Nomor kontak darurat
+                    <input
+                      className="min-h-11 rounded-app border border-border px-3 text-foreground focus:border-primary focus:outline-none"
+                      name="emergencyContactPhone"
+                    />
+                  </label>
+                </div>
+              </section>
+            ) : null}
 
             <section className="grid gap-3">
               <h2 className="text-xl font-bold text-navy">4. Persetujuan</h2>

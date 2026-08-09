@@ -50,6 +50,8 @@ export type EventRecord = {
   seoIndexEnabled?: boolean;
   publicVisibilityEnabled?: boolean;
   participantBenefits?: EventParticipantBenefit[];
+  racePackEnabled?: boolean;
+  emergencyContactEnabled?: boolean;
   createdByAdminUserId: string | null;
   updatedByAdminUserId: string | null;
   assignedAdminUserIds: string[];
@@ -84,6 +86,8 @@ export type EventInput = {
   seoIndexEnabled: boolean;
   publicVisibilityEnabled: boolean;
   participantBenefits: EventParticipantBenefit[];
+  racePackEnabled: boolean;
+  emergencyContactEnabled: boolean;
 };
 
 export type EventListFilter = {
