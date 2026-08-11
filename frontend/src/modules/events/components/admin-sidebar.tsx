@@ -46,6 +46,10 @@ function eventHref(eventId: string | null, suffix = "") {
   return eventId ? `/admin/events/${eventId}${suffix}` : "/admin/events";
 }
 
+function validationHref(eventId: string | null, suffix: "/submissions" | "/validation") {
+  return eventId ? `/admin/events/${eventId}${suffix}` : "/admin/validation/my-queue";
+}
+
 function navigationForEvent(eventId: string | null, pendingUploadCount: number): SidebarSection[] {
   return [
     {
@@ -103,20 +107,18 @@ function navigationForEvent(eventId: string | null, pendingUploadCount: number):
       group: "Validasi",
       items: [
         {
-          href: eventHref(eventId, "/submissions"),
+          href: validationHref(eventId, "/submissions"),
           label: "Upload Masuk",
           icon: "upload",
           badge: pendingUploadCount > 0 ? pendingUploadCount : undefined,
           badgeTone: "danger",
-          requiresEvent: true,
           requiresValidation: true,
           match: (pathname) => pathname.endsWith("/submissions"),
         },
         {
-          href: eventHref(eventId, "/validation"),
+          href: validationHref(eventId, "/validation"),
           label: "Verifikasi Hasil",
           icon: "shield",
-          requiresEvent: true,
           requiresValidation: true,
           match: (pathname) =>
             pathname.endsWith("/validation") || pathname.startsWith("/admin/validation"),

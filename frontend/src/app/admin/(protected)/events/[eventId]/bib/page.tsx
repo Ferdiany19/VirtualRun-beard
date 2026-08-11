@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 type BibPageProps = {
   params: Promise<{ eventId: string }>;
-  searchParams: Promise<{ success?: string; error?: string }>;
+  searchParams: Promise<{ success?: string; error?: string; new?: string }>;
 };
 
 type BibPageData = {
@@ -64,7 +64,7 @@ export default async function AdminBibCompatibilityPage({ params, searchParams }
     data.templates.find((template) => template.isActive)?.id ??
     data.templates[0]?.id;
 
-  if (targetTemplateId) {
+  if (targetTemplateId && query.new !== "1") {
     redirect(`/admin/bib-templates/${targetTemplateId}`);
   }
 

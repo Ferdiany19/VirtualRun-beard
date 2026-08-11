@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Header, Param, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import {
   publicRegistrationSchema,
@@ -17,9 +17,25 @@ import { countActiveEventRegistrations } from '@/modules/registrations/registrat
 import { participantSessionCookieHeaders } from '@/modules/registrations/participant-session';
 import { ApplicationError } from '@/shared/errors/application-error';
 import { getParticipantSessionToken, requestContext } from '@/http/request';
+import {
+  listPublicProvinces,
+  listPublicRegencies,
+} from '@/modules/regions/region.service';
 
 @Controller('api/public')
 export class PublicController {
+  @Get('regions/provinces')
+  @Header('cache-control', 'public, max-age=86400, stale-while-revalidate=604800')
+  async listProvinces() {
+    return { data: await listPublicProvinces() };
+  }
+
+  @Get('regions/regencies/:provinceCode')
+  @Header('cache-control', 'public, max-age=86400, stale-while-revalidate=604800')
+  async listRegencies(@Param('provinceCode') provinceCode: string) {
+    return { data: await listPublicRegencies(provinceCode) };
+  }
+
   @Get('events')
   async listEvents() {
     return { items: await getPublicHomepageEvents() };

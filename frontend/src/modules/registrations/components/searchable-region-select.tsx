@@ -20,8 +20,6 @@ type SearchableRegionSelectProps = {
   variant?: RegionVariant;
 };
 
-const apiBase = "https://wilayah.id/api";
-
 function inputClass(variant: RegionVariant, invalid: boolean): string {
   if (variant === "landing") {
     return [
@@ -39,8 +37,8 @@ function inputClass(variant: RegionVariant, invalid: boolean): string {
 }
 
 function endpoint(kind: RegionKind, provinceCode?: string): string | null {
-  if (kind === "province") return `${apiBase}/provinces.json`;
-  return provinceCode ? `${apiBase}/regencies/${provinceCode}.json` : null;
+  if (kind === "province") return "/api/public/regions/provinces";
+  return provinceCode ? `/api/public/regions/regencies/${provinceCode}` : null;
 }
 
 export function SearchableRegionSelect({

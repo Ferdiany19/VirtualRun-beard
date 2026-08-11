@@ -326,7 +326,7 @@ export default async function AdminBibTemplatesPage({ searchParams }: BibTemplat
         {firstEventId ? (
           <Link
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app bg-action px-4 text-sm font-bold text-white hover:bg-action-hover"
-            href={`/admin/events/${firstEventId}/bib`}
+            href={`/admin/events/${firstEventId}/bib?new=1`}
           >
             <Icon className="h-4 w-4" name="plus" />
             Buat Template Baru

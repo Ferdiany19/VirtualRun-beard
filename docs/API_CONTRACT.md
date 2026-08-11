@@ -120,6 +120,8 @@ Implemented Nest API foundation:
 - `GET /api/public/events`
 - `GET /api/public/events/:slug`
 - `GET /api/public/events/:slug/banner`
+- `GET /api/public/regions/provinces`
+- `GET /api/public/regions/regencies/:provinceCode`
 - `POST /api/public/events/:slug/register`
 - `POST /api/public/events/:slug/participant/access`
 - `GET /api/public/participant/session`
