@@ -12,6 +12,7 @@ import {
   uploadBibTemplateDraftAction,
 } from "@/app/admin/(protected)/bib-templates/actions";
 import { BibTemplateLiveEditor } from "@/modules/bib/components/bib-template-live-editor";
+import { BibTemplateEventSelector } from "@/modules/bib/components/bib-template-event-selector";
 import { FormMessage } from "@/modules/events/components/form-message";
 import { formatBusinessDateTime } from "@/shared/date/business-timezone";
 import { Icon } from "@/shared/ui/icons";
@@ -167,16 +168,10 @@ export default async function BibTemplateDetailPage({ params, searchParams }: De
         <div className="flex flex-col gap-4 border-b border-border p-4 lg:flex-row lg:items-center">
           <label className="grid max-w-sm flex-1 gap-1 text-sm font-bold text-navy">
             Pilih Event
-            <select
-              className="min-h-11 rounded-app border border-border bg-background px-3 text-sm font-bold text-navy"
-              defaultValue={event.id}
-            >
-              {data.manageableEvents.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+            <BibTemplateEventSelector
+              currentEventId={event.id}
+              events={data.manageableEvents}
+            />
           </label>
           <p className="text-sm text-foreground-muted">
             Template tetap tersimpan untuk event: <strong>{event.name}</strong>.
@@ -230,6 +225,12 @@ export default async function BibTemplateDetailPage({ params, searchParams }: De
             </form>
             <form action={publishBibTemplateAction.bind(null, template.id)}>
               <input name="csrfToken" type="hidden" value={csrfToken} />
+              <input
+                data-bib-template-event-id
+                name="eventId"
+                type="hidden"
+                value={event.id}
+              />
               <button
                 className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-app bg-action px-4 text-sm font-bold text-white hover:bg-action-hover"
                 type="submit"
@@ -321,6 +322,12 @@ export default async function BibTemplateDetailPage({ params, searchParams }: De
           </button>
           <form action={publishBibTemplateAction.bind(null, template.id)}>
             <input name="csrfToken" type="hidden" value={csrfToken} />
+            <input
+              data-bib-template-event-id
+              name="eventId"
+              type="hidden"
+              value={event.id}
+            />
             <button
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-app bg-action px-5 text-sm font-bold text-white hover:bg-action-hover"
               type="submit"

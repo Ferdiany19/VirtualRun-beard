@@ -34,6 +34,8 @@
 | 2026-08-08 | Validation produksi memakai direct admin decision tanpa claim.                                | Operasional single admin tidak membutuhkan claim/release; `review_version` dan row lock cukup untuk konflik tab lama. Field/API claim tetap legacy sampai cleanup terpisah. |
 | 2026-08-08 | Sertifikat v1 berupa PNG dari template event dan dikirim otomatis saat event `COMPLETED`.     | Memenuhi kebutuhan sertifikat tanpa menambah dependency PDF atau public verification sebelum dibutuhkan. |
 
+| 2026-08-11 | Publish BIB template dapat memindahkan template ke event tujuan yang dipilih. | Assignment dari UI harus benar-benar mengubah event pemilik dan tetap menjaga referensi BIB lama. |
+
 ## Assumptions
 
 - Domain sementara adalah `beard.com`.

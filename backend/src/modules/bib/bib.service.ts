@@ -20,6 +20,7 @@ import {
   listBibTemplatesForAdmin,
   listEventsWithoutActiveBibTemplateForAdmin,
   listBibTemplateVersions,
+  moveAndActivateBibTemplateVersion,
   listRecentBibTemplateActivitiesForAdmin,
   updateBibSettings,
   updateBibTemplateMetadata,
@@ -486,6 +487,7 @@ export async function updateManagedBibTemplateMetadata(input: {
 
 export async function publishManagedBibTemplate(input: {
   templateVersionId: string;
+  targetEventId: string;
   admin: AuthenticatedAdmin;
   correlationId: string | null;
 }): Promise<BibTemplateVersion> {
@@ -502,41 +504,107 @@ export async function publishManagedBibTemplate(input: {
   }
 
   await getManageableEvent(current.eventId, input.admin);
+  await getManageableEvent(input.targetEventId, input.admin);
 
-  return withTransaction(async (client) => {
-    await activateBibTemplateVersion(
-      current.eventId,
-      current.id,
-      input.admin.id,
-      client,
-    );
-    const updated = await getBibTemplateVersionById(current.id, client);
+  const targetObjectKey =
+    input.targetEventId === current.eventId
+      ? current.objectKey
+      : `events/${input.targetEventId}/templates/bib/${current.id}.png`;
+  const movedObject = input.targetEventId !== current.eventId;
 
-    if (!updated) {
-      throw new ApplicationError({
-        code: 'NOT_FOUND',
-        message: 'BIB template not found after publish',
-        safeMessage: 'Template BIB tidak ditemukan.',
-        statusCode: 404,
-      });
+  if (movedObject) {
+    const body = await getPrivateObject(current.objectKey);
+    await putPrivateObject({
+      objectKey: targetObjectKey,
+      body,
+      contentType: 'image/png',
+    });
+  }
+
+  let updated: BibTemplateVersion;
+
+  try {
+    updated = await withTransaction(async (client) => {
+      await getOrCreateBibSettings(current.eventId, client);
+      await getOrCreateBibSettings(input.targetEventId, client);
+      const result =
+        input.targetEventId === current.eventId
+          ? await (async () => {
+              await activateBibTemplateVersion(
+                current.eventId,
+                current.id,
+                input.admin.id,
+                client,
+              );
+              const sameEventTemplate = await getBibTemplateVersionById(
+                current.id,
+                client,
+              );
+
+              if (!sameEventTemplate) {
+                throw new ApplicationError({
+                  code: 'NOT_FOUND',
+                  message: 'BIB template not found after publish',
+                  safeMessage: 'Template BIB tidak ditemukan.',
+                  statusCode: 404,
+                });
+              }
+
+              return sameEventTemplate;
+            })()
+          : await moveAndActivateBibTemplateVersion(
+              {
+                sourceEventId: current.eventId,
+                targetEventId: input.targetEventId,
+                templateVersionId: current.id,
+                objectKey: targetObjectKey,
+                updatedByAdminUserId: input.admin.id,
+              },
+              client,
+            );
+
+      await createAuditLog(
+        {
+          actorType: 'ADMIN_USER',
+          actorId: input.admin.id,
+          action: 'BIB_TEMPLATE_PUBLISHED',
+          entityType: 'BIB_TEMPLATE_VERSION',
+          entityId: current.id,
+          eventId: input.targetEventId,
+          previousValues: {
+            eventId: current.eventId,
+            objectKey: current.objectKey,
+            version: current.versionNumber,
+            status: current.status,
+            isActive: current.isActive,
+          },
+          newValues: {
+            eventId: result.eventId,
+            objectKey: result.objectKey,
+            version: result.versionNumber,
+            status: result.status,
+            isActive: result.isActive,
+          },
+          correlationId: input.correlationId,
+        },
+        client,
+      );
+
+      return result;
+    });
+
+  } catch (error) {
+    if (movedObject) {
+      await deletePrivateObject(targetObjectKey).catch(() => undefined);
     }
+    throw error;
+  }
 
-    await createAuditLog(
-      {
-        actorType: 'ADMIN_USER',
-        actorId: input.admin.id,
-        action: 'BIB_TEMPLATE_PUBLISHED',
-        entityType: 'BIB_TEMPLATE_VERSION',
-        entityId: current.id,
-        eventId: current.eventId,
-        previousValues: { status: current.status, isActive: current.isActive },
-        newValues: { status: updated.status, isActive: updated.isActive },
-        correlationId: input.correlationId,
-      },
-      client,
-    );
-    return updated;
-  });
+  if (movedObject) {
+    await deletePrivateObject(current.objectKey).catch(() => undefined);
+  }
+
+  return updated;
 }
 
 export async function archiveManagedBibTemplate(input: {

@@ -140,7 +140,10 @@ export async function publishBibTemplateAction(
         "content-type": "application/json",
         ...(await csrfHeaders(formData)),
       },
-      body: JSON.stringify({ csrfToken: formData.get("csrfToken") }),
+      body: JSON.stringify({
+        csrfToken: formData.get("csrfToken"),
+        eventId: formData.get("eventId"),
+      }),
     });
 
     if (!response.ok) throw new Error("publish failed");

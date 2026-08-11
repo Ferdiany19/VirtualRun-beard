@@ -59,6 +59,10 @@ export type BibSettingsInput = z.infer<typeof bibSettingsSchema>;
 
 export const bibTemplateStatusSchema = z.enum(['DRAFT', 'ACTIVE', 'ARCHIVED']);
 
+export const bibTemplateEventAssignmentSchema = z.object({
+  eventId: z.string().uuid(),
+});
+
 export const bibTemplateListFilterSchema = z.object({
   search: z.string().trim().max(120).optional().nullable(),
   eventId: z.string().uuid().optional().nullable(),

@@ -489,6 +489,103 @@ export async function activateBibTemplateVersion(
   );
 }
 
+export async function moveAndActivateBibTemplateVersion(
+  input: {
+    sourceEventId: string;
+    targetEventId: string;
+    templateVersionId: string;
+    objectKey: string;
+    updatedByAdminUserId: string;
+  },
+  client?: PoolClient,
+): Promise<BibTemplateVersion> {
+  await query(
+    `
+      SELECT event_id
+      FROM event_bib_settings
+      WHERE event_id = ANY($1::uuid[])
+      ORDER BY event_id
+      FOR UPDATE
+    `,
+    [[input.sourceEventId, input.targetEventId]],
+    client,
+  );
+
+  await query(
+    `
+      UPDATE event_bib_settings
+      SET active_template_version_id = NULL, updated_at = now()
+      WHERE event_id = $1
+        AND event_id <> $2
+        AND active_template_version_id = $3
+    `,
+    [input.sourceEventId, input.targetEventId, input.templateVersionId],
+    client,
+  );
+
+  await query(
+    `
+      UPDATE bib_template_versions
+      SET
+        is_active = false,
+        status = CASE WHEN status = 'ACTIVE' THEN 'ARCHIVED' ELSE status END,
+        updated_at = now()
+      WHERE event_id = $1
+        AND id <> $2
+    `,
+    [input.targetEventId, input.templateVersionId],
+    client,
+  );
+
+  const versionResult = await query<{ version_number: number }>(
+    `
+      SELECT COALESCE(MAX(version_number), 0)::integer + 1 AS version_number
+      FROM bib_template_versions
+      WHERE event_id = $1
+        AND id <> $2
+    `,
+    [input.targetEventId, input.templateVersionId],
+    client,
+  );
+  const versionNumber = versionResult.rows[0]?.version_number ?? 1;
+
+  const templateResult = await query<BibTemplateRow>(
+    `
+      UPDATE bib_template_versions
+      SET
+        event_id = $2,
+        object_key = $3,
+        version_number = $4,
+        status = 'ACTIVE',
+        is_active = true,
+        updated_by_admin_user_id = $5,
+        updated_at = now()
+      WHERE id = $1
+      RETURNING ${templateColumns('')}
+    `,
+    [
+      input.templateVersionId,
+      input.targetEventId,
+      input.objectKey,
+      versionNumber,
+      input.updatedByAdminUserId,
+    ],
+    client,
+  );
+
+  await query(
+    `
+      UPDATE event_bib_settings
+      SET active_template_version_id = $2, updated_at = now()
+      WHERE event_id = $1
+    `,
+    [input.targetEventId, input.templateVersionId],
+    client,
+  );
+
+  return mapTemplate(templateResult.rows[0]);
+}
+
 export async function updateBibTemplateMetadata(
   input: {
     templateVersionId: string;

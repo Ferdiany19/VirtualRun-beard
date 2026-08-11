@@ -271,9 +271,6 @@ export function QuickRegistrationForm({
         ) : null}
         <SubmitButton />
       </form>
-      <Link className="mt-3 inline-flex text-xs font-bold text-primary" href="#peraturan">
-        Lihat peraturan event
-      </Link>
     </>
   );
 }

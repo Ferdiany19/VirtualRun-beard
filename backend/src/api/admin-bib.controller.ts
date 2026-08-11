@@ -23,6 +23,7 @@ import { validateAdminCsrfTokenValue } from '@/modules/auth/session';
 import type { AuthenticatedAdmin } from '@/modules/auth/auth.types';
 import {
   bibSettingsSchema,
+  bibTemplateEventAssignmentSchema,
   bibTemplateListFilterSchema,
   bibTemplateMetadataSchema,
   bibTemplateStatusSchema,
@@ -165,10 +166,14 @@ export class AdminBibController {
   @Post('bib-templates/:templateVersionId/publish')
   async publishTemplate(
     @Param('templateVersionId') templateVersionId: string,
+    @Body() body: unknown,
     @Req() request: Request,
   ) {
+    const assignment = bibTemplateEventAssignmentSchema.parse(body);
+
     return publishManagedBibTemplate({
       templateVersionId,
+      targetEventId: assignment.eventId,
       admin: await this.requireAdminWithCsrf(request, request.body),
       correlationId: requestContext(request).correlationId,
     });

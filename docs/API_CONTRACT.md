@@ -147,6 +147,8 @@ Implemented Nest API foundation:
 - `GET /api/admin/bib-templates/:templateVersionId`
 - `PATCH /api/admin/bib-templates/:templateVersionId/metadata`
 - `POST /api/admin/bib-templates/:templateVersionId/publish`
+  menerima `csrfToken` dan `eventId`; publish dapat memindahkan template ke event tujuan
+  sekaligus mengaktifkannya sebagai template BIB event tersebut.
 - `POST /api/admin/bib-templates/:templateVersionId/archive`
 - `POST /api/admin/bib-templates/:templateVersionId/duplicate`
 - `GET /api/admin/events/:eventId/bib`
