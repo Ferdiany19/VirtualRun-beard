@@ -19,7 +19,16 @@ export async function AdminShell({ admin, csrfToken, logoutAction, children }: A
   const cookieStore = await cookies();
   const initialSidebarCollapsed =
     cookieStore.get("virtual_run_admin_sidebar_collapsed")?.value === "true";
-  const sidebarData = await getAdminSidebarData(admin);
+  let sidebarData: Awaited<ReturnType<typeof getAdminSidebarData>> = {
+    activeEventId: null,
+    pendingUploadCount: 0,
+  };
+
+  try {
+    sidebarData = await getAdminSidebarData(admin);
+  } catch {
+    // Sidebar data is auxiliary; an unavailable count/event list must not block admin pages.
+  }
 
   return (
     <AdminShellFrame
