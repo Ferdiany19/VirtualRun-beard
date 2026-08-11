@@ -931,6 +931,7 @@ async function upsertSeedParticipant(
     displayEmail: row.display_email,
     normalizedPhone: row.normalized_phone,
     displayPhone: row.display_phone,
+    instagramUsername: null,
     gender: row.gender,
     dateOfBirth: row.date_of_birth,
     province: row.province,
