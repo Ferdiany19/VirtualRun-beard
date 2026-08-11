@@ -627,16 +627,31 @@ export function EventLandingPage(props: EventLandingPageProps) {
           </div>
 
           {props.action && props.idempotencyKey ? (
-            <QuickRegistrationFormClient
-              action={props.action}
-              canBypassTurnstile={
-                env.TURNSTILE_DEVELOPMENT_BYPASS === "true" && env.NODE_ENV !== "production"
-              }
-              categories={activeCategories}
-              event={event}
-              initialState={createPublicRegistrationFormState(props.idempotencyKey)}
-              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-            />
+            <aside className="lg:sticky lg:top-[8.5rem]" id="form-pendaftaran">
+              {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
+                <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" />
+              ) : null}
+              <div className="border-2 border-[var(--color-landing-ink)] bg-[var(--color-landing-paper)]">
+                <div className="bg-[var(--color-landing-ink)] px-5 py-4 text-[var(--color-landing-white)] sm:px-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.08em] text-white/60">
+                    Pendaftaran peserta
+                  </p>
+                  <h2 className="landing-display mt-1 text-3xl leading-none">Pilih jarakmu.</h2>
+                </div>
+                <div className="p-5 sm:p-6">
+                  <QuickRegistrationFormClient
+                    action={props.action}
+                    canBypassTurnstile={
+                      env.TURNSTILE_DEVELOPMENT_BYPASS === "true" && env.NODE_ENV !== "production"
+                    }
+                    categories={activeCategories}
+                    event={event}
+                    initialState={createPublicRegistrationFormState(props.idempotencyKey)}
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                  />
+                </div>
+              </div>
+            </aside>
           ) : (
             <QuickRegistrationForm {...props} action={undefined} categories={activeCategories} />
           )}

@@ -5,7 +5,7 @@ import {
 import { canAccessEventManagement } from "@/modules/auth/auth.policy";
 import { PermissionDenied } from "@/modules/auth/components/permission-denied";
 import { getAdminCsrfTokenForForm, requireAdminSession } from "@/modules/auth/session";
-import { getManageableEvent } from "@/modules/events/event.service";
+import { getManageableEventWithCategories } from "@/modules/events/event.service";
 import { resolveAdminEventBannerSrc } from "@/modules/events/components/event-display";
 import { AdminPageHeader } from "@/modules/events/components/admin-page-header";
 import { EventForm } from "@/modules/events/components/event-form";
@@ -26,7 +26,7 @@ export default async function EditEventPage({ params, searchParams }: EditEventP
   const csrfToken = await getAdminCsrfTokenForForm(admin);
   const { eventId } = await params;
   const query = await searchParams;
-  const event = await getManageableEvent(eventId, admin);
+  const { event, categories } = await getManageableEventWithCategories(eventId, admin);
 
   return (
     <div className="space-y-6">
@@ -52,6 +52,7 @@ export default async function EditEventPage({ params, searchParams }: EditEventP
       <FormMessage error={query.error ?? null} success={query.success ?? null} />
       <EventForm
         action={updateEventAction.bind(null, event.id)}
+        categories={categories}
         csrfToken={csrfToken}
         event={event}
         bannerSrc={resolveAdminEventBannerSrc(event)}

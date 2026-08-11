@@ -3,6 +3,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import type { EventCategoryRecord } from "@/modules/categories/category.types";
+import { RaceCategoryList } from "@/modules/categories/components/race-category-list";
 import type { EventInput, EventRecord } from "@/modules/events/event.types";
 import { Field } from "@/modules/events/components/field";
 import { createSlugSuggestion } from "@/modules/events/event.policy";
@@ -16,6 +18,7 @@ import { StatusBadge } from "@/shared/ui/status-badge";
 type EventFormProps = {
   action: (formData: FormData) => Promise<void>;
   csrfToken: string;
+  categories: EventCategoryRecord[];
   event?: EventRecord | null;
   bannerSrc?: string | null;
 };
@@ -142,7 +145,7 @@ function TimelinePair({
   );
 }
 
-export function EventForm({ action, csrfToken, event, bannerSrc }: EventFormProps) {
+export function EventForm({ action, categories, csrfToken, event, bannerSrc }: EventFormProps) {
   const dates = defaultDates();
   const [name, setName] = useState(event?.name ?? "");
   const [slug, setSlug] = useState(event?.slug ?? "");
@@ -381,27 +384,13 @@ export function EventForm({ action, csrfToken, event, bannerSrc }: EventFormProp
         </FormSection>
 
         <FormSection
-          description="Kategori tidak diedit di form ini supaya quota, jarak, ranking, dan sertifikat tetap punya audit yang jelas."
+          description="Kategori dikelola dari halaman kategori khusus supaya quota, jarak, ranking, dan sertifikat tetap punya audit yang jelas."
           eyebrow="Kategori"
           id="kategori"
           title="Race category"
         >
           {event ? (
-            <div className="flex flex-col gap-3 rounded-app border border-border bg-surface-muted p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-bold text-navy">Kategori, quota, ranking, sertifikat</p>
-                <p className="mt-1 text-xs leading-5 text-foreground-muted">
-                  Tambahkan minimal satu kategori aktif sebelum publish.
-                </p>
-              </div>
-              <Link
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app border border-border bg-surface px-4 py-2 text-sm font-bold text-navy hover:border-primary hover:text-primary"
-                href={`/admin/events/${event.id}/categories`}
-              >
-                Kelola kategori
-                <Icon className="h-4 w-4" name="arrow-right" />
-              </Link>
-            </div>
+            <RaceCategoryList categories={categories} eventId={event.id} />
           ) : (
             <p className="small-copy">
               Simpan draft event terlebih dahulu, lalu tambahkan minimal satu kategori aktif sebelum

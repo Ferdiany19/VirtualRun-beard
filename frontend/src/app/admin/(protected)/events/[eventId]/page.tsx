@@ -12,6 +12,7 @@ import { PermissionDenied } from "@/modules/auth/components/permission-denied";
 import { getAdminCsrfTokenForForm, requireAdminSession } from "@/modules/auth/session";
 import { getManagedEventCertificateSummary } from "@/modules/certificates/certificate.service";
 import { listManageableCategories } from "@/modules/categories/category.service";
+import { RaceCategoryList } from "@/modules/categories/components/race-category-list";
 import { getManageableEvent } from "@/modules/events/event.service";
 import {
   eventStatusLabel,
@@ -252,6 +253,16 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
             </form>
           </section>
         </aside>
+      </section>
+      <section className="rounded-section border border-border bg-surface p-5 shadow-soft">
+        <div className="mb-4">
+          <p className="eyebrow">Kategori</p>
+          <h2 className="mt-2 text-lg font-bold text-navy">Race category</h2>
+          <p className="mt-1 text-sm leading-6 text-foreground-muted">
+            Daftar kategori, jarak, harga, kuota, dan status yang tersedia untuk event ini.
+          </p>
+        </div>
+        <RaceCategoryList categories={categories} eventId={event.id} />
       </section>
     </div>
   );

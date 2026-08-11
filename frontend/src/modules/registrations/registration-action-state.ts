@@ -67,6 +67,29 @@ export function zodFieldErrors(error: ZodError): PublicRegistrationFormState["fi
     const field = String(issue.path[0] ?? "");
 
     if (isFormField(field) && !fieldErrors[field]) {
+      if (field === "turnstileToken") {
+        fieldErrors[field] =
+          "Verifikasi keamanan belum terkirim. Silakan selesaikan verifikasi keamanan.";
+        continue;
+      }
+
+      if (/Expected .*received null|Invalid input/i.test(issue.message)) {
+        const requiredMessages: Partial<Record<PublicRegistrationFormField, string>> = {
+          categoryIds: "Pilih minimal satu kategori.",
+          fullName: "Nama lengkap wajib diisi.",
+          displayEmail: "Email wajib diisi.",
+          displayPhone: "Nomor HP wajib diisi.",
+          province: "Provinsi wajib diisi.",
+          cityOrRegency: "Kota/kabupaten wajib diisi.",
+          termsAccepted: "Persetujuan syarat wajib dicentang.",
+          privacyAccepted: "Persetujuan privasi wajib dicentang.",
+          dataStatementAccepted: "Pernyataan data wajib dicentang.",
+        };
+
+        fieldErrors[field] = requiredMessages[field] ?? "Data ini belum diisi dengan benar.";
+        continue;
+      }
+
       fieldErrors[field] = issue.message;
     }
   }
