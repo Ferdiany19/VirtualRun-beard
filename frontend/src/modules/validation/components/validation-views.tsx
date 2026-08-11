@@ -147,7 +147,7 @@ export function ValidationQueueView({
                   <td className="px-4 py-3">
                     {formatDistanceMeter(item.actualDistanceMeter)}
                     <span className="block text-xs text-foreground-muted">
-                      {formatDistanceMeter(item.distanceMeter)} - {item.activityDate}
+                      Aktivitas: {item.activityDate}
                     </span>
                   </td>
                   <td className="px-4 py-3">
