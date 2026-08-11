@@ -50,6 +50,7 @@ import {
 import {
   putPrivateObject,
   getPrivateObject,
+  deletePrivateObject,
 } from '@/modules/storage/storage.service';
 import { env } from '@/shared/config/env';
 import { ApplicationError } from '@/shared/errors/application-error';
