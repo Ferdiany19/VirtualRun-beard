@@ -137,21 +137,30 @@ export function QuickRegistrationForm({
           <FieldError message={errors.displayPhone} />
         </label>
 
-        <label className="grid gap-2 text-xs font-bold leading-5 text-[var(--color-landing-ink)]">
-          Jenis Kelamin
-          <select
-            aria-invalid={Boolean(errors.gender)}
-            className={fieldClass(errors.gender)}
-            name="gender"
-            onChange={(event) => updateValue("gender", event.target.value)}
-            value={values.gender}
-          >
-            <option value="">Tidak diisi</option>
-            <option value="MALE">Laki-laki</option>
-            <option value="FEMALE">Perempuan</option>
-          </select>
+        <fieldset aria-invalid={Boolean(errors.gender)}>
+          <legend className="text-xs font-bold leading-5 text-[var(--color-landing-ink)]">
+            Jenis Kelamin
+          </legend>
+          <div className="mt-2 flex flex-wrap gap-4 text-sm text-[var(--color-landing-ink-2)]">
+            {([
+              ["MALE", "Laki-laki"],
+              ["FEMALE", "Perempuan"],
+            ] as const).map(([value, label]) => (
+              <label className="flex min-h-11 items-center gap-2" key={value}>
+                <input
+                  checked={values.gender === value}
+                  className="h-4 w-4 accent-primary"
+                  name="gender"
+                  onChange={(event) => updateValue("gender", event.target.value)}
+                  type="radio"
+                  value={value}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
           <FieldError message={errors.gender} />
-        </label>
+        </fieldset>
 
         <label className="grid gap-2 text-xs font-bold leading-5 text-[var(--color-landing-ink)]">
           Tanggal Lahir
