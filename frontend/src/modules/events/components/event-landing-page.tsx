@@ -13,6 +13,9 @@ import {
   resolveEventBannerSrc,
 } from "@/modules/events/components/event-display";
 import { PublicFooter, PublicHeader } from "@/modules/events/components/public-layout";
+import { QuickRegistrationForm as QuickRegistrationFormClient } from "@/modules/events/components/quick-registration-form";
+import { createPublicRegistrationFormState } from "@/modules/registrations/registration-form-state";
+import type { PublicRegistrationFormState } from "@/modules/registrations/registration-form-state";
 import { env } from "@/shared/config/env";
 import { formatBusinessDate } from "@/shared/date/business-timezone";
 import { DatePickerInput } from "@/shared/ui/date-picker-input";
@@ -21,7 +24,10 @@ import { Icon } from "@/shared/ui/icons";
 type EventLandingPageProps = {
   event: EventRecord;
   categories: EventCategoryRecord[];
-  action?: (formData: FormData) => void;
+  action?: (
+    state: PublicRegistrationFormState,
+    formData: FormData,
+  ) => Promise<PublicRegistrationFormState>;
   bannerSrc?: string | null;
   idempotencyKey?: string;
   registrationError?: string;
@@ -103,6 +109,10 @@ function fallbackRegistrationErrorMessage(code?: string): string | null {
   return messages[code] ?? messages.failed;
 }
 
+type LegacyQuickRegistrationFormProps = Omit<EventLandingPageProps, "action"> & {
+  action?: (formData: FormData) => void;
+};
+
 function QuickRegistrationForm({
   event,
   categories,
@@ -112,7 +122,7 @@ function QuickRegistrationForm({
   registrationErrorMessage,
   registrationAvailable,
   registrationSuccess,
-}: EventLandingPageProps) {
+}: LegacyQuickRegistrationFormProps) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const canBypass = env.TURNSTILE_DEVELOPMENT_BYPASS === "true" && env.NODE_ENV !== "production";
   const errorMessage =
@@ -616,7 +626,20 @@ export function EventLandingPage(props: EventLandingPageProps) {
             </div>
           </div>
 
-          <QuickRegistrationForm {...props} categories={activeCategories} />
+          {props.action && props.idempotencyKey ? (
+            <QuickRegistrationFormClient
+              action={props.action}
+              canBypassTurnstile={
+                env.TURNSTILE_DEVELOPMENT_BYPASS === "true" && env.NODE_ENV !== "production"
+              }
+              categories={activeCategories}
+              event={event}
+              initialState={createPublicRegistrationFormState(props.idempotencyKey)}
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+            />
+          ) : (
+            <QuickRegistrationForm {...props} action={undefined} categories={activeCategories} />
+          )}
         </div>
       </main>
       <PublicFooter contactEmail={event.contactEmail} contactPhone={event.contactPhone} />

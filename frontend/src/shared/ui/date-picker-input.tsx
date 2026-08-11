@@ -48,11 +48,18 @@ function toIsoDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function monthLabel(date: Date): string {
-  return new Intl.DateTimeFormat("id-ID", {
-    month: "long",
-    year: "numeric",
-  }).format(date);
+function monthName(month: number): string {
+  return new Intl.DateTimeFormat("id-ID", { month: "long" }).format(new Date(2020, month, 1));
+}
+
+function yearOptions(min?: string, max?: string): number[] {
+  const currentYear = new Date().getFullYear();
+  const minimum = min ? Number(min.slice(0, 4)) : currentYear - 120;
+  const maximum = max ? Number(max.slice(0, 4)) : currentYear;
+  const start = Number.isFinite(minimum) ? minimum : currentYear - 120;
+  const end = Number.isFinite(maximum) ? maximum : currentYear;
+
+  return Array.from({ length: Math.max(0, end - start + 1) }, (_, index) => end - index);
 }
 
 function displayValue(value: string): string {
@@ -150,6 +157,7 @@ export function DatePickerInput({
   }, []);
 
   const days = useMemo(() => buildMonthDays(visibleMonth), [visibleMonth]);
+  const years = useMemo(() => yearOptions(min, max), [max, min]);
 
   function commit(nextValue: string) {
     if (!isControlled) {
@@ -161,6 +169,14 @@ export function DatePickerInput({
 
   function moveMonth(offset: number) {
     setVisibleMonth((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
+  }
+
+  function changeMonth(month: number) {
+    setVisibleMonth((current) => new Date(current.getFullYear(), month, 1));
+  }
+
+  function changeYear(year: number) {
+    setVisibleMonth((current) => new Date(year, current.getMonth(), 1));
   }
 
   return (
@@ -192,7 +208,7 @@ export function DatePickerInput({
           className="absolute left-0 top-full z-50 mt-2 w-80 max-w-[90vw] border-2 border-[var(--color-landing-ink)] bg-[var(--color-landing-paper)] p-3 text-[var(--color-landing-ink)] shadow-soft"
           role="dialog"
         >
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-2">
             <button
               aria-label="Bulan sebelumnya"
               className="landing-action inline-flex h-10 w-10 items-center justify-center border-2 border-[var(--color-landing-ink)] bg-[var(--color-landing-white)] hover:bg-[var(--color-landing-ink)] hover:text-[var(--color-landing-white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-landing-focus)] active:translate-y-px"
@@ -201,7 +217,38 @@ export function DatePickerInput({
             >
               <Icon className="h-4 w-4" name="chevron-left" />
             </button>
-            <p className="text-sm font-black capitalize">{monthLabel(visibleMonth)}</p>
+            <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
+              <label className="sr-only" htmlFor={`${generatedId}-month`}>
+                Pilih bulan
+              </label>
+              <select
+                className="min-h-10 min-w-0 border border-[var(--color-landing-ink)] bg-[var(--color-landing-white)] px-2 text-xs font-bold capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-landing-focus)]"
+                id={`${generatedId}-month`}
+                onChange={(event) => changeMonth(Number(event.target.value))}
+                value={visibleMonth.getMonth()}
+              >
+                {Array.from({ length: 12 }, (_, month) => (
+                  <option key={month} value={month}>
+                    {monthName(month)}
+                  </option>
+                ))}
+              </select>
+              <label className="sr-only" htmlFor={`${generatedId}-year`}>
+                Pilih tahun
+              </label>
+              <select
+                className="min-h-10 min-w-0 border border-[var(--color-landing-ink)] bg-[var(--color-landing-white)] px-2 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-landing-focus)]"
+                id={`${generatedId}-year`}
+                onChange={(event) => changeYear(Number(event.target.value))}
+                value={visibleMonth.getFullYear()}
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button
               aria-label="Bulan berikutnya"
               className="landing-action inline-flex h-10 w-10 items-center justify-center border-2 border-[var(--color-landing-ink)] bg-[var(--color-landing-white)] hover:bg-[var(--color-landing-ink)] hover:text-[var(--color-landing-white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-landing-focus)] active:translate-y-px"
