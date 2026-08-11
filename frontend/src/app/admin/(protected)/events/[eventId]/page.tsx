@@ -172,7 +172,7 @@ export default async function EventDetailPage({ params, searchParams }: EventDet
                   Publish event
                 </button>
                 <p className="mt-2 text-xs leading-5 text-foreground-muted">
-                  Publish membutuhkan minimal satu kategori aktif.
+                  Publish membutuhkan minimal satu kategori aktif dan BIB Template aktif.
                 </p>
               </form>
               <form action={unpublishEventAction.bind(null, event.id)}>

@@ -129,7 +129,8 @@ Implemented Nest API foundation:
 - `GET /api/admin/events/:eventId`
 - `GET /api/admin/events/:eventId/with-categories`
 - `PATCH /api/admin/events/:eventId`
-- `POST /api/admin/events/:eventId/publish`
+- `POST /api/admin/events/:eventId/publish` menolak publish jika event belum memiliki kategori
+  aktif atau BIB Template aktif yang ter-assign.
 - `POST /api/admin/events/:eventId/unpublish`
 - `POST /api/admin/events/:eventId/archive`
 - `POST /api/admin/events/:eventId/complete` planned API parity; current UI completion uses a

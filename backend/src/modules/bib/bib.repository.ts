@@ -289,6 +289,51 @@ export async function getOrCreateBibSettings(
   return mapSettings(result.rows[0]);
 }
 
+export async function hasActiveBibTemplateForEvent(
+  eventId: string,
+  client?: PoolClient,
+): Promise<boolean> {
+  await query(
+    `
+      INSERT INTO event_bib_settings (event_id)
+      VALUES ($1)
+      ON CONFLICT (event_id) DO NOTHING
+    `,
+    [eventId],
+    client,
+  );
+
+  const result = await query<{
+    active_template_version_id: string | null;
+    template_event_id: string | null;
+    template_status: BibTemplateStatus | null;
+    template_is_active: boolean | null;
+  }>(
+    `
+      SELECT
+        ebs.active_template_version_id,
+        btv.event_id AS template_event_id,
+        btv.status AS template_status,
+        btv.is_active AS template_is_active
+      FROM event_bib_settings ebs
+      LEFT JOIN bib_template_versions btv
+        ON btv.id = ebs.active_template_version_id
+      WHERE ebs.event_id = $1
+      FOR UPDATE OF ebs
+    `,
+    [eventId],
+    client,
+  );
+  const row = result.rows[0];
+
+  return Boolean(
+    row?.active_template_version_id &&
+      row.template_event_id === eventId &&
+      row.template_status === 'ACTIVE' &&
+      row.template_is_active === true,
+  );
+}
+
 export async function updateBibSettings(
   eventId: string,
   settings: Omit<

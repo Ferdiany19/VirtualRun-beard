@@ -5,7 +5,9 @@ const errorMessages: Record<string, string> = {
   validation: "Data belum valid. Periksa field wajib dan urutan tanggal.",
   conflict: "Slug sudah digunakan. Gunakan slug lain.",
   forbidden: "Anda tidak memiliki izin untuk tindakan ini.",
-  publish: "Event belum dapat dipublish. Pastikan minimal satu kategori aktif tersedia.",
+  publish: "Event belum dapat dipublish. Pastikan minimal satu kategori aktif dan BIB Template aktif tersedia.",
+  "publish-bib-template":
+    "Event belum memiliki BIB Template aktif. Buat atau publikasikan BIB Template terlebih dahulu.",
   auth: "Email atau password tidak sesuai.",
   session: "Sesi admin tidak valid. Muat ulang halaman dan coba lagi.",
   email: "Email belum dapat dikirim ulang.",
@@ -90,6 +92,10 @@ export function errorToSearchParam(error: unknown): string {
   }
 
   if (error.code === "VALIDATION_FAILED") {
+    if (error.details?.reason === "MISSING_ACTIVE_BIB_TEMPLATE") {
+      return "publish-bib-template";
+    }
+
     return "validation";
   }
 

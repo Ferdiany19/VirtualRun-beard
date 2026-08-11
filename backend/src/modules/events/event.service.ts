@@ -53,6 +53,7 @@ import {
   updateEvent,
 } from '@/modules/events/event.repository';
 import { countActiveRegistrationsByEventIds } from '@/modules/registrations/registration.repository';
+import { hasActiveBibTemplateForEvent } from '@/modules/bib/bib.repository';
 import {
   countPendingValidationSubmissions,
   listValidationEventIdsForAdmin,
@@ -549,6 +550,22 @@ export async function publishManagedEvent(input: {
         message: 'Published event requires at least one active category',
         safeMessage: 'Tambahkan minimal satu kategori aktif sebelum publish.',
         statusCode: 400,
+      });
+    }
+
+    const hasActiveBibTemplate = await hasActiveBibTemplateForEvent(
+      input.eventId,
+      client,
+    );
+
+    if (!hasActiveBibTemplate) {
+      throw new ApplicationError({
+        code: 'VALIDATION_FAILED',
+        message: 'Published event requires an active BIB template',
+        safeMessage:
+          'Event belum memiliki BIB Template aktif. Buat atau publikasikan BIB Template terlebih dahulu.',
+        statusCode: 400,
+        details: { reason: 'MISSING_ACTIVE_BIB_TEMPLATE' },
       });
     }
 

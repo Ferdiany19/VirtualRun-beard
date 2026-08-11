@@ -25,7 +25,8 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - Public hanya dapat melihat event dengan `publication_status = PUBLISHED` dan status event
   bukan `ARCHIVED`.
 - Draft dapat dilihat melalui admin preview terproteksi, bukan melalui public route.
-- Publish event membutuhkan minimal satu kategori aktif.
+- Publish event membutuhkan minimal satu kategori aktif dan BIB Template aktif yang ter-assign
+  pada event.
 - Race Pack Digital dan field kontak darurat dapat diaktifkan atau disembunyikan per event.
 - Urutan tanggal yang divalidasi berantai: registration start tidak boleh setelah
   registration end, registration end tidak boleh setelah activity start, activity start
