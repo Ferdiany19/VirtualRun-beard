@@ -230,31 +230,6 @@ function buildWarnings(
     description: `Periode aktivitas event ${start} sampai ${end}.`,
   });
 
-  if (
-    revision.movingTimeSeconds !== null &&
-    revision.movingTimeSeconds > revision.elapsedTimeSeconds
-  ) {
-    warnings.push({
-      code: 'MOVING_TIME',
-      tone: 'warning',
-      label: 'Moving time melebihi elapsed time',
-      description: 'Periksa kembali data waktu aktivitas.',
-    });
-  }
-
-  const paceSeconds = Math.round(
-    revision.elapsedTimeSeconds / (revision.distanceMeter / 1000),
-  );
-  if (paceSeconds < 120 || paceSeconds > 3600) {
-    warnings.push({
-      code: 'PACE_RANGE',
-      tone: 'warning',
-      label: 'Pace perlu ditinjau',
-      description:
-        'Pace berada di luar rentang operasional yang umum, tetapi tidak otomatis menentukan keputusan.',
-    });
-  }
-
   if (!revision.activityUrl && !detail.currentFile) {
     warnings.push({
       code: 'EVIDENCE_MISSING',

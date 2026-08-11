@@ -236,23 +236,6 @@ function formatOptionalBusinessDate(value: string | null): string {
   return formatBusinessDate(date);
 }
 
-function formatDuration(seconds: number | null): string {
-  if (seconds === null) return "Belum tersedia";
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
-
-  return [hours, minutes, remainingSeconds]
-    .map((item) => item.toString().padStart(2, "0"))
-    .join(":");
-}
-
-function formatPace(submission: AdminParticipantDetailSubmission | null): string {
-  if (!submission?.distanceMeter || !submission.elapsedTimeSeconds) return "Belum tersedia";
-  const paceSeconds = Math.round(submission.elapsedTimeSeconds / (submission.distanceMeter / 1000));
-  return `${formatDuration(paceSeconds)}/km`;
-}
-
 function sourceLabel(source: string | null): string {
   if (!source) return "Belum tersedia";
   return source === "PUBLIC_WEB" ? "Website" : source.replace(/_/g, " ");
@@ -608,6 +591,10 @@ export default async function ParticipantDetailPage({
                 }
               />
               <InfoRow label="Email" value={detail.participant.displayEmail} />
+              <InfoRow
+                label="Username Instagram"
+                value={detail.participant.instagramUsername ?? "Belum tersedia"}
+              />
               <InfoRow label="No. WhatsApp" value={detail.participant.displayPhone} />
             </dl>
           </article>
@@ -736,11 +723,6 @@ export default async function ParticipantDetailPage({
                 label="Jarak Tercatat"
                 value={formatDistanceMeter(latestSubmission?.distanceMeter ?? null)}
               />
-              <InfoRow
-                label="Waktu Tempuh"
-                value={formatDuration(latestSubmission?.elapsedTimeSeconds ?? null)}
-              />
-              <InfoRow label="Pace Rata-rata" value={formatPace(latestSubmission)} />
               <InfoRow
                 label="Metode Verifikasi"
                 value={latestSubmission?.activityPlatform?.replace(/_/g, " ") ?? "Belum tersedia"}

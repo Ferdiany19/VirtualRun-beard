@@ -73,6 +73,7 @@ type ParticipantSummaryRow = {
   display_email: string;
   normalized_phone: string;
   display_phone: string;
+  instagram_username: string | null;
   gender: ParticipantRecord["gender"];
   date_of_birth: string | null;
   province: string | null;
@@ -238,6 +239,7 @@ function mapParticipant(row: ParticipantSummaryRow): ParticipantRecord {
     displayEmail: row.display_email,
     normalizedPhone: row.normalized_phone,
     displayPhone: row.display_phone,
+    instagramUsername: row.instagram_username,
     gender: row.gender,
     dateOfBirth: row.date_of_birth,
     province: row.province,
@@ -869,6 +871,7 @@ export async function getRegistrationSummary(
         p.display_email,
         p.normalized_phone,
         p.display_phone,
+        p.instagram_username,
         p.gender,
         p.date_of_birth,
         p.province,
@@ -1001,6 +1004,7 @@ export async function listRegistrationsForAdmin(
         p.display_email,
         p.normalized_phone,
         p.display_phone,
+        p.instagram_username,
         p.gender,
         p.date_of_birth,
         p.province,

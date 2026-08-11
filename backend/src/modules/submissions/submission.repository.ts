@@ -139,6 +139,7 @@ type BaseRow = SubmissionRow &
     display_email: string;
     normalized_phone: string;
     display_phone: string;
+    instagram_username: string | null;
     gender: ParticipantRecord['gender'];
     date_of_birth: string | null;
     province: string | null;
@@ -247,6 +248,7 @@ function mapParticipant(row: BaseRow): ParticipantRecord {
     displayEmail: row.display_email,
     normalizedPhone: row.normalized_phone,
     displayPhone: row.display_phone,
+    instagramUsername: row.instagram_username,
     gender: row.gender,
     dateOfBirth: row.date_of_birth,
     province: row.province,
@@ -329,7 +331,6 @@ function mapRevision(row: RevisionRow): SubmissionRevisionRecord | null {
     row.revision_number === null ||
     !row.activity_date ||
     row.distance_meter === null ||
-    row.elapsed_time_seconds === null ||
     !row.activity_platform ||
     !row.submitted_at
   ) {
@@ -448,6 +449,7 @@ const baseSelection = `
   p.display_email,
   p.normalized_phone,
   p.display_phone,
+  p.instagram_username,
   p.gender,
   p.date_of_birth,
   p.province,
@@ -736,7 +738,7 @@ export async function createSubmissionRevision(
     revisionNumber: number;
     activityDate: string;
     distanceMeter: number;
-    elapsedTimeSeconds: number;
+    elapsedTimeSeconds: number | null;
     movingTimeSeconds: number | null;
     activityPlatform: ActivityPlatform;
     activityPlatformOther: string | null;

@@ -23,6 +23,9 @@ Implemented migration files:
 - `014_event_certificates.sql` di backend dan `012_event_certificates.sql` di frontend legacy
   migration set
 - `015_event_display_options.sql`
+- `016_participant_instagram_username.sql` menambahkan `participants.instagram_username`
+  nullable agar participant lama tetap kompatibel.
+- `017_submission_duration_optional.sql` (backend; migration frontend legacy bernomor `014`)
 
 Migration runner membuat dan memakai tabel:
 
@@ -108,6 +111,7 @@ erDiagram
     uuid id PK
     text normalized_email
     text normalized_phone
+    text instagram_username
     text status
     timestamptz deleted_at
   }
@@ -243,6 +247,8 @@ Participant table extension:
   `events/{eventId}/participants/{participantId}/bib/{bibDocumentId}.png`.
 - Submission unique per `registration_category_id`.
 - Submission revisions are append-only and numbered uniquely per submission.
+- `elapsed_time_seconds` dan `moving_time_seconds` pada revision bersifat nullable untuk
+  mendukung submission baru tanpa field durasi; nilai historis tetap dipertahankan.
 - `submissions.current_revision_id` points to the latest revision.
 - Screenshot evidence path:
   `events/{eventId}/submissions/{submissionId}/revisions/{revisionId}/{fileId}.jpg`.

@@ -7,6 +7,7 @@ import type { CategoryInput, EventCategoryRecord } from "@/modules/categories/ca
 import { assertCategoryPolicy } from "@/modules/categories/category.policy";
 import {
   createCategory,
+  deleteCategory,
   getCategoryById,
   listCategoriesByEventId,
   setCategoryActiveStatus,
@@ -218,5 +219,61 @@ export async function setManagedCategoryActiveStatus(input: {
     );
 
     return category;
+  });
+}
+
+export async function deleteManagedCategory(input: {
+  categoryId: string;
+  admin: AuthenticatedAdmin;
+  correlationId: string | null;
+}): Promise<void> {
+  return withTransaction(async (client) => {
+    const currentCategory = await getCategoryById(input.categoryId, client);
+    assertCategoryExists(currentCategory);
+
+    const event = await getEventById(currentCategory.eventId, client);
+
+    if (!event) {
+      throw new ApplicationError({
+        code: "NOT_FOUND",
+        message: "Event not found",
+        safeMessage: "Event tidak ditemukan.",
+        statusCode: 404,
+      });
+    }
+
+    assertCanManageEvent(input.admin, event);
+
+    const category = await deleteCategory(input.categoryId, client);
+
+    if (!category) {
+      throw new ApplicationError({
+        code: "CONFLICT",
+        message: "Category is already used by a registration",
+        safeMessage:
+          "Kategori sudah digunakan peserta dan tidak dapat dihapus. Nonaktifkan kategori untuk menghentikan pendaftaran baru.",
+        statusCode: 409,
+        details: { reason: "CATEGORY_IN_USE" },
+      });
+    }
+
+    await createAuditLog(
+      {
+        actorType: "ADMIN_USER",
+        actorId: input.admin.id,
+        action: "CATEGORY_DELETED",
+        entityType: "EVENT_CATEGORY",
+        entityId: category.id,
+        eventId: category.eventId,
+        previousValues: {
+          name: currentCategory.name,
+          slug: currentCategory.slug,
+          isActive: currentCategory.isActive,
+        },
+        newValues: null,
+        correlationId: input.correlationId,
+      },
+      client,
+    );
   });
 }

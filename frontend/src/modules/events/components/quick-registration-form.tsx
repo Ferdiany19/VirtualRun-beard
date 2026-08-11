@@ -10,6 +10,7 @@ import type {
   PublicRegistrationFormState,
   PublicRegistrationFormValues,
 } from "@/modules/registrations/registration-form-state";
+import { SearchableRegionSelect } from "@/modules/registrations/components/searchable-region-select";
 import { DatePickerInput } from "@/shared/ui/date-picker-input";
 import { Icon } from "@/shared/ui/icons";
 
@@ -69,11 +70,13 @@ export function QuickRegistrationForm({
 }: QuickRegistrationFormProps) {
   const [state, formAction] = useActionState(action, initialState);
   const [values, setValues] = useState<PublicRegistrationFormValues>(initialState.values);
+  const [provinceCode, setProvinceCode] = useState<string | undefined>();
   const errors = state.fieldErrors;
 
   useEffect(() => {
     if (!state.formError && Object.keys(errors).length === 0) return;
     setValues(state.values);
+    setProvinceCode(undefined);
     window.turnstile?.reset();
   }, [errors, state]);
 
@@ -105,6 +108,7 @@ export function QuickRegistrationForm({
             className={fieldClass(errors.fullName)}
             name="fullName"
             onChange={(event) => updateValue("fullName", event.target.value)}
+            placeholder="Nama lengkap"
             required
             value={values.fullName}
           />
@@ -117,6 +121,7 @@ export function QuickRegistrationForm({
             className={fieldClass(errors.displayEmail)}
             name="displayEmail"
             onChange={(event) => updateValue("displayEmail", event.target.value)}
+            placeholder="nama@email.com"
             required
             type="email"
             value={values.displayEmail}
@@ -130,11 +135,25 @@ export function QuickRegistrationForm({
             className={fieldClass(errors.displayPhone)}
             name="displayPhone"
             onChange={(event) => updateValue("displayPhone", event.target.value)}
+            placeholder="08xxxxxxxxxx"
             required
             type="tel"
             value={values.displayPhone}
           />
           <FieldError message={errors.displayPhone} />
+        </label>
+        <label className="grid gap-2 text-xs font-bold leading-5 text-[var(--color-landing-ink)]">
+          Username Instagram
+          <input
+            aria-invalid={Boolean(errors.instagramUsername)}
+            className={fieldClass(errors.instagramUsername)}
+            name="instagramUsername"
+            onChange={(event) => updateValue("instagramUsername", event.target.value)}
+            placeholder="@username"
+            required
+            value={values.instagramUsername}
+          />
+          <FieldError message={errors.instagramUsername} />
         </label>
 
         <fieldset aria-invalid={Boolean(errors.gender)}>
@@ -175,23 +194,36 @@ export function QuickRegistrationForm({
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          {([
-            ["province", "Provinsi"],
-            ["cityOrRegency", "Kota"],
-          ] as const).map(([name, label]) => (
-            <label className="grid gap-2 text-xs font-bold leading-5 text-[var(--color-landing-ink)]" key={name}>
-              {label}
-              <input
-                aria-invalid={Boolean(errors[name])}
-                className={fieldClass(errors[name])}
-                name={name}
-                onChange={(event) => updateValue(name, event.target.value)}
-                required
-                value={values[name]}
-              />
-              <FieldError message={errors[name]} />
-            </label>
-          ))}
+          <label className="grid gap-2 text-xs font-bold leading-5 text-[var(--color-landing-ink)]">
+            Provinsi
+            <SearchableRegionSelect
+              ariaInvalid={Boolean(errors.province)}
+              kind="province"
+              onCodeChange={setProvinceCode}
+              onChange={(value) => {
+                updateValue("province", value);
+                updateValue("cityOrRegency", "");
+              }}
+              placeholder="Cari provinsi"
+              value={values.province}
+              variant="landing"
+            />
+            <FieldError message={errors.province} />
+          </label>
+          <label className="grid gap-2 text-xs font-bold leading-5 text-[var(--color-landing-ink)]">
+            Kota/kabupaten
+            <SearchableRegionSelect
+              ariaInvalid={Boolean(errors.cityOrRegency)}
+              kind="regency"
+              onChange={(value) => updateValue("cityOrRegency", value)}
+              placeholder="Cari kota/kabupaten"
+              provinceCode={provinceCode}
+              provinceValue={values.province}
+              value={values.cityOrRegency}
+              variant="landing"
+            />
+            <FieldError message={errors.cityOrRegency} />
+          </label>
         </div>
 
         <label className="grid gap-2 text-xs font-bold leading-5 text-[var(--color-landing-ink)]">

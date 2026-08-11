@@ -28,27 +28,29 @@ type CategoryRow = {
   updated_at: Date;
 };
 
-function categoryColumns() {
+function categoryColumns(alias?: string) {
+  const prefix = alias ? `${alias}.` : "";
+
   return `
-    id,
-    event_id,
-    name,
-    slug,
-    description,
-    distance_meters,
-    distance_tolerance_meters,
-    minimum_age_years,
-    maximum_age_years,
-    gender_division,
-    participant_quota,
-    ranking_enabled,
-    certificate_enabled,
-    display_order,
-    is_active,
-    price_amount_cents,
-    price_currency,
-    created_at,
-    updated_at
+    ${prefix}id,
+    ${prefix}event_id,
+    ${prefix}name,
+    ${prefix}slug,
+    ${prefix}description,
+    ${prefix}distance_meters,
+    ${prefix}distance_tolerance_meters,
+    ${prefix}minimum_age_years,
+    ${prefix}maximum_age_years,
+    ${prefix}gender_division,
+    ${prefix}participant_quota,
+    ${prefix}ranking_enabled,
+    ${prefix}certificate_enabled,
+    ${prefix}display_order,
+    ${prefix}is_active,
+    ${prefix}price_amount_cents,
+    ${prefix}price_currency,
+    ${prefix}created_at,
+    ${prefix}updated_at
   `;
 }
 
@@ -236,7 +238,7 @@ export async function createCategory(
         price_amount_cents,
         price_currency
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, true, 0, 'IDR')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, true, $14, 'IDR')
       RETURNING ${categoryColumns()}
     `,
     [
@@ -253,6 +255,7 @@ export async function createCategory(
       input.rankingEnabled,
       input.certificateEnabled,
       input.displayOrder,
+      input.priceAmountCents,
     ],
     client,
   );
@@ -281,6 +284,7 @@ export async function updateCategory(
         ranking_enabled = $11,
         certificate_enabled = $12,
         display_order = $13,
+        price_amount_cents = $14,
         updated_at = now()
       WHERE id = $1
       RETURNING ${categoryColumns()}
@@ -299,6 +303,7 @@ export async function updateCategory(
       input.rankingEnabled,
       input.certificateEnabled,
       input.displayOrder,
+      input.priceAmountCents,
     ],
     client,
   );
@@ -325,6 +330,28 @@ export async function setCategoryActiveStatus(
   );
 
   return mapCategory(result.rows[0]);
+}
+
+export async function deleteCategory(
+  categoryId: string,
+  client?: PoolClient,
+): Promise<EventCategoryRecord | null> {
+  const result = await query<CategoryRow>(
+    `
+      DELETE FROM event_categories category
+      WHERE category.id = $1
+        AND NOT EXISTS (
+          SELECT 1
+          FROM registration_categories registration_category
+          WHERE registration_category.event_category_id = category.id
+        )
+      RETURNING ${categoryColumns("category")}
+    `,
+    [categoryId],
+    client,
+  );
+
+  return result.rows[0] ? mapCategory(result.rows[0]) : null;
 }
 
 export async function upsertSeedCategory(

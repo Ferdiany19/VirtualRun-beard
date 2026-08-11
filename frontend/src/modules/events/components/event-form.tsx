@@ -3,8 +3,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import type { EventCategoryRecord } from "@/modules/categories/category.types";
-import { RaceCategoryList } from "@/modules/categories/components/race-category-list";
 import type { EventInput, EventRecord } from "@/modules/events/event.types";
 import { Field } from "@/modules/events/components/field";
 import { createSlugSuggestion } from "@/modules/events/event.policy";
@@ -18,7 +16,6 @@ import { StatusBadge } from "@/shared/ui/status-badge";
 type EventFormProps = {
   action: (formData: FormData) => Promise<void>;
   csrfToken: string;
-  categories: EventCategoryRecord[];
   event?: EventRecord | null;
   bannerSrc?: string | null;
 };
@@ -145,7 +142,7 @@ function TimelinePair({
   );
 }
 
-export function EventForm({ action, categories, csrfToken, event, bannerSrc }: EventFormProps) {
+export function EventForm({ action, csrfToken, event, bannerSrc }: EventFormProps) {
   const dates = defaultDates();
   const [name, setName] = useState(event?.name ?? "");
   const [slug, setSlug] = useState(event?.slug ?? "");
@@ -381,22 +378,6 @@ export function EventForm({ action, categories, csrfToken, event, bannerSrc }: E
               title="Upload hasil"
             />
           </div>
-        </FormSection>
-
-        <FormSection
-          description="Kategori dikelola dari halaman kategori khusus supaya quota, jarak, ranking, dan sertifikat tetap punya audit yang jelas."
-          eyebrow="Kategori"
-          id="kategori"
-          title="Race category"
-        >
-          {event ? (
-            <RaceCategoryList categories={categories} eventId={event.id} />
-          ) : (
-            <p className="small-copy">
-              Simpan draft event terlebih dahulu, lalu tambahkan minimal satu kategori aktif sebelum
-              publish.
-            </p>
-          )}
         </FormSection>
 
         <FormSection

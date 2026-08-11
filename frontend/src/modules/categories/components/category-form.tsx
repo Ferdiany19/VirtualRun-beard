@@ -140,6 +140,20 @@ export function CategoryForm({ action, csrfToken, category, submitLabel }: Categ
           </select>
         </Field>
       </div>
+      <Field
+        htmlFor={category ? `price-${category.id}` : "priceAmountCents"}
+        label="Harga (IDR)"
+      >
+        <input
+          className="form-control"
+          defaultValue={category?.priceAmountCents ?? 0}
+          id={category ? `price-${category.id}` : "priceAmountCents"}
+          min="0"
+          name="priceAmountCents"
+          required
+          type="number"
+        />
+      </Field>
       <div className="flex flex-col gap-3 sm:flex-row">
         <label className="flex min-h-11 items-center gap-2 text-sm font-semibold">
           <input

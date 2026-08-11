@@ -8,6 +8,7 @@ import type {
   PublicRegistrationFormState,
   PublicRegistrationFormValues,
 } from "@/modules/registrations/registration-form-state";
+import { SearchableRegionSelect } from "@/modules/registrations/components/searchable-region-select";
 import { DatePickerInput } from "@/shared/ui/date-picker-input";
 import { Icon } from "@/shared/ui/icons";
 
@@ -79,11 +80,13 @@ export function PublicRegistrationForm({
 }: PublicRegistrationFormProps) {
   const [state, formAction] = useActionState(action, initialState);
   const [values, setValues] = useState<PublicRegistrationFormValues>(initialState.values);
+  const [provinceCode, setProvinceCode] = useState<string | undefined>();
   const errors = state.fieldErrors;
 
   useEffect(() => {
     if (!state.formError && Object.keys(errors).length < 1) return;
     setValues(state.values);
+    setProvinceCode(undefined);
     window.turnstile?.reset();
   }, [state]);
 
@@ -165,6 +168,7 @@ export function PublicRegistrationForm({
                 className={fieldClass(errors.fullName)}
                 name="fullName"
                 onChange={(event) => updateValue("fullName", event.target.value)}
+                placeholder="Nama lengkap"
                 value={values.fullName}
               />
               <FieldError message={errors.fullName} name="fullName" />
@@ -178,6 +182,7 @@ export function PublicRegistrationForm({
                 name="displayEmail"
                 onChange={(event) => updateValue("displayEmail", event.target.value)}
                 type="email"
+                placeholder="nama@email.com"
                 value={values.displayEmail}
               />
               <FieldError message={errors.displayEmail} name="displayEmail" />
@@ -190,9 +195,26 @@ export function PublicRegistrationForm({
                 className={fieldClass(errors.displayPhone)}
                 name="displayPhone"
                 onChange={(event) => updateValue("displayPhone", event.target.value)}
+                placeholder="08xxxxxxxxxx"
                 value={values.displayPhone}
               />
               <FieldError message={errors.displayPhone} name="displayPhone" />
+            </label>
+            <label className="grid gap-2 text-sm font-bold text-navy">
+              Username Instagram
+              <input
+                aria-describedby={
+                  errors.instagramUsername ? fieldErrorId("instagramUsername") : undefined
+                }
+                aria-invalid={Boolean(errors.instagramUsername)}
+                className={fieldClass(errors.instagramUsername)}
+                name="instagramUsername"
+                onChange={(event) => updateValue("instagramUsername", event.target.value)}
+                placeholder="@username"
+                required
+                value={values.instagramUsername}
+              />
+              <FieldError message={errors.instagramUsername} name="instagramUsername" />
             </label>
             <label className="grid gap-2 text-sm font-bold text-navy">
               Gender
@@ -204,7 +226,7 @@ export function PublicRegistrationForm({
                 onChange={(event) => updateValue("gender", event.target.value)}
                 value={values.gender}
               >
-                <option value="">Tidak diisi</option>
+                <option value="">Pilih jenis kelamin</option>
                 <option value="MALE">Laki-laki</option>
                 <option value="FEMALE">Perempuan</option>
                 <option value="OTHER">Lainnya</option>
@@ -224,25 +246,33 @@ export function PublicRegistrationForm({
             </label>
             <label className="grid gap-2 text-sm font-bold text-navy">
               Provinsi
-              <input
-                aria-describedby={errors.province ? fieldErrorId("province") : undefined}
-                aria-invalid={Boolean(errors.province)}
-                className={fieldClass(errors.province)}
-                name="province"
-                onChange={(event) => updateValue("province", event.target.value)}
+              <SearchableRegionSelect
+                ariaDescribedBy={errors.province ? fieldErrorId("province") : undefined}
+                ariaInvalid={Boolean(errors.province)}
+                kind="province"
+                onCodeChange={setProvinceCode}
+                onChange={(value) => {
+                  updateValue("province", value);
+                  updateValue("cityOrRegency", "");
+                }}
+                placeholder="Cari provinsi"
                 value={values.province}
+                variant="standard"
               />
               <FieldError message={errors.province} name="province" />
             </label>
             <label className="grid gap-2 text-sm font-bold text-navy">
               Kota/kabupaten
-              <input
-                aria-describedby={errors.cityOrRegency ? fieldErrorId("cityOrRegency") : undefined}
-                aria-invalid={Boolean(errors.cityOrRegency)}
-                className={fieldClass(errors.cityOrRegency)}
-                name="cityOrRegency"
-                onChange={(event) => updateValue("cityOrRegency", event.target.value)}
+              <SearchableRegionSelect
+                ariaDescribedBy={errors.cityOrRegency ? fieldErrorId("cityOrRegency") : undefined}
+                ariaInvalid={Boolean(errors.cityOrRegency)}
+                kind="regency"
+                onChange={(value) => updateValue("cityOrRegency", value)}
+                placeholder="Cari kota/kabupaten"
+                provinceCode={provinceCode}
+                provinceValue={values.province}
                 value={values.cityOrRegency}
+                variant="standard"
               />
               <FieldError message={errors.cityOrRegency} name="cityOrRegency" />
             </label>
@@ -254,6 +284,7 @@ export function PublicRegistrationForm({
                 className={fieldClass(errors.district)}
                 name="district"
                 onChange={(event) => updateValue("district", event.target.value)}
+                placeholder="Contoh: Kembangan"
                 value={values.district}
               />
               <FieldError message={errors.district} name="district" />
@@ -266,6 +297,7 @@ export function PublicRegistrationForm({
                 className={fieldClass(errors.postalCode)}
                 name="postalCode"
                 onChange={(event) => updateValue("postalCode", event.target.value)}
+                placeholder="Contoh: 11610"
                 value={values.postalCode}
               />
               <FieldError message={errors.postalCode} name="postalCode" />
@@ -286,6 +318,7 @@ export function PublicRegistrationForm({
                 className={fieldClass(errors.emergencyContactName)}
                 name="emergencyContactName"
                 onChange={(event) => updateValue("emergencyContactName", event.target.value)}
+                placeholder="Nama kontak darurat"
                 value={values.emergencyContactName}
               />
               <FieldError message={errors.emergencyContactName} name="emergencyContactName" />
@@ -300,6 +333,7 @@ export function PublicRegistrationForm({
                 className={fieldClass(errors.emergencyContactPhone)}
                 name="emergencyContactPhone"
                 onChange={(event) => updateValue("emergencyContactPhone", event.target.value)}
+                placeholder="Nomor HP kontak darurat"
                 value={values.emergencyContactPhone}
               />
               <FieldError message={errors.emergencyContactPhone} name="emergencyContactPhone" />

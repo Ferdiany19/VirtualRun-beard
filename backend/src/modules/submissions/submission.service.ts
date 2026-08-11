@@ -140,22 +140,6 @@ function parseDistanceMeter(input: string): number {
   return meters;
 }
 
-function secondsFromParts(
-  hours: number | '',
-  minutes: number | '',
-  seconds: number | '',
-): number | null {
-  if (hours === '' && minutes === '' && seconds === '') {
-    return null;
-  }
-
-  const total =
-    Number(hours || 0) * 3600 +
-    Number(minutes || 0) * 60 +
-    Number(seconds || 0);
-  return total > 0 ? total : null;
-}
-
 function normalizeActivityUrl(value: string | null): string | null {
   if (!value) {
     return null;
@@ -460,36 +444,6 @@ export async function submitParticipantRevision(input: {
     });
   }
 
-  const elapsedTimeSeconds = secondsFromParts(
-    input.form.elapsedHours,
-    input.form.elapsedMinutes,
-    input.form.elapsedSeconds,
-  );
-
-  if (!elapsedTimeSeconds) {
-    throw new ApplicationError({
-      code: 'VALIDATION_FAILED',
-      message: 'Elapsed time is invalid',
-      safeMessage: 'Waktu tempuh harus lebih dari nol.',
-      statusCode: 400,
-    });
-  }
-
-  const movingTimeSeconds = secondsFromParts(
-    input.form.movingHours,
-    input.form.movingMinutes,
-    input.form.movingSeconds,
-  );
-
-  if (movingTimeSeconds !== null && movingTimeSeconds > elapsedTimeSeconds) {
-    throw new ApplicationError({
-      code: 'VALIDATION_FAILED',
-      message: 'Moving time exceeds elapsed time',
-      safeMessage: 'Moving time tidak boleh melebihi waktu tempuh.',
-      statusCode: 400,
-    });
-  }
-
   if (
     input.form.activityPlatform === 'OTHER' &&
     !input.form.activityPlatformOther
@@ -535,8 +489,6 @@ export async function submitParticipantRevision(input: {
     registrationCategoryId: category.registrationCategoryId,
     activityDate: input.form.activityDate,
     distanceMeter,
-    elapsedTimeSeconds,
-    movingTimeSeconds,
     activityPlatform: input.form.activityPlatform,
     activityPlatformOther: input.form.activityPlatformOther,
     normalizedActivityUrl,
@@ -612,8 +564,8 @@ export async function submitParticipantRevision(input: {
         revisionNumber,
         activityDate: input.form.activityDate,
         distanceMeter,
-        elapsedTimeSeconds,
-        movingTimeSeconds,
+        elapsedTimeSeconds: null,
+        movingTimeSeconds: null,
         activityPlatform: input.form.activityPlatform,
         activityPlatformOther: input.form.activityPlatformOther,
         activityUrl: input.form.activityUrl,

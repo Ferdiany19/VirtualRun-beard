@@ -7,6 +7,7 @@ export type Participant = {
   displayEmail: string;
   normalizedPhone: string;
   displayPhone: string;
+  instagramUsername: string | null;
   gender: "MALE" | "FEMALE" | "OTHER" | null;
   dateOfBirth: string | null;
   province: string | null;

@@ -8,6 +8,7 @@ import { uploadManagedCertificateTemplate } from "@/modules/certificates/certifi
 import { parseCategoryFormData } from "@/modules/categories/category.schema";
 import {
   createManagedCategory,
+  deleteManagedCategory,
   setManagedCategoryActiveStatus,
   updateManagedCategory,
 } from "@/modules/categories/category.service";
@@ -269,10 +270,10 @@ export async function createCategoryAction(eventId: string, formData: FormData):
       category: parseCategoryFormData(formData),
       correlationId: requestContext.correlationId,
     });
-    revalidatePath(`/admin/events/${eventId}/categories`);
-    redirect(`/admin/events/${eventId}/categories?success=category-created`);
+    revalidatePath(`/admin/events/${eventId}/edit`);
+    redirect(`/admin/events/${eventId}/edit?success=category-created#kategori`);
   } catch (error) {
-    redirect(`/admin/events/${eventId}/categories?error=${errorToSearchParam(error)}`);
+    redirect(`/admin/events/${eventId}/edit?error=${errorToSearchParam(error)}#kategori`);
   }
 }
 
@@ -292,10 +293,10 @@ export async function updateCategoryAction(
       category: parseCategoryFormData(formData),
       correlationId: requestContext.correlationId,
     });
-    revalidatePath(`/admin/events/${eventId}/categories`);
-    redirect(`/admin/events/${eventId}/categories?success=category-updated`);
+    revalidatePath(`/admin/events/${eventId}/edit`);
+    redirect(`/admin/events/${eventId}/edit?success=category-updated#kategori`);
   } catch (error) {
-    redirect(`/admin/events/${eventId}/categories?error=${errorToSearchParam(error)}`);
+    redirect(`/admin/events/${eventId}/edit?error=${errorToSearchParam(error)}#kategori`);
   }
 }
 
@@ -316,9 +317,31 @@ export async function setCategoryActiveAction(
       admin,
       correlationId: requestContext.correlationId,
     });
-    revalidatePath(`/admin/events/${eventId}/categories`);
-    redirect(`/admin/events/${eventId}/categories?success=category-status`);
+    revalidatePath(`/admin/events/${eventId}/edit`);
+    redirect(`/admin/events/${eventId}/edit?success=category-status#kategori`);
   } catch (error) {
-    redirect(`/admin/events/${eventId}/categories?error=${errorToSearchParam(error)}`);
+    redirect(`/admin/events/${eventId}/edit?error=${errorToSearchParam(error)}#kategori`);
+  }
+}
+
+export async function deleteCategoryAction(
+  eventId: string,
+  categoryId: string,
+  formData: FormData,
+): Promise<void> {
+  const admin = await requireAdminSession();
+  await validateAdminCsrfToken(formData, admin);
+  const requestContext = await getRequestContext();
+
+  try {
+    await deleteManagedCategory({
+      categoryId,
+      admin,
+      correlationId: requestContext.correlationId,
+    });
+    revalidatePath(`/admin/events/${eventId}/edit`);
+    redirect(`/admin/events/${eventId}/edit?success=category-deleted#kategori`);
+  } catch (error) {
+    redirect(`/admin/events/${eventId}/edit?error=${errorToSearchParam(error)}#kategori`);
   }
 }

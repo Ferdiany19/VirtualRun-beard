@@ -3,6 +3,7 @@ export type PublicRegistrationFormField =
   | "fullName"
   | "displayEmail"
   | "displayPhone"
+  | "instagramUsername"
   | "gender"
   | "dateOfBirth"
   | "province"
@@ -22,6 +23,7 @@ export type PublicRegistrationFormValues = {
   fullName: string;
   displayEmail: string;
   displayPhone: string;
+  instagramUsername: string;
   gender: string;
   dateOfBirth: string;
   province: string;
@@ -51,6 +53,7 @@ export function createPublicRegistrationFormValues(
     fullName: "",
     displayEmail: "",
     displayPhone: "",
+    instagramUsername: "",
     gender: "",
     dateOfBirth: "",
     province: "",

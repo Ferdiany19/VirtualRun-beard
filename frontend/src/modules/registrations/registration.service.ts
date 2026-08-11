@@ -15,6 +15,7 @@ import {
   createParticipant,
   findActiveParticipantByEmail,
   findActiveParticipantByPhone,
+  updateParticipantInstagramUsername,
   updateParticipantByAdmin,
   type ParticipantInput,
   type ParticipantRecord,
@@ -319,6 +320,7 @@ function participantInputFromRegistration(
     displayEmail: input.displayEmail.trim(),
     normalizedPhone: normalizeIndonesianPhone(input.displayPhone),
     displayPhone: input.displayPhone.trim(),
+    instagramUsername: input.instagramUsername,
     gender: input.gender,
     dateOfBirth: input.dateOfBirth,
     province: input.province,
@@ -337,6 +339,7 @@ function serializeParticipantForAudit(participant: ParticipantRecord) {
     fullName: participant.fullName,
     normalizedEmail: participant.normalizedEmail,
     normalizedPhone: participant.normalizedPhone,
+    instagramUsername: participant.instagramUsername,
     gender: participant.gender,
     dateOfBirth: participant.dateOfBirth,
     province: participant.province,
@@ -533,7 +536,7 @@ export async function registerParticipantForEvent(input: {
       });
     }
 
-    const participant =
+    let participant =
       emailParticipant ??
       (await createParticipant(participantInputFromRegistration(input.registration), client));
     const existingRegistration = await getActiveRegistrationByParticipantEvent(
@@ -550,6 +553,14 @@ export async function registerParticipantForEvent(input: {
           "Anda sudah terdaftar pada event ini. Gunakan akses peserta untuk melanjutkan.",
         statusCode: 409,
       });
+    }
+
+    if (emailParticipant) {
+      participant = await updateParticipantInstagramUsername(
+        participant.id,
+        input.registration.instagramUsername,
+        client,
+      );
     }
 
     const bibSettings = await getOrCreateBibSettingsForUpdate(event.id, client);

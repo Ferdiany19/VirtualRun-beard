@@ -67,7 +67,7 @@ export type SubmissionRevisionRecord = {
   revisionNumber: number;
   activityDate: string;
   distanceMeter: number;
-  elapsedTimeSeconds: number;
+  elapsedTimeSeconds: number | null;
   movingTimeSeconds: number | null;
   activityPlatform: ActivityPlatform;
   activityPlatformOther: string | null;

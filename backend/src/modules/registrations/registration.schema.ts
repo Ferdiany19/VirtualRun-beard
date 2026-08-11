@@ -7,6 +7,13 @@ const optionalText = z
 
 export const participantGenderSchema = z.enum(['MALE', 'FEMALE', 'OTHER']);
 
+const instagramUsernameSchema = z
+  .string()
+  .trim()
+  .min(1, 'Username Instagram wajib diisi.')
+  .max(64, 'Username Instagram terlalu panjang.')
+  .regex(/^@?[A-Za-z0-9._]{1,30}$/, 'Username Instagram tidak valid.');
+
 export const publicRegistrationSchema = z.object({
   categoryIds: z
     .array(z.string().uuid())
@@ -14,6 +21,7 @@ export const publicRegistrationSchema = z.object({
   fullName: z.string().trim().min(2, 'Nama lengkap wajib diisi.').max(160),
   displayEmail: z.string().trim().email('Email belum valid.').max(180),
   displayPhone: z.string().trim().min(8, 'Nomor HP wajib diisi.').max(32),
+  instagramUsername: instagramUsernameSchema,
   gender: z
     .union([participantGenderSchema, z.literal('')])
     .transform((value) => value || null),
@@ -54,6 +62,7 @@ export const adminParticipantUpdateSchema = z.object({
   fullName: z.string().trim().min(2).max(160),
   displayEmail: z.string().trim().email().max(180),
   displayPhone: z.string().trim().min(8).max(32),
+  instagramUsername: optionalText,
   gender: z
     .union([participantGenderSchema, z.literal('')])
     .transform((value) => value || null),
@@ -87,6 +96,7 @@ export function parsePublicRegistrationFormData(
     fullName: formData.get('fullName'),
     displayEmail: formData.get('displayEmail'),
     displayPhone: formData.get('displayPhone'),
+    instagramUsername: formData.get('instagramUsername'),
     gender: formData.get('gender') ?? '',
     dateOfBirth: formData.get('dateOfBirth') ?? '',
     province: formData.get('province'),
@@ -120,6 +130,7 @@ export function parseAdminParticipantUpdateFormData(
     fullName: formData.get('fullName'),
     displayEmail: formData.get('displayEmail'),
     displayPhone: formData.get('displayPhone'),
+    instagramUsername: formData.get('instagramUsername') ?? '',
     gender: formData.get('gender') ?? '',
     dateOfBirth: formData.get('dateOfBirth') ?? '',
     province: formData.get('province'),

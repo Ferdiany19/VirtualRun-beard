@@ -10,6 +10,7 @@ import { resolveAdminEventBannerSrc } from "@/modules/events/components/event-di
 import { AdminPageHeader } from "@/modules/events/components/admin-page-header";
 import { EventForm } from "@/modules/events/components/event-form";
 import { FormMessage } from "@/modules/events/components/form-message";
+import { InlineRaceCategoryManager } from "@/modules/categories/components/inline-race-category-manager";
 
 type EditEventPageProps = {
   params: Promise<{ eventId: string }>;
@@ -52,10 +53,14 @@ export default async function EditEventPage({ params, searchParams }: EditEventP
       <FormMessage error={query.error ?? null} success={query.success ?? null} />
       <EventForm
         action={updateEventAction.bind(null, event.id)}
-        categories={categories}
         csrfToken={csrfToken}
         event={event}
         bannerSrc={resolveAdminEventBannerSrc(event)}
+      />
+      <InlineRaceCategoryManager
+        categories={categories}
+        csrfToken={csrfToken}
+        eventId={event.id}
       />
     </div>
   );

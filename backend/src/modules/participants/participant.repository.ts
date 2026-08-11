@@ -8,6 +8,7 @@ export type ParticipantInput = {
   displayEmail: string;
   normalizedPhone: string;
   displayPhone: string;
+  instagramUsername: string | null;
   gender: Participant['gender'];
   dateOfBirth: string | null;
   province: string;
@@ -25,6 +26,7 @@ type ParticipantRow = {
   display_email: string;
   normalized_phone: string;
   display_phone: string;
+  instagram_username: string | null;
   gender: Participant['gender'];
   date_of_birth: string | null;
   province: string | null;
@@ -50,6 +52,7 @@ function participantColumns(alias = 'p') {
     ${prefix}display_email,
     ${prefix}normalized_phone,
     ${prefix}display_phone,
+    ${prefix}instagram_username,
     ${prefix}gender,
     ${prefix}date_of_birth,
     ${prefix}province,
@@ -80,6 +83,7 @@ function mapParticipant(row: ParticipantRow): Participant & {
     displayEmail: row.display_email,
     normalizedPhone: row.normalized_phone,
     displayPhone: row.display_phone,
+    instagramUsername: row.instagram_username,
     gender: row.gender,
     dateOfBirth: row.date_of_birth,
     province: row.province,
@@ -148,6 +152,7 @@ export async function createParticipant(
         display_email,
         normalized_phone,
         display_phone,
+        instagram_username,
         gender,
         date_of_birth,
         province,
@@ -158,7 +163,7 @@ export async function createParticipant(
         emergency_contact_name,
         emergency_contact_phone
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7::date, $8, $9, $9, $10, $11, $12, $13)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date, $9, $10, $10, $11, $12, $13, $14)
       RETURNING ${participantColumns('')}
     `,
     [
@@ -167,6 +172,7 @@ export async function createParticipant(
       input.displayEmail,
       input.normalizedPhone,
       input.displayPhone,
+      input.instagramUsername,
       input.gender,
       input.dateOfBirth,
       input.province,
@@ -176,6 +182,25 @@ export async function createParticipant(
       input.emergencyContactName,
       input.emergencyContactPhone,
     ],
+    client,
+  );
+
+  return mapParticipant(result.rows[0]);
+}
+
+export async function updateParticipantInstagramUsername(
+  participantId: string,
+  instagramUsername: string,
+  client?: PoolClient,
+): Promise<ParticipantRecord> {
+  const result = await query<ParticipantRow>(
+    `
+      UPDATE participants
+      SET instagram_username = $2, updated_at = now()
+      WHERE id = $1 AND deleted_at IS NULL
+      RETURNING ${participantColumns('')}
+    `,
+    [participantId, instagramUsername],
     client,
   );
 
@@ -196,15 +221,16 @@ export async function updateParticipantByAdmin(
         display_email = $4,
         normalized_phone = $5,
         display_phone = $6,
-        gender = $7,
-        date_of_birth = $8::date,
-        province = $9,
-        city = $10,
-        city_or_regency = $10,
-        district = $11,
-        postal_code = $12,
-        emergency_contact_name = $13,
-        emergency_contact_phone = $14,
+        instagram_username = $7,
+        gender = $8,
+        date_of_birth = $9::date,
+        province = $10,
+        city = $11,
+        city_or_regency = $11,
+        district = $12,
+        postal_code = $13,
+        emergency_contact_name = $14,
+        emergency_contact_phone = $15,
         updated_at = now()
       WHERE id = $1
         AND deleted_at IS NULL
@@ -217,6 +243,7 @@ export async function updateParticipantByAdmin(
       input.displayEmail,
       input.normalizedPhone,
       input.displayPhone,
+      input.instagramUsername,
       input.gender,
       input.dateOfBirth,
       input.province,

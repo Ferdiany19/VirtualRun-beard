@@ -4,6 +4,8 @@ import { z } from "zod";
 const errorMessages: Record<string, string> = {
   validation: "Data belum valid. Periksa field wajib dan urutan tanggal.",
   conflict: "Slug sudah digunakan. Gunakan slug lain.",
+  "category-in-use":
+    "Kategori sudah digunakan peserta dan tidak dapat dihapus. Nonaktifkan kategori untuk menghentikan pendaftaran baru.",
   forbidden: "Anda tidak memiliki izin untuk tindakan ini.",
   publish: "Event belum dapat dipublish. Pastikan minimal satu kategori aktif dan BIB Template aktif tersedia.",
   "publish-bib-template":
@@ -36,6 +38,10 @@ const successMessages: Record<string, string> = {
   duplicated: "Template BIB berhasil diduplikat.",
   completed: "Event selesai. Sertifikat eligible dimasukkan ke antrean pengiriman.",
   "certificate-template": "Template sertifikat berhasil diupload.",
+  "category-created": "Kategori berhasil ditambahkan.",
+  "category-updated": "Kategori berhasil diperbarui.",
+  "category-status": "Status kategori berhasil diperbarui.",
+  "category-deleted": "Kategori berhasil dihapus.",
 };
 
 export function FormMessage({
@@ -80,6 +86,10 @@ export function errorToSearchParam(error: unknown): string {
   }
 
   if (error.code === "CONFLICT") {
+    if (error.details?.reason === "CATEGORY_IN_USE") {
+      return "category-in-use";
+    }
+
     return "conflict";
   }
 

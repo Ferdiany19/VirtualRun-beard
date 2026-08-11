@@ -7,7 +7,7 @@ import { PublicFooter, PublicHeader } from "@/modules/events/components/public-l
 import type { EventRecord } from "@/modules/events/event.types";
 import type { ParticipantRegistrationSessionSummary } from "@/modules/registrations/registration.service";
 import { activityPlatformLabels } from "@/modules/submissions/submission.schema";
-import { formatDistanceMeter, formatDuration } from "@/modules/submissions/submission.service";
+import { formatDistanceMeter } from "@/modules/submissions/submission.service";
 import type {
   AdminSubmissionListItem,
   ParticipantSubmissionCategory,
@@ -79,10 +79,6 @@ function canSubmit(category: ParticipantSubmissionCategory): boolean {
     isUploadPeriodOpen(category.event) &&
     (!category.submission || category.submission.status === "REVISION_REQUIRED")
   );
-}
-
-function paceSecondsPerKm(revision: SubmissionRevisionRecord): number {
-  return Math.round(revision.elapsedTimeSeconds / (revision.distanceMeter / 1000));
 }
 
 function dateInputValue(date: Date | string | null): string {
@@ -394,6 +390,7 @@ export function ParticipantSubmissionFormView({
                 name="activityPlatformOther"
               />
             </label>
+            {/*
             <div className="grid gap-4 sm:grid-cols-3">
               <label className="grid gap-2 text-sm font-bold text-navy">
                 Jam
@@ -464,6 +461,7 @@ export function ParticipantSubmissionFormView({
                 />
               </label>
             </div>
+            */}
             <label className="grid gap-2 text-sm font-bold text-navy">
               Screenshot bukti
               <input
@@ -538,8 +536,6 @@ function RevisionCard({ revision }: { revision: SubmissionRevisionRecord }) {
       </div>
       <dl className="mt-4 grid gap-3 sm:grid-cols-3">
         <Metric label="Jarak" value={formatDistanceMeter(revision.distanceMeter)} />
-        <Metric label="Durasi" value={formatDuration(revision.elapsedTimeSeconds)} />
-        <Metric label="Pace" value={formatDuration(paceSecondsPerKm(revision))} />
       </dl>
       <p className="small-copy mt-4">
         {activityPlatformLabels[revision.activityPlatform]} -{" "}
@@ -696,7 +692,6 @@ export function AdminSubmissionTable({
                     {formatDistanceMeter(item.currentRevision.distanceMeter)}
                     <br />
                     <span className="text-foreground-muted">
-                      {formatDuration(item.currentRevision.elapsedTimeSeconds)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -735,7 +730,6 @@ export function AdminSubmissionTable({
               <p className="mt-1 text-sm text-foreground-muted">{item.category.name}</p>
               <p className="mt-2 text-sm font-bold text-navy">
                 {formatDistanceMeter(item.currentRevision.distanceMeter)} -{" "}
-                {formatDuration(item.currentRevision.elapsedTimeSeconds)}
               </p>
             </Link>
           ))}
@@ -773,8 +767,6 @@ export function AdminSubmissionDetailView({ detail }: { detail: SubmissionDetail
           {current ? (
             <dl className="mt-5 grid gap-3 sm:grid-cols-3">
               <Metric label="Jarak" value={formatDistanceMeter(current.distanceMeter)} />
-              <Metric label="Durasi" value={formatDuration(current.elapsedTimeSeconds)} />
-              <Metric label="Pace" value={formatDuration(paceSecondsPerKm(current))} />
             </dl>
           ) : null}
           {current ? (

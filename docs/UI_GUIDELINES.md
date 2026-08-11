@@ -150,7 +150,7 @@ Token berada di `src/app/globals.css` dan `tailwind.config.ts`:
   status submission per kategori, progress upload, preview BIB, checklist, bantuan, dan informasi
   event dengan gaya editorial yang konsisten dengan landing page tanpa metrik atau klaim palsu.
 - Upload hasil memakai `Upload Ledger`: daftar kategori berbasis baris editorial, form upload
-  dengan blok Data Aktivitas, Durasi, dan Bukti, label eksplisit, status submission, catatan
+  dengan blok Data Aktivitas dan Bukti, label eksplisit, status submission, catatan
   validator, dan riwayat revisi berbasis timeline/card tegas. Progress upload granular belum
   dibuat karena flow fase ini memakai server action.
 - Admin validation queue memakai table desktop dan structured list mobile, filter server-side,

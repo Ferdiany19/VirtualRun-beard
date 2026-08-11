@@ -60,6 +60,10 @@ Implemented public participant flow:
 - `GET /events/[slug]/participant/submissions`
 - `GET /events/[slug]/participant/submissions/[registrationCategoryId]`
 
+Data pendaftaran publik mencakup `instagramUsername` sebagai field wajib baru. `province` dan
+`cityOrRegency` dikirim sebagai nama wilayah hasil pilihan dari Wilayah.id; kode wilayah hanya
+dipakai di UI untuk memuat daftar kota/kabupaten bertingkat.
+
 Implemented admin event export:
 
 - `GET /api/admin/events/export` menghasilkan workbook Excel untuk event yang dapat dikelola
@@ -68,6 +72,8 @@ Implemented admin event export:
 - Response memakai `cache-control: no-store` dan attachment `.xlsx`.
 - `POST` server action submission revision dengan CSRF, idempotency key, activity URL
   dan/atau screenshot.
+- Submission revision baru tidak menerima field elapsed/moving duration. Data durasi revision
+  lama tetap dapat dibaca untuk kompatibilitas historis, tetapi bukan bagian dari form upload baru.
 - `GET /events/[slug]/participant/submissions/[registrationCategoryId]/history`
 - `GET /api/participant/bib/download?registrationId=...`
 - `GET /api/participant/submission-file/download?fileId=...`
@@ -139,6 +145,8 @@ Implemented Nest API foundation:
 - `POST /api/admin/events/:eventId/categories`
 - `PATCH /api/admin/categories/:categoryId`
 - `POST /api/admin/categories/:categoryId/active`
+- Pengelolaan kategori inline pada edit event mendukung tambah, ubah, aktif/nonaktif, dan hapus
+  kategori yang belum pernah dipakai pendaftaran; kategori yang sudah dipakai ditolak untuk hapus.
 - `GET /api/admin/participants`
 - `GET /api/admin/events/:eventId/participants`
 - `GET /api/admin/registrations/:registrationId`

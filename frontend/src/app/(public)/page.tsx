@@ -82,6 +82,7 @@ function HomepageHero({ featuredEvent }: { featuredEvent: PublicHomepageEventIte
           priority
           sizes="100vw"
           src={imageSrc}
+          unoptimized={imageSrc.startsWith("/api/")}
         />
       ) : null}
       <div

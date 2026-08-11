@@ -14,6 +14,7 @@ import {
 } from "@/modules/events/components/event-display";
 import { PublicFooter, PublicHeader } from "@/modules/events/components/public-layout";
 import { QuickRegistrationForm as QuickRegistrationFormClient } from "@/modules/events/components/quick-registration-form";
+import { SearchableRegionFields } from "@/modules/registrations/components/searchable-region-fields";
 import { createPublicRegistrationFormState } from "@/modules/registrations/registration-form-state";
 import type { PublicRegistrationFormState } from "@/modules/registrations/registration-form-state";
 import { env } from "@/shared/config/env";
@@ -137,7 +138,7 @@ function QuickRegistrationForm({
           <p className="text-xs font-bold uppercase tracking-[0.08em] text-white/60">
             Pendaftaran peserta
           </p>
-          <h2 className="landing-display mt-1 text-3xl leading-none">Pilih jarakmu.</h2>
+          <h2 className="landing-display mt-1 text-3xl leading-none">{event.name}</h2>
         </div>
         <div className="p-5 sm:p-6">
           {isRegistered ? (
@@ -189,6 +190,14 @@ function QuickRegistrationForm({
                   type="tel"
                 />
               </CompactField>
+              <CompactField label="Username Instagram">
+                <input
+                  className="form-control min-h-11 text-sm"
+                  name="instagramUsername"
+                  placeholder="@username"
+                  required
+                />
+              </CompactField>
 
               <fieldset>
                 <legend className="text-xs font-bold leading-5 text-[var(--color-landing-ink)]">
@@ -220,24 +229,7 @@ function QuickRegistrationForm({
                 <DatePickerInput name="dateOfBirth" />
               </CompactField>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <CompactField label="Provinsi">
-                  <input
-                    className="form-control min-h-11 text-sm"
-                    name="province"
-                    placeholder="Contoh: DKI Jakarta"
-                    required
-                  />
-                </CompactField>
-                <CompactField label="Kota">
-                  <input
-                    className="form-control min-h-11 text-sm"
-                    name="cityOrRegency"
-                    placeholder="Contoh: Jakarta"
-                    required
-                  />
-                </CompactField>
-              </div>
+              <SearchableRegionFields />
 
               <CompactField label="Pilih Kategori / Jarak">
                 <select className="form-select min-h-11 text-sm" name="categoryIds" required>
@@ -636,7 +628,7 @@ export function EventLandingPage(props: EventLandingPageProps) {
                   <p className="text-xs font-bold uppercase tracking-[0.08em] text-white/60">
                     Pendaftaran peserta
                   </p>
-                  <h2 className="landing-display mt-1 text-3xl leading-none">Pilih jarakmu.</h2>
+                  <h2 className="landing-display mt-1 text-3xl leading-none">{event.name}</h2>
                 </div>
                 <div className="p-5 sm:p-6">
                   <QuickRegistrationFormClient

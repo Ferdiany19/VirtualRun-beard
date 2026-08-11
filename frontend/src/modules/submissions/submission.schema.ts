@@ -19,12 +19,6 @@ export const activityPlatformSchema = z.enum([
 export const submissionFormSchema = z.object({
   activityDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   distanceKilometer: z.string().trim().min(1).max(12),
-  elapsedHours: z.coerce.number().int().min(0).max(48),
-  elapsedMinutes: z.coerce.number().int().min(0).max(59),
-  elapsedSeconds: z.coerce.number().int().min(0).max(59),
-  movingHours: z.union([z.literal(""), z.coerce.number().int().min(0).max(48)]),
-  movingMinutes: z.union([z.literal(""), z.coerce.number().int().min(0).max(59)]),
-  movingSeconds: z.union([z.literal(""), z.coerce.number().int().min(0).max(59)]),
   activityPlatform: activityPlatformSchema,
   activityPlatformOther: z
     .string()
@@ -74,12 +68,6 @@ export function parseSubmissionFormData(formData: FormData): {
     input: submissionFormSchema.parse({
       activityDate: formData.get("activityDate"),
       distanceKilometer: formData.get("distanceKilometer"),
-      elapsedHours: formData.get("elapsedHours") ?? 0,
-      elapsedMinutes: formData.get("elapsedMinutes") ?? 0,
-      elapsedSeconds: formData.get("elapsedSeconds") ?? 0,
-      movingHours: formData.get("movingHours") ?? "",
-      movingMinutes: formData.get("movingMinutes") ?? "",
-      movingSeconds: formData.get("movingSeconds") ?? "",
       activityPlatform: formData.get("activityPlatform"),
       activityPlatformOther: formData.get("activityPlatformOther") ?? "",
       activityUrl: formData.get("activityUrl") ?? "",

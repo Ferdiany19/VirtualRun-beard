@@ -1,8 +1,10 @@
 /* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 */
 /* Hallmark · genre: editorial · macrostructure: Upload Ledger · theme: Sport · enrichment: none · design-system: design.md · designed-as-app */
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { randomUUID } from "node:crypto";
+import { useActionState, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { EventCategoryRecord } from "@/modules/categories/category.types";
 import { resolveEventBannerSrc } from "@/modules/events/components/event-display";
@@ -10,7 +12,11 @@ import { PublicFooter, PublicHeader } from "@/modules/events/components/public-l
 import type { EventRecord } from "@/modules/events/event.types";
 import type { ParticipantRegistrationSessionSummary } from "@/modules/registrations/registration.service";
 import { activityPlatformLabels } from "@/modules/submissions/submission.schema";
-import { formatDistanceMeter, formatDuration } from "@/modules/submissions/submission.service";
+import type {
+  SubmissionFormActionState,
+  SubmissionFormField,
+  SubmissionFormValues,
+} from "@/modules/submissions/submission-form-state";
 import type {
   AdminSubmissionListItem,
   ParticipantSubmissionCategory,
@@ -31,6 +37,10 @@ function participantPageShell({ event, children }: { event: EventRecord; childre
       <PublicFooter contactEmail={event.contactEmail} contactPhone={event.contactPhone} />
     </div>
   );
+}
+
+function formatDistanceMeter(distanceMeter: number): string {
+  return `${(distanceMeter / 1000).toFixed(2).replace(/\.00$/, "")} km`;
 }
 
 export function submissionStatusLabel(status: SubmissionStatus | null): string {
@@ -77,31 +87,6 @@ function canSubmit(category: ParticipantSubmissionCategory): boolean {
     isUploadPeriodOpen(category.event) &&
     (!category.submission || category.submission.status === "REVISION_REQUIRED")
   );
-}
-
-function paceSecondsPerKm(revision: SubmissionRevisionRecord): number {
-  return Math.round(revision.elapsedTimeSeconds / (revision.distanceMeter / 1000));
-}
-
-function dateInputValue(date: Date | string | null): string {
-  if (!date) {
-    return "";
-  }
-
-  if (typeof date === "string") {
-    return date;
-  }
-
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    day: "2-digit",
-    month: "2-digit",
-    timeZone: "Asia/Jakarta",
-    year: "numeric",
-  }).formatToParts(date);
-  const value = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((item) => item.type === type)?.value ?? "00";
-
-  return `${value("year")}-${value("month")}-${value("day")}`;
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
@@ -173,6 +158,13 @@ function FormField({ label, children }: { label: string; children: ReactNode }) 
       {children}
     </label>
   );
+}
+
+function FieldError({ field, errors }: { field: SubmissionFormField; errors: SubmissionFormActionState["fieldErrors"] }) {
+  const message = errors[field];
+  if (!message) return null;
+  const id = `${field}-error`;
+  return <p className="text-xs font-bold text-danger" id={id}>{message}</p>;
 }
 
 const formControlClass =
@@ -855,14 +847,30 @@ export function ParticipantSubmissionFormView({
   detail,
   csrfToken,
   action,
-  error,
+  initialState,
 }: {
   detail: SubmissionDetail;
   csrfToken: string;
-  action: (formData: FormData) => void;
-  error?: string;
+  action: (
+    state: SubmissionFormActionState,
+    formData: FormData,
+  ) => Promise<SubmissionFormActionState>;
+  initialState: SubmissionFormActionState;
 }) {
-  const current = detail.currentRevision;
+  const [state, formAction] = useActionState(action, initialState);
+  const [formValues, setFormValues] = useState(initialState.values);
+  const values = formValues;
+  const errors = state.fieldErrors;
+  const hasCurrentRevision = Boolean(detail.currentRevision);
+
+  useEffect(() => setFormValues(state.values), [state.values]);
+
+  function updateValue<K extends keyof SubmissionFormValues>(
+    name: K,
+    value: SubmissionFormValues[K],
+  ) {
+    setFormValues((current) => ({ ...current, [name]: value }));
+  }
 
   return participantPageShell({
     event: detail.event,
@@ -884,9 +892,9 @@ export function ParticipantSubmissionFormView({
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
           <section className="min-w-0">
-            {error ? (
+            {state.formError ? (
               <div className="mb-6 border-2 border-danger/35 bg-danger/10 p-4 text-sm font-bold leading-6 text-danger">
-                Data belum lengkap, file terlalu besar, atau periode upload belum aktif.
+                {state.formError}
               </div>
             ) : null}
             {detail.submission?.latestParticipantVisibleNote ? (
@@ -897,12 +905,12 @@ export function ParticipantSubmissionFormView({
             ) : null}
 
             <form
-              action={action}
+              action={formAction}
               className="grid gap-7 border-2 border-[var(--color-landing-ink)] bg-[var(--color-landing-white)] p-5 sm:p-6"
               encType="multipart/form-data"
             >
               <input name="csrfToken" type="hidden" value={csrfToken} />
-              <input name="idempotencyKey" type="hidden" value={randomUUID()} />
+              <input name="idempotencyKey" type="hidden" value={values.idempotencyKey} readOnly />
 
               <div>
                 <h2 className="landing-display text-3xl leading-none text-[var(--color-landing-ink)]">
@@ -911,8 +919,11 @@ export function ParticipantSubmissionFormView({
                 <div className="mt-5 grid gap-5">
                   <FormField label="Platform aktivitas">
                     <select
+                      aria-describedby={errors.activityPlatform ? "activityPlatform-error" : undefined}
+                      aria-invalid={Boolean(errors.activityPlatform)}
                       className={formControlClass}
-                      defaultValue={current?.activityPlatform ?? "STRAVA"}
+                      onChange={(event) => updateValue("activityPlatform", event.target.value)}
+                      value={values.activityPlatform}
                       name="activityPlatform"
                       required
                     >
@@ -922,46 +933,64 @@ export function ParticipantSubmissionFormView({
                         </option>
                       ))}
                     </select>
+                    <FieldError errors={errors} field="activityPlatform" />
                   </FormField>
                   <FormField label="Link aktivitas">
                     <input
+                      aria-describedby={errors.activityUrl ? "activityUrl-error" : undefined}
+                      aria-invalid={Boolean(errors.activityUrl)}
                       className={formControlClass}
-                      defaultValue={current?.activityUrl ?? ""}
+                      onChange={(event) => updateValue("activityUrl", event.target.value)}
                       name="activityUrl"
                       placeholder="https://..."
                       type="url"
+                      value={values.activityUrl}
                     />
+                    <FieldError errors={errors} field="activityUrl" />
                   </FormField>
                   <div className="grid gap-5 sm:grid-cols-2">
                     <FormField label="Tanggal aktivitas">
                       <DatePickerInput
-                        defaultValue={dateInputValue(current?.activityDate ?? null)}
+                        ariaDescribedBy={errors.activityDate ? "activityDate-error" : undefined}
+                        ariaInvalid={Boolean(errors.activityDate)}
                         name="activityDate"
+                        onChange={(value) => updateValue("activityDate", value)}
                         required
+                        value={values.activityDate}
                       />
+                      <FieldError errors={errors} field="activityDate" />
                     </FormField>
                     <FormField label="Jarak">
                       <input
+                        aria-describedby={errors.distanceKilometer ? "distanceKilometer-error" : undefined}
+                        aria-invalid={Boolean(errors.distanceKilometer)}
                         className={formControlClass}
-                        defaultValue={current ? (current.distanceMeter / 1000).toString() : ""}
+                        onChange={(event) => updateValue("distanceKilometer", event.target.value)}
                         min="0.01"
                         name="distanceKilometer"
                         required
                         step="0.01"
                         type="number"
+                        value={values.distanceKilometer}
                       />
+                      <FieldError errors={errors} field="distanceKilometer" />
                     </FormField>
                   </div>
                   <FormField label="Nama platform lain">
                     <input
+                      aria-describedby={errors.activityPlatformOther ? "activityPlatformOther-error" : undefined}
+                      aria-invalid={Boolean(errors.activityPlatformOther)}
                       className={formControlClass}
-                      defaultValue={current?.activityPlatformOther ?? ""}
+                      onChange={(event) => updateValue("activityPlatformOther", event.target.value)}
                       name="activityPlatformOther"
+                      value={values.activityPlatformOther}
                     />
+                    <FieldError errors={errors} field="activityPlatformOther" />
                   </FormField>
                 </div>
               </div>
 
+              {/*
               <div className="border-t border-[var(--color-landing-rule)] pt-6">
                 <h2 className="landing-display text-3xl leading-none text-[var(--color-landing-ink)]">
                   Durasi
@@ -1038,6 +1067,9 @@ export function ParticipantSubmissionFormView({
                 </div>
               </div>
 
+              </div>
+              */}
+
               <div className="border-t border-[var(--color-landing-rule)] pt-6">
                 <h2 className="landing-display text-3xl leading-none text-[var(--color-landing-ink)]">
                   Bukti
@@ -1045,18 +1077,25 @@ export function ParticipantSubmissionFormView({
                 <div className="mt-5 grid gap-5">
                   <FormField label="Screenshot bukti">
                     <input
+                      aria-describedby={errors.screenshot ? "screenshot-error" : undefined}
+                      aria-invalid={Boolean(errors.screenshot)}
                       accept="image/jpeg,image/png,image/webp"
                       className={`${formControlClass} py-3`}
                       name="screenshot"
                       type="file"
                     />
+                    <FieldError errors={errors} field="screenshot" />
                   </FormField>
                   <FormField label="Catatan peserta">
                     <textarea
+                      aria-describedby={errors.participantNote ? "participantNote-error" : undefined}
+                      aria-invalid={Boolean(errors.participantNote)}
                       className={textAreaClass}
-                      defaultValue={current?.participantNote ?? ""}
+                      onChange={(event) => updateValue("participantNote", event.target.value)}
                       name="participantNote"
+                      value={values.participantNote}
                     />
+                    <FieldError errors={errors} field="participantNote" />
                   </FormField>
                 </div>
               </div>
@@ -1064,13 +1103,18 @@ export function ParticipantSubmissionFormView({
               <div className="border-t border-[var(--color-landing-rule)] pt-6">
                 <label className="flex min-h-12 items-start gap-3 text-sm font-bold leading-6 text-[var(--color-landing-ink)]">
                   <input
+                    aria-describedby={errors.dataStatementAccepted ? "dataStatementAccepted-error" : undefined}
+                    aria-invalid={Boolean(errors.dataStatementAccepted)}
+                    checked={values.dataStatementAccepted}
                     className="mt-1 h-5 w-5 accent-primary"
                     name="dataStatementAccepted"
+                    onChange={(event) => updateValue("dataStatementAccepted", event.target.checked)}
                     required
                     type="checkbox"
                   />
                   <span>Saya menyatakan hasil dan bukti aktivitas yang dikirim benar.</span>
                 </label>
+                <FieldError errors={errors} field="dataStatementAccepted" />
                 <button className="landing-action mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 border-2 border-[var(--color-landing-ink)] bg-[var(--color-landing-orange)] px-5 py-3 text-sm font-bold text-[var(--color-landing-ink)] transition-colors duration-[var(--dur-short)] hover:bg-[var(--color-landing-white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-landing-focus)] active:translate-y-px sm:w-auto">
                   <Icon className="h-4 w-4" name="upload" />
                   Kirim hasil
@@ -1094,7 +1138,7 @@ export function ParticipantSubmissionFormView({
                 value={formatDistanceMeter(detail.category.distanceToleranceMeters)}
               />
             </dl>
-            {current ? (
+            {hasCurrentRevision ? (
               <div className="mt-5">
                 <SecondaryAction
                   href={`/events/${detail.event.slug}/participant/submissions/${detail.registrationCategoryId}/history`}
@@ -1129,8 +1173,6 @@ function PublicRevisionCard({ revision }: { revision: SubmissionRevisionRecord }
       </div>
       <dl className="mt-5 grid gap-4 border-y border-[var(--color-landing-rule)] sm:grid-cols-3">
         <Metric label="Jarak" value={formatDistanceMeter(revision.distanceMeter)} />
-        <Metric label="Durasi" value={formatDuration(revision.elapsedTimeSeconds)} />
-        <Metric label="Pace" value={formatDuration(paceSecondsPerKm(revision))} />
       </dl>
       <p className="mt-4 break-words text-xs font-bold leading-5 text-[var(--color-landing-ink-2)]">
         {activityPlatformLabels[revision.activityPlatform]} -{" "}
@@ -1159,8 +1201,6 @@ function RevisionCard({ revision }: { revision: SubmissionRevisionRecord }) {
       </div>
       <dl className="mt-4 grid gap-3 sm:grid-cols-3">
         <Metric label="Jarak" value={formatDistanceMeter(revision.distanceMeter)} />
-        <Metric label="Durasi" value={formatDuration(revision.elapsedTimeSeconds)} />
-        <Metric label="Pace" value={formatDuration(paceSecondsPerKm(revision))} />
       </dl>
       <p className="small-copy mt-4">
         {activityPlatformLabels[revision.activityPlatform]} -{" "}
@@ -1329,10 +1369,6 @@ export function AdminSubmissionTable({
                   <td className="px-4 py-3">{item.category.name}</td>
                   <td className="px-4 py-3">
                     {formatDistanceMeter(item.currentRevision.distanceMeter)}
-                    <br />
-                    <span className="text-foreground-muted">
-                      {formatDuration(item.currentRevision.elapsedTimeSeconds)}
-                    </span>
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge tone={submissionStatusTone(item.submission.status)}>
@@ -1369,8 +1405,7 @@ export function AdminSubmissionTable({
               </p>
               <p className="mt-1 text-sm text-foreground-muted">{item.category.name}</p>
               <p className="mt-2 text-sm font-bold text-navy">
-                {formatDistanceMeter(item.currentRevision.distanceMeter)} -{" "}
-                {formatDuration(item.currentRevision.elapsedTimeSeconds)}
+                {formatDistanceMeter(item.currentRevision.distanceMeter)}
               </p>
             </Link>
           ))}
@@ -1408,8 +1443,6 @@ export function AdminSubmissionDetailView({ detail }: { detail: SubmissionDetail
           {current ? (
             <dl className="mt-5 grid gap-3 sm:grid-cols-3">
               <Metric label="Jarak" value={formatDistanceMeter(current.distanceMeter)} />
-              <Metric label="Durasi" value={formatDuration(current.elapsedTimeSeconds)} />
-              <Metric label="Pace" value={formatDuration(paceSecondsPerKm(current))} />
             </dl>
           ) : null}
           {current ? (

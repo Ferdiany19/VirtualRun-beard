@@ -126,7 +126,7 @@ export type ValidationQueueItem = {
   currentRevisionId: string;
   revisionNumber: number;
   actualDistanceMeter: number;
-  elapsedTimeSeconds: number;
+  elapsedTimeSeconds: number | null;
   movingTimeSeconds: number | null;
   activityDate: string;
   activityPlatform: ActivityPlatform;

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { formatDateTimeRange } from "@/modules/events/components/event-display";
 import type { EventRecord } from "@/modules/events/event.types";
 import { activityPlatformLabels } from "@/modules/submissions/submission.schema";
-import { formatDistanceMeter, formatDuration } from "@/modules/submissions/submission.service";
+import { formatDistanceMeter } from "@/modules/submissions/submission.service";
 import {
   submissionStatusLabel,
   submissionStatusTone,
@@ -147,7 +147,7 @@ export function ValidationQueueView({
                   <td className="px-4 py-3">
                     {formatDistanceMeter(item.actualDistanceMeter)}
                     <span className="block text-xs text-foreground-muted">
-                      {formatDuration(item.elapsedTimeSeconds)} - {item.activityDate}
+                      {formatDistanceMeter(item.distanceMeter)} - {item.activityDate}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -345,8 +345,6 @@ export function ValidationDetailView({
           {current ? (
             <dl className="mt-5 grid gap-3 sm:grid-cols-4">
               <Info label="Jarak" value={formatDistanceMeter(current.distanceMeter)} />
-              <Info label="Durasi" value={formatDuration(current.elapsedTimeSeconds)} />
-              <Info label="Moving" value={formatDuration(current.movingTimeSeconds)} />
               <Info label="Revisi" value={`${current.revisionNumber}`} />
             </dl>
           ) : null}
@@ -444,7 +442,6 @@ export function ValidationDetailView({
             <p className="font-bold text-navy">Revisi {revision.revisionNumber}</p>
             <p className="small-copy mt-1">
               {formatDistanceMeter(revision.distanceMeter)} -{" "}
-              {formatDuration(revision.elapsedTimeSeconds)} -{" "}
               {formatBusinessDateTime(revision.submittedAt)} WIB
             </p>
           </article>

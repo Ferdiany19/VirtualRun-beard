@@ -12,6 +12,10 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - Awalan `628` diterima sebagai variasi input umum dan disimpan menjadi `+628`.
 - Email dan nomor HP unik secara global untuk participant aktif.
 - Soft delete tidak boleh menghapus audit history.
+- Pendaftaran publik baru wajib menyertakan username Instagram dengan karakter aman; kolomnya
+  nullable untuk menjaga kompatibilitas participant lama.
+- Provinsi dan kota/kabupaten pada pendaftaran dipilih dari data Wilayah.id, sedangkan nama
+  wilayah yang dipilih tetap disimpan pada field participant yang sudah ada.
 
 ## Event
 
@@ -40,7 +44,10 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - Distance meter wajib positif.
 - Ranking dan certificate dapat diaktifkan per category.
 - Category price disimpan untuk kesiapan fase berbayar, tanpa payment logic MVP.
-- Category tidak dihapus hard delete pada slice ini. Admin memakai status active/inactive.
+- Category yang sudah dipakai pada `registration_categories` tidak boleh dihapus hard delete;
+  admin harus menonaktifkannya agar riwayat peserta, submission, dan audit tetap utuh.
+- Category yang belum pernah dipakai boleh dihapus hard delete melalui pengelolaan kategori admin
+  dan harus menghasilkan audit log.
 - Minimum age tidak boleh lebih besar dari maximum age.
 
 ## Admin Authentication
@@ -99,6 +106,8 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 
 - Submission dilakukan per registration category.
 - Minimal salah satu dari screenshot atau activity URL wajib tersedia.
+- Submission baru tidak meminta durasi atau moving time; kolom durasi pada revision lama tetap
+  dipertahankan untuk kompatibilitas historis dan bernilai `NULL` untuk submission baru.
 - Revision lama tidak ditimpa; riwayat revision bersifat append-only.
 - Revision baru membuat status aggregate kembali ke `SUBMITTED`.
 - Activity date wajib berada di dalam periode activity event.
@@ -124,7 +133,7 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - `REJECTED` dan `DISQUALIFIED` tidak eligible ranking.
 - Participant hanya melihat status aggregate dan `participant_visible_note`; `internal_note`
   admin tidak boleh ditampilkan di UI peserta.
-- Deterministic warning membantu admin melihat jarak, tanggal aktivitas, pace, evidence,
+- Deterministic warning membantu admin melihat jarak, tanggal aktivitas, evidence,
   dan duplicate evidence, tetapi warning tidak otomatis mengambil keputusan.
 
 ## Leaderboard
