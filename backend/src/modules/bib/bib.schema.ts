@@ -63,6 +63,11 @@ export const bibTemplateEventAssignmentSchema = z.object({
   eventId: z.string().uuid(),
 });
 
+export const bibTemplatePublishSchema = z.object({
+  eventId: z.string().uuid(),
+  settings: bibSettingsSchema,
+});
+
 export const bibTemplateListFilterSchema = z.object({
   search: z.string().trim().max(120).optional().nullable(),
   eventId: z.string().uuid().optional().nullable(),

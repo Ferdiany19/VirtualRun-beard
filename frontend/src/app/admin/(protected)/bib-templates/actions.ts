@@ -143,6 +143,7 @@ export async function publishBibTemplateAction(
       body: JSON.stringify({
         csrfToken: formData.get("csrfToken"),
         eventId: formData.get("eventId"),
+        settings: parseBibSettingsFormData(formData),
       }),
     });
 

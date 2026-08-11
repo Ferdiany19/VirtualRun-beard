@@ -11,7 +11,10 @@ import {
   updateBibTemplateSettingsAction,
   uploadBibTemplateDraftAction,
 } from "@/app/admin/(protected)/bib-templates/actions";
-import { BibTemplateLiveEditor } from "@/modules/bib/components/bib-template-live-editor";
+import {
+  BibTemplateLiveEditor,
+  BibTemplatePreview,
+} from "@/modules/bib/components/bib-template-live-editor";
 import { BibTemplateEventSelector } from "@/modules/bib/components/bib-template-event-selector";
 import { FormMessage } from "@/modules/events/components/form-message";
 import { formatBusinessDateTime } from "@/shared/date/business-timezone";
@@ -122,6 +125,63 @@ function statusTone(status: BibTemplateStatus) {
   return "neutral" as const;
 }
 
+function BibSettingsPublishFields({ settings }: { settings: BibSettings }) {
+  const fields: Array<[string, string | number]> = [
+    ["bibPrefix", settings.bibPrefix],
+    ["bibSuffix", settings.bibSuffix ?? ""],
+    ["sequenceStart", settings.sequenceStart],
+    ["numericPadding", settings.numericPadding],
+    ["nextSequence", settings.nextSequence],
+    ["textColor", settings.textColor],
+    ["fontFamily", settings.fontFamily],
+    ["fontSize", settings.fontSize],
+    ["fontWeight", settings.fontWeight],
+    ["textAlignment", settings.textAlignment],
+    ["numberAreaX", settings.numberAreaX],
+    ["numberAreaY", settings.numberAreaY],
+    ["numberAreaWidth", settings.numberAreaWidth],
+    ["numberAreaHeight", settings.numberAreaHeight],
+    ["participantNameX", settings.participantNameX],
+    ["participantNameY", settings.participantNameY],
+    ["participantNameWidth", settings.participantNameWidth],
+    ["participantNameHeight", settings.participantNameHeight],
+    ["participantNameFontSize", settings.participantNameFontSize],
+    ["categoryLabelX", settings.categoryLabelX],
+    ["categoryLabelY", settings.categoryLabelY],
+    ["categoryLabelWidth", settings.categoryLabelWidth],
+    ["categoryLabelHeight", settings.categoryLabelHeight],
+    ["categoryLabelFontSize", settings.categoryLabelFontSize],
+    ["templateCanvasWidth", settings.templateCanvasWidth],
+    ["templateCanvasHeight", settings.templateCanvasHeight],
+  ];
+
+  return (
+    <>
+      {fields.map(([name, value]) => (
+        <input
+          data-bib-template-publish-setting={name}
+          key={name}
+          name={name}
+          type="hidden"
+          value={value}
+        />
+      ))}
+      <input
+        data-bib-template-publish-setting="showParticipantName"
+        name="showParticipantName"
+        type="hidden"
+        value={settings.showParticipantName ? "on" : ""}
+      />
+      <input
+        data-bib-template-publish-setting="showCategoryLabel"
+        name="showCategoryLabel"
+        type="hidden"
+        value={settings.showCategoryLabel ? "on" : ""}
+      />
+    </>
+  );
+}
+
 export default async function BibTemplateDetailPage({ params, searchParams }: DetailPageProps) {
   const admin = await requireAdminSession();
 
@@ -179,11 +239,7 @@ export default async function BibTemplateDetailPage({ params, searchParams }: De
         </div>
         <div className="grid gap-5 p-5 lg:grid-cols-[180px_minmax(0,1fr)_260px] lg:items-center">
           <div className="overflow-hidden rounded-app border border-border bg-surface-muted">
-            <img
-              alt={`Template ${template.name}`}
-              className="aspect-[1.6/1] w-full object-cover"
-              src={`/api/admin/bib/template-preview?templateVersionId=${template.id}`}
-            />
+            <BibTemplatePreview compact sample={sample} settings={settings} template={template} />
           </div>
           <div>
             <h2 className="text-xl font-bold text-navy">{template.name}</h2>
@@ -231,6 +287,7 @@ export default async function BibTemplateDetailPage({ params, searchParams }: De
                 type="hidden"
                 value={event.id}
               />
+              <BibSettingsPublishFields settings={settings} />
               <button
                 className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-app bg-action px-4 text-sm font-bold text-white hover:bg-action-hover"
                 type="submit"
@@ -328,6 +385,7 @@ export default async function BibTemplateDetailPage({ params, searchParams }: De
               type="hidden"
               value={event.id}
             />
+            <BibSettingsPublishFields settings={settings} />
             <button
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-app bg-action px-5 text-sm font-bold text-white hover:bg-action-hover"
               type="submit"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/shared/ui/icons";
 import { StatusBadge } from "@/shared/ui/status-badge";
 
@@ -131,6 +131,53 @@ function readPreview(form: HTMLFormElement, current: BibSettings): BibSettings {
   };
 }
 
+const publishSettingNames = [
+  "bibPrefix",
+  "bibSuffix",
+  "sequenceStart",
+  "numericPadding",
+  "nextSequence",
+  "textColor",
+  "fontFamily",
+  "fontSize",
+  "fontWeight",
+  "textAlignment",
+  "numberAreaX",
+  "numberAreaY",
+  "numberAreaWidth",
+  "numberAreaHeight",
+  "showParticipantName",
+  "participantNameX",
+  "participantNameY",
+  "participantNameWidth",
+  "participantNameHeight",
+  "participantNameFontSize",
+  "showCategoryLabel",
+  "categoryLabelX",
+  "categoryLabelY",
+  "categoryLabelWidth",
+  "categoryLabelHeight",
+  "categoryLabelFontSize",
+  "templateCanvasWidth",
+  "templateCanvasHeight",
+] as const;
+
+function syncPublishSettings(form: HTMLFormElement) {
+  const formData = new FormData(form);
+
+  document
+    .querySelectorAll<HTMLInputElement>("[data-bib-template-publish-setting]")
+    .forEach((input) => {
+      const name = input.dataset.bibTemplatePublishSetting;
+
+      if (!name || !(publishSettingNames as readonly string[]).includes(name)) {
+        return;
+      }
+
+      input.value = String(formData.get(name) ?? "");
+    });
+}
+
 function ControlInput({
   label,
   name,
@@ -163,24 +210,42 @@ function PreviewCanvas({
   sample,
   settings,
   template,
+  compact = false,
 }: {
   sample: SampleParticipant | null;
   settings: BibSettings;
   template: BibTemplate;
+  compact?: boolean;
 }) {
   const categoryLabel =
-    sample?.categories.map((category) => category.name).join(" - ") || "Belum ada kategori";
+    sample?.categories.map((category) => category.name).join(" - ") || "5K";
   const bibNumber =
     sample?.bibNumber ??
     `${settings.bibPrefix}${String(settings.nextSequence).padStart(settings.numericPadding, "0")}${settings.bibSuffix ?? ""}`;
 
   return (
-    <article className="rounded-section border border-border bg-surface p-5 shadow-soft">
-      <h2 className="text-lg font-bold text-navy">Preview BIB</h2>
-      <p className="mt-1 text-sm text-foreground-muted">
-        Preview ini berubah langsung saat field pengaturan diubah.
-      </p>
-      <div className="mt-5 overflow-hidden rounded-section border border-border bg-surface-muted p-3">
+    <article
+      className={
+        compact
+          ? "w-full"
+          : "rounded-section border border-border bg-surface p-5 shadow-soft"
+      }
+    >
+      {!compact ? (
+        <>
+          <h2 className="text-lg font-bold text-navy">Preview BIB</h2>
+          <p className="mt-1 text-sm text-foreground-muted">
+            Preview ini berubah langsung saat field pengaturan diubah.
+          </p>
+        </>
+      ) : null}
+      <div
+        className={
+          compact
+            ? "overflow-hidden rounded-app bg-surface-muted"
+            : "mt-5 overflow-hidden rounded-section border border-border bg-surface-muted p-3"
+        }
+      >
         <div
           className="relative mx-auto overflow-hidden rounded-app bg-white"
           style={{
@@ -221,7 +286,7 @@ function PreviewCanvas({
                 width: px(settings.participantNameWidth, settings.templateCanvasWidth),
               }}
             >
-              {sample?.participantName ?? "Belum ada peserta"}
+              {sample?.participantName ?? "Nama Peserta"}
             </span>
           ) : null}
           {settings.showCategoryLabel ? (
@@ -242,21 +307,55 @@ function PreviewCanvas({
           ) : null}
         </div>
       </div>
-      <div className="mt-4 grid gap-2">
-        <p className="text-xs font-bold text-navy">Sample Peserta</p>
-        {sample ? (
-          <div className="flex items-center justify-between gap-3 rounded-app border border-border p-3">
-            <span className="text-sm font-bold text-navy">{sample.participantName}</span>
-            <span className="text-xs font-bold text-primary">{sample.bibNumber}</span>
-          </div>
-        ) : (
-          <p className="rounded-app border border-dashed border-border p-4 text-sm text-foreground-muted">
-            Event ini belum punya peserta aktif. Preview memakai nomor berikutnya dari pengaturan
-            BIB.
-          </p>
-        )}
-      </div>
+      {!compact ? (
+        <div className="mt-4 grid gap-2">
+          <p className="text-xs font-bold text-navy">Sample Peserta</p>
+          {sample ? (
+            <div className="flex items-center justify-between gap-3 rounded-app border border-border p-3">
+              <span className="text-sm font-bold text-navy">{sample.participantName}</span>
+              <span className="text-xs font-bold text-primary">{sample.bibNumber}</span>
+            </div>
+          ) : (
+            <p className="rounded-app border border-dashed border-border p-4 text-sm text-foreground-muted">
+              Event ini belum punya peserta aktif. Preview memakai nomor berikutnya dari pengaturan
+              BIB.
+            </p>
+          )}
+        </div>
+      ) : null}
     </article>
+  );
+}
+
+export function BibTemplatePreview({
+  compact,
+  sample,
+  settings,
+  template,
+}: {
+  compact?: boolean;
+  sample: SampleParticipant | null;
+  settings: BibSettings;
+  template: BibTemplate;
+}) {
+  const [currentSettings, setCurrentSettings] = useState(settings);
+
+  useEffect(() => {
+    function handlePreviewUpdate(event: Event) {
+      setCurrentSettings((event as CustomEvent<BibSettings>).detail);
+    }
+
+    window.addEventListener("bib-template-preview-update", handlePreviewUpdate);
+    return () => window.removeEventListener("bib-template-preview-update", handlePreviewUpdate);
+  }, []);
+
+  return (
+    <PreviewCanvas
+      compact={compact}
+      sample={sample}
+      settings={currentSettings}
+      template={template}
+    />
   );
 }
 
@@ -283,7 +382,14 @@ export function BibTemplateLiveEditor({
   );
 
   function updateFromForm(form: HTMLFormElement) {
-    setPreview((current) => readPreview(form, current));
+    setPreview((current) => {
+      const next = readPreview(form, current);
+      window.dispatchEvent(
+        new CustomEvent<BibSettings>("bib-template-preview-update", { detail: next }),
+      );
+      return next;
+    });
+    syncPublishSettings(form);
   }
 
   return (

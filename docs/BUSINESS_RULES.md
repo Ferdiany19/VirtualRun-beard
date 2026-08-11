@@ -98,6 +98,8 @@ akan mengacu ke dokumen ini dan memperbaruinya saat ada keputusan baru.
 - Template BIB adalah PNG private object dengan versioning per event.
 - Template BIB memiliki lifecycle `DRAFT`, `ACTIVE`, dan `ARCHIVED`; hanya template
   `ACTIVE` yang dipakai untuk generate BIB.
+- Publikasi template BIB juga menyimpan konfigurasi penempatan dan tampilan yang sedang diedit;
+  jika template dipindahkan ke event lain, konfigurasi tersebut berlaku pada event tujuan.
 - Upload template JPG dinormalisasi menjadi PNG private object sebelum disimpan.
 - Worker memakai Sharp dan SVG text overlay berdasarkan koordinat canvas asli.
 - Regenerate membuat document object baru dan audit log; BIB lama tidak menjadi public URL.

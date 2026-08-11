@@ -489,10 +489,12 @@ export async function updateManagedBibTemplateMetadata(input: {
 export async function publishManagedBibTemplate(input: {
   templateVersionId: string;
   targetEventId: string;
+  settings: BibSettingsInput;
   admin: AuthenticatedAdmin;
   correlationId: string | null;
 }): Promise<BibTemplateVersion> {
   assertCanManageBib(input.admin);
+  const parsedSettings = bibSettingsSchema.parse(input.settings);
   const current = await getBibTemplateVersionById(input.templateVersionId);
 
   if (!current) {
@@ -528,6 +530,7 @@ export async function publishManagedBibTemplate(input: {
     updated = await withTransaction(async (client) => {
       await getOrCreateBibSettings(current.eventId, client);
       await getOrCreateBibSettings(input.targetEventId, client);
+      await updateBibSettings(input.targetEventId, parsedSettings, client);
       const result =
         input.targetEventId === current.eventId
           ? await (async () => {
