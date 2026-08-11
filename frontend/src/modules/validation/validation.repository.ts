@@ -199,17 +199,8 @@ export async function listValidationEventIdsForAdmin(
   client?: PoolClient,
 ): Promise<string[] | null> {
   void admin;
-  const result = await query<{ id: string }>(
-    `
-      SELECT e.id
-      FROM events e
-      ORDER BY e.updated_at DESC, e.created_at DESC
-    `,
-    [],
-    client,
-  );
-
-  return result.rows.map((row) => row.id);
+  void client;
+  return null;
 }
 
 export async function listEligibleValidators(client?: PoolClient): Promise<EligibleValidator[]> {

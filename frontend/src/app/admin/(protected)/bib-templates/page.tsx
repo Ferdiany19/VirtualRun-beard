@@ -191,9 +191,17 @@ function StatCard({
   );
 }
 
-function Preview({ template }: { template: BibTemplateListItem }) {
+function Preview({
+  className = "w-28",
+  template,
+}: {
+  className?: string;
+  template: BibTemplateListItem;
+}) {
   return (
-    <div className="relative aspect-[1.7/1] w-28 overflow-hidden rounded-md border border-border bg-surface-muted">
+    <div
+      className={`relative aspect-[1.7/1] shrink-0 overflow-hidden rounded-md border border-border bg-surface-muted ${className}`}
+    >
       <img
         alt={`Preview ${template.name}`}
         className="h-full w-full object-cover"
@@ -385,8 +393,8 @@ export default async function AdminBibTemplatesPage({ searchParams }: BibTemplat
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="overflow-visible rounded-section border border-border bg-surface shadow-soft">
-          <div className="hidden xl:block">
-            <table className="w-full table-fixed text-left text-sm">
+          <div className="hidden overflow-x-auto xl:block">
+            <table className="w-full min-w-[1090px] table-fixed text-left text-sm">
               <thead className="border-b border-border text-xs font-bold text-navy">
                 <tr>
                   <th className="w-[140px] px-4 py-4">Preview</th>
@@ -424,20 +432,22 @@ export default async function AdminBibTemplatesPage({ searchParams }: BibTemplat
                 href={`/admin/bib-templates/${template.id}`}
                 key={template.id}
               >
-                <div className="flex gap-3">
-                  <Preview template={template} />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-navy">{template.name}</p>
+                <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
+                  <Preview className="w-20 sm:w-28" template={template} />
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <p className="min-w-0 break-words font-bold text-navy">{template.name}</p>
+                      <StatusBadge tone={statusTone(template.status)}>
+                        {statusLabel[template.status]}
+                      </StatusBadge>
+                    </div>
                     <p className="mt-1 text-sm text-foreground-muted">{template.eventName}</p>
                     <p className="mt-2 text-xs text-foreground-muted">
                       {template.canvasWidth} x {template.canvasHeight} px
                     </p>
                   </div>
-                  <StatusBadge tone={statusTone(template.status)}>
-                    {statusLabel[template.status]}
-                  </StatusBadge>
                 </div>
-                <span className="mt-4 inline-flex min-h-10 items-center justify-center rounded-app border border-border px-3 text-sm font-bold text-primary">
+                <span className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-app border border-border px-3 text-sm font-bold text-primary">
                   Detail Template
                 </span>
               </Link>
@@ -526,7 +536,7 @@ export default async function AdminBibTemplatesPage({ searchParams }: BibTemplat
                   href={`/admin/bib-templates/${template.id}`}
                   key={template.id}
                 >
-                  <Preview template={template} />
+                  <Preview className="w-20 sm:w-28" template={template} />
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-bold text-navy">
                       {template.name}
@@ -607,8 +617,8 @@ export default async function AdminBibTemplatesPage({ searchParams }: BibTemplat
 
         <article className="rounded-section border border-border bg-surface p-5 shadow-soft">
           <h2 className="text-base font-bold text-navy">Progress Template ke Event</h2>
-          <div className="mt-5 flex items-center gap-5">
-            <div className="grid h-32 w-32 place-items-center rounded-full border-[18px] border-primary bg-surface text-center">
+          <div className="mt-5 flex flex-wrap items-center gap-5">
+            <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full border-[14px] border-primary bg-surface text-center sm:h-32 sm:w-32 sm:border-[18px]">
               <span>
                 <span className="block text-xs text-foreground-muted">Total Event</span>
                 <span className="block text-2xl font-bold text-navy">

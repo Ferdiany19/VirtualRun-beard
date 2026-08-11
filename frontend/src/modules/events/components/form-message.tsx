@@ -22,6 +22,7 @@ const errorMessages: Record<string, string> = {
   "bib-publish": "Template BIB belum dapat dipublikasikan.",
   "bib-archive": "Template BIB belum dapat diarsipkan.",
   "bib-duplicate": "Template BIB belum dapat diduplikat.",
+  "validation-queue": "Antrean validasi belum dapat dimuat. Silakan coba lagi.",
   certificate: "Template sertifikat belum dapat diproses.",
 };
 

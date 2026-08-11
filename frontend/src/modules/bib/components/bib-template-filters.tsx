@@ -68,7 +68,7 @@ export function BibTemplateFilters({
         apply(event.currentTarget);
       }}
     >
-      <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto_auto] lg:items-end">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(220px,1.4fr)_repeat(3,minmax(150px,1fr))_auto] lg:items-end">
         <label className="grid gap-1 text-xs font-bold text-navy">
           <span className="sr-only">Cari template BIB</span>
           <span className="relative">
@@ -126,7 +126,7 @@ export function BibTemplateFilters({
           </select>
         </label>
         <a
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app border border-border px-4 text-sm font-bold text-navy hover:border-primary hover:text-primary"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-app border border-border px-4 text-sm font-bold text-navy hover:border-primary hover:text-primary sm:col-span-2 lg:col-span-1"
           href="/admin/bib-templates"
         >
           <Icon className="h-4 w-4" name="x" />
